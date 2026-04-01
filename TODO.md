@@ -1,191 +1,191 @@
-# X-Loop 开发任务清单
+# X-Loop Development Task Checklist
 
-> 最后更新：2026-03-31
-> 状态标记：✅ 已完成 | 🔄 进行中 | ⬜ 待开始
-
----
-
-## 阶段一：项目启动与需求分析（第1-2周）
-
-### 1.1 团队与工具
-- ⬜ 确定7人团队分工（PM / UI / 前端×2 / 后端×2 / QA）
-- ⬜ 搭建团队协作工具（GitHub 仓库 / 飞书或企业微信群）
-- ⬜ 建立 Git 分支策略（main → dev → feature/*）
-
-### 1.2 需求文档
-- ⬜ 编写功能需求文档（MRD）
-- ⬜ 编写用户故事（User Stories）
-- ⬜ 功能优先级排序（MoSCoW 法）
+> Last updated: 2026-04-01
+> Status: ✅ Done | 🔄 In Progress | ⬜ To Do
 
 ---
 
-## 阶段二：设计与技术准备（第3-4周）
+## Phase 1: Project Kickoff & Requirements (Week 1-2)
 
-### 2.1 UI/UX 设计
-- ⬜ Figma 创建项目，建立设计规范（配色/字体/组件）
-- ⬜ 设计首页原型
-- ⬜ 设计商品详情页原型
-- ⬜ 设计发布商品页原型
-- ⬜ 设计搜索/筛选页原型
-- ⬜ 设计个人中心原型
-- ⬜ 设计聊天页原型
-- ⬜ 设计团购/代购专区原型
-- ⬜ 制作 tabBar 图标（首页/发布/我的，各需普通+选中态）
+### 1.1 Team & Tools
+- ⬜ Define team roles for 7 members (PM / UI / Frontend×2 / Backend×2 / QA)
+- ⬜ Set up collaboration tools (GitHub repo / Lark or WeCom group)
+- ⬜ Establish Git branching strategy (main → dev → feature/*)
 
-### 2.2 技术准备
-- ✅ 注册微信小程序账号，获取 AppID
-- ✅ 开通微信云开发环境，获取环境 ID
-- ✅ 在 `project.config.json` 填入 AppID
-- ✅ 在 `app.js` 填入云开发环境 ID
-- ✅ 全员安装微信开发者工具
-- ⬜ 创建 GitHub 仓库，推送初始代码
-
-### 2.3 数据库
-- ✅ 在云开发控制台创建集合：`users`
-- ✅ 在云开发控制台创建集合：`products`
-- ✅ 在云开发控制台创建集合：`orders`
-- ✅ 在云开发控制台创建集合：`reviews`
-- ✅ 在云开发控制台创建集合：`categories`
-- ✅ 在云开发控制台创建集合：`messages`
-- ✅ 在云开发控制台创建集合：`group_buys`
-- ✅ 在云开发控制台创建集合：`agent_buys`
-- ✅ 配置数据库权限规则
-- ⬜ 编写 API 接口文档
-
-### 2.4 云函数部署
-- ✅ 编写云函数 `user-login`
-- ✅ 编写云函数 `product-create`
-- ✅ 编写云函数 `product-list`
-- ✅ 编写云函数 `product-detail`
-- ✅ 编写云函数 `product-update`
-- ✅ 编写云函数 `product-search`
-- ✅ 上传并部署所有云函数到云端
+### 1.2 Requirements Documentation
+- ⬜ Write Market Requirements Document (MRD)
+- ⬜ Write User Stories
+- ⬜ Prioritize features using MoSCoW method
 
 ---
 
-## 阶段三：MVP 开发 — 核心交易功能（第5-8周）
+## Phase 2: Design & Technical Setup (Week 3-4)
 
-### 3.1 前端页面开发
-- ✅ 首页（商品列表 + 分类 Tab + 下拉刷新 + 触底加载）
-- ✅ 商品详情页（图片轮播 + 商品信息 + 卖家信息 + 底部操作栏）
-- ✅ 发布商品页（图片上传 + 表单 + 分类选择 + 发布提交）
-- ✅ 搜索页（搜索框 + 排序筛选 + 搜索历史 + 结果列表）
-- ✅ 个人中心（用户信息 + 统计 + 菜单列表）
-- ✅ 全局样式（app.wxss 通用工具类）
-- ⬜ 添加 tabBar 图标资源文件（png）
-- ⬜ 添加默认头像图片 `images/default-avatar.png`
+### 2.1 UI/UX Design
+- ⬜ Create Figma project with design system (colors / fonts / components)
+- ⬜ Design homepage prototype
+- ⬜ Design product detail page prototype
+- ⬜ Design publish product page prototype
+- ⬜ Design search/filter page prototype
+- ⬜ Design profile page prototype
+- ⬜ Design chat page prototype
+- ⬜ Design group buy / purchasing agent section prototype
+- ⬜ Create tabBar icons (Home / Publish / Profile, normal + active states)
 
-### 3.2 工具模块
-- ✅ `utils/api.js`（云函数调用封装 / 图片上传 / 临时链接获取）
-- ✅ `utils/util.js`（时间格式化 / 价格格式化 / 分类常量 / 状态映射）
+### 2.2 Technical Setup
+- ✅ Register WeChat Mini Program account, obtain AppID
+- ✅ Enable WeChat Cloud Development, obtain environment ID
+- ✅ Configure AppID in `project.config.json`
+- ✅ Configure cloud environment ID in `app.js`
+- ✅ Install WeChat DevTools for all team members
+- ✅ Create GitHub repository and push initial code
 
-### 3.3 联调与测试
-- ⬜ 前后端联调：用户登录流程
-- ⬜ 前后端联调：发布商品 → 首页展示
-- ⬜ 前后端联调：搜索商品
-- ⬜ 前后端联调：商品详情查看
-- ⬜ 真机预览测试（iOS + Android）
-- ⬜ 修复联调中发现的 Bug
+### 2.3 Database
+- ✅ Create cloud database collection: `users`
+- ✅ Create cloud database collection: `products`
+- ✅ Create cloud database collection: `orders`
+- ✅ Create cloud database collection: `reviews`
+- ✅ Create cloud database collection: `categories`
+- ✅ Create cloud database collection: `messages`
+- ✅ Create cloud database collection: `group_buys`
+- ✅ Create cloud database collection: `agent_buys`
+- ✅ Configure database permission rules
+- ⬜ Write API documentation
 
----
-
-## 阶段四：功能完善（第9-12周）
-
-### 4.1 聊天功能
-- ⬜ 编写云函数 `message-send`
-- ⬜ 编写云函数 `message-list`
-- ⬜ 开发聊天页面 `pages/chat/`
-- ⬜ 开发聊天列表页 `pages/chat-list/`
-- ⬜ 实现云数据库实时消息推送
-
-### 4.2 订单系统
-- ⬜ 编写云函数 `order-create`
-- ⬜ 编写云函数 `order-update`
-- ⬜ 编写云函数 `order-list`
-- ⬜ 开发订单页面 `pages/order/`
-- ⬜ 实现订单流程：下单 → 确认 → 完成
-
-### 4.3 评价系统
-- ⬜ 编写云函数 `review-create`
-- ⬜ 编写云函数 `review-list`
-- ⬜ 开发评价组件 `components/review/`
-- ⬜ 实现信誉分计算逻辑
-
-### 4.4 消息通知
-- ⬜ 配置微信订阅消息模板
-- ⬜ 实现新订单通知
-- ⬜ 实现新消息通知
-
-### 4.5 团购专区
-- ⬜ 编写云函数 `group-buy-create`
-- ⬜ 编写云函数 `group-buy-join`
-- ⬜ 编写云函数 `group-buy-list`
-- ⬜ 开发团购页面 `pages/group-buy/`
-- ⬜ 实现发起团购 / 参团 / 满员成团逻辑
-
-### 4.6 代购专区
-- ⬜ 编写云函数 `agent-buy-create`
-- ⬜ 编写云函数 `agent-buy-accept`
-- ⬜ 编写云函数 `agent-buy-list`
-- ⬜ 开发代购页面 `pages/agent-buy/`
-- ⬜ 实现发布需求 / 接单 / 佣金结算
-
-### 4.7 非功能性需求
-- ⬜ 匿名浏览（浏览无需登录，下单时触发）
-- ⬜ 图片上传前端压缩
-- ⬜ 云数据库权限规则（用户只能改自己的数据）
-- ⬜ 接入微信内容安全 API（文本+图片审核）
+### 2.4 Cloud Functions
+- ✅ Implement cloud function `user-login`
+- ✅ Implement cloud function `product-create`
+- ✅ Implement cloud function `product-list`
+- ✅ Implement cloud function `product-detail`
+- ✅ Implement cloud function `product-update`
+- ✅ Implement cloud function `product-search`
+- ✅ Deploy all cloud functions to cloud
 
 ---
 
-## 阶段五：测试与优化（第13-14周）
+## Phase 3: MVP Development — Core Trading Features (Week 5-8)
 
-### 5.1 测试
-- ⬜ 功能测试：逐一验证所有功能点
-- ⬜ 兼容性测试：iOS / Android 各机型
-- ⬜ 性能测试：云函数响应时间
-- ⬜ 安全测试：权限规则 / XSS 防护
-- ⬜ 用户测试（UAT）：邀请 10-20 名 XJTLU 同学试用
-- ⬜ 收集用户反馈并修复问题
+### 3.1 Frontend Pages
+- ✅ Homepage (product list + category tabs + pull-to-refresh + infinite scroll)
+- ✅ Product detail page (image carousel + product info + seller info + bottom action bar)
+- ✅ Publish product page (image upload + form + category picker + submit)
+- ✅ Search page (search bar + sort/filter + search history + result list)
+- ✅ Profile page (user info + stats + menu list)
+- ✅ Global styles (app.wxss utility classes)
+- ⬜ Add tabBar icon assets (png)
+- ⬜ Add default avatar image `images/default-avatar.png`
 
-### 5.2 优化
-- ⬜ 首屏加载优化（小程序分包加载）
-- ⬜ 图片懒加载优化
-- ⬜ 云函数冷启动优化
-- ⬜ 数据库索引优化（搜索性能）
+### 3.2 Utility Modules
+- ✅ `utils/api.js` (cloud function wrapper / image upload / temp URL fetcher)
+- ✅ `utils/util.js` (time formatter / price formatter / category constants / status mapping)
 
----
-
-## 阶段六：上线与运营（第15-16周）
-
-### 6.1 上线准备
-- ⬜ 编写小程序隐私政策
-- ⬜ 准备审核截图和描述
-- ⬜ 配置正式环境云开发资源
-- ⬜ 提交微信小程序审核
-- ⬜ 审核通过后正式发布
-
-### 6.2 校园推广
-- ⬜ 制作推广素材（海报/传单）
-- ⬜ 校内公众号/社团宣传
-- ⬜ 种子用户激励计划
-
-### 6.3 成功指标跟踪
-- ⬜ 搭建用户注册数统计
-- ⬜ 搭建订单完成率统计
-- ⬜ 搭建用户参与度统计（DAU/MAU）
-- ⬜ 搭建用户评价满意度统计
+### 3.3 Integration Testing
+- ⬜ End-to-end: user login flow
+- ⬜ End-to-end: publish product → display on homepage
+- ⬜ End-to-end: product search
+- ⬜ End-to-end: view product detail
+- ⬜ On-device testing (iOS + Android)
+- ⬜ Fix bugs found during integration
 
 ---
 
-## 进度概览
+## Phase 4: Feature Expansion (Week 9-12)
 
-| 阶段 | 总任务数 | 已完成 | 进度 |
-|------|---------|--------|------|
-| 阶段一：启动与需求 | 6 | 0 | 0% |
-| 阶段二：设计与准备 | 21 | 20 | 95% |
-| 阶段三：MVP 开发 | 13 | 7 | 54% |
-| 阶段四：功能完善 | 27 | 0 | 0% |
-| 阶段五：测试与优化 | 10 | 0 | 0% |
-| 阶段六：上线与运营 | 12 | 0 | 0% |
-| **总计** | **89** | **27** | **30%** |
+### 4.1 Chat
+- ⬜ Implement cloud function `message-send`
+- ⬜ Implement cloud function `message-list`
+- ⬜ Develop chat page `pages/chat/`
+- ⬜ Develop chat list page `pages/chat-list/`
+- ⬜ Implement real-time messaging via cloud database watch
+
+### 4.2 Order System
+- ⬜ Implement cloud function `order-create`
+- ⬜ Implement cloud function `order-update`
+- ⬜ Implement cloud function `order-list`
+- ⬜ Develop order page `pages/order/`
+- ⬜ Implement order flow: place order → confirm → complete
+
+### 4.3 Review System
+- ⬜ Implement cloud function `review-create`
+- ⬜ Implement cloud function `review-list`
+- ⬜ Develop review component `components/review/`
+- ⬜ Implement credit score calculation logic
+
+### 4.4 Notifications
+- ⬜ Configure WeChat subscription message templates
+- ⬜ Implement new order notification
+- ⬜ Implement new message notification
+
+### 4.5 Group Buy
+- ⬜ Implement cloud function `group-buy-create`
+- ⬜ Implement cloud function `group-buy-join`
+- ⬜ Implement cloud function `group-buy-list`
+- ⬜ Develop group buy page `pages/group-buy/`
+- ⬜ Implement create group / join group / group success logic
+
+### 4.6 Purchasing Agent
+- ⬜ Implement cloud function `agent-buy-create`
+- ⬜ Implement cloud function `agent-buy-accept`
+- ⬜ Implement cloud function `agent-buy-list`
+- ⬜ Develop purchasing agent page `pages/agent-buy/`
+- ⬜ Implement post request / accept order / commission settlement
+
+### 4.7 Non-functional Requirements
+- ⬜ Anonymous browsing (no login required for browsing, triggered on order)
+- ⬜ Frontend image compression before upload
+- ⬜ Cloud database permission rules (users can only modify their own data)
+- ⬜ Integrate WeChat Content Security API (text + image moderation)
+
+---
+
+## Phase 5: Testing & Optimization (Week 13-14)
+
+### 5.1 Testing
+- ⬜ Functional testing: verify all feature points
+- ⬜ Compatibility testing: iOS / Android across devices
+- ⬜ Performance testing: cloud function response time
+- ⬜ Security testing: permission rules / XSS protection
+- ⬜ User Acceptance Testing (UAT): invite 10-20 XJTLU students
+- ⬜ Collect user feedback and fix issues
+
+### 5.2 Optimization
+- ⬜ First-screen load optimization (mini program subpackage loading)
+- ⬜ Image lazy loading optimization
+- ⬜ Cloud function cold start optimization
+- ⬜ Database index optimization (search performance)
+
+---
+
+## Phase 6: Launch & Operations (Week 15-16)
+
+### 6.1 Launch Preparation
+- ⬜ Write mini program privacy policy
+- ⬜ Prepare review screenshots and description
+- ⬜ Configure production cloud environment resources
+- ⬜ Submit for WeChat Mini Program review
+- ⬜ Publish after review approval
+
+### 6.2 Campus Promotion
+- ⬜ Create promotional materials (posters / flyers)
+- ⬜ Campus official accounts / student club promotion
+- ⬜ Seed user incentive program
+
+### 6.3 Success Metrics Tracking
+- ⬜ Set up user registration count tracking
+- ⬜ Set up order completion rate tracking
+- ⬜ Set up user engagement tracking (DAU/MAU)
+- ⬜ Set up user review satisfaction tracking
+
+---
+
+## Progress Overview
+
+| Phase | Total | Done | Progress |
+|-------|-------|------|----------|
+| Phase 1: Kickoff & Requirements | 6 | 0 | 0% |
+| Phase 2: Design & Setup | 21 | 20 | 95% |
+| Phase 3: MVP Development | 13 | 7 | 54% |
+| Phase 4: Feature Expansion | 27 | 0 | 0% |
+| Phase 5: Testing & Optimization | 10 | 0 | 0% |
+| Phase 6: Launch & Operations | 12 | 0 | 0% |
+| **Total** | **89** | **27** | **30%** |
