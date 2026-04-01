@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Claude Code
+.claude/
+
+# R history
+.Rhistory
+
+# 临时文件
+stitch-prompts.md
+
+# 微信开发者工具个人配置
+project.private.config.json
+
+# npm 依赖
+node_modules/
+miniprogram_npm/
+
+# 编辑器
+.vscode/
+.idea/

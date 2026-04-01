@@ -1,0 +1,77 @@
+<!--搜索页-->
+<view class="page-search">
+  <!--搜索框-->
+  <view class="search-header">
+    <view class="search-input-wrap">
+      <input
+        class="search-input"
+        placeholder="搜索商品"
+        value="{{keyword}}"
+        bindinput="onInput"
+        bindconfirm="onSearch"
+        focus="{{true}}"
+        confirm-type="search"
+      />
+      <view class="search-btn" bindtap="onSearch" wx:if="{{keyword}}">搜索</view>
+    </view>
+  </view>
+
+  <!--筛选栏-->
+  <view class="filter-bar flex-row" wx:if="{{results.length > 0 || hasSearched}}">
+    <view
+      class="filter-item {{sortBy === 'time' ? 'active' : ''}}"
+      bindtap="changeSort"
+      data-sort="time"
+    >最新</view>
+    <view
+      class="filter-item {{sortBy === 'price_asc' ? 'active' : ''}}"
+      bindtap="changeSort"
+      data-sort="price_asc"
+    >价格↑</view>
+    <view
+      class="filter-item {{sortBy === 'price_desc' ? 'active' : ''}}"
+      bindtap="changeSort"
+      data-sort="price_desc"
+    >价格↓</view>
+  </view>
+
+  <!--搜索结果-->
+  <view class="result-list" wx:if="{{results.length > 0}}">
+    <view
+      wx:for="{{results}}"
+      wx:key="_id"
+      class="result-item card flex-row"
+      bindtap="goDetail"
+      data-id="{{item._id}}"
+    >
+      <image class="result-image" src="{{item.images[0]}}" mode="aspectFill" />
+      <view class="result-info flex-1">
+        <text class="result-title">{{item.title}}</text>
+        <text class="price">{{item.price}}</text>
+        <text class="text-gray text-small">{{item.categoryName}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!--空状态-->
+  <view class="empty-tip" wx:elif="{{hasSearched}}">
+    <text>未找到相关商品</text>
+  </view>
+
+  <!--搜索历史-->
+  <view class="search-history" wx:elif="{{history.length > 0}}">
+    <view class="flex-between">
+      <text class="section-title">搜索历史</text>
+      <text class="text-gray text-small" bindtap="clearHistory">清空</text>
+    </view>
+    <view class="history-tags flex-row flex-wrap">
+      <text
+        wx:for="{{history}}"
+        wx:key="*this"
+        class="tag tag-gray"
+        bindtap="searchFromHistory"
+        data-keyword="{{item}}"
+      >{{item}}</text>
+    </view>
+  </view>
+</view>

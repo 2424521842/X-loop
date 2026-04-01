@@ -1,0 +1,43 @@
+<!--商品详情页-->
+<view class="page-detail" wx:if="{{product}}">
+  <!--商品图片轮播-->
+  <swiper class="image-swiper" indicator-dots autoplay circular>
+    <swiper-item wx:for="{{product.images}}" wx:key="*this">
+      <image src="{{item}}" mode="aspectFill" class="swiper-image" bindtap="previewImage" data-index="{{index}}" />
+    </swiper-item>
+  </swiper>
+
+  <!--商品信息-->
+  <view class="product-info card">
+    <text class="price product-price">{{product.price}}</text>
+    <text class="product-title">{{product.title}}</text>
+    <view class="product-tags">
+      <text class="tag tag-green">{{product.categoryName}}</text>
+      <text class="tag tag-gray">{{product.statusText}}</text>
+    </view>
+    <text class="product-desc">{{product.description}}</text>
+    <text class="text-gray text-small">发布于 {{product.timeText}}</text>
+  </view>
+
+  <!--卖家信息-->
+  <view class="seller-info card flex-row">
+    <image class="seller-avatar" src="{{product.seller.avatarUrl || '/images/default-avatar.png'}}" />
+    <view class="seller-detail flex-1">
+      <text class="seller-name">{{product.seller.nickName || '匿名用户'}}</text>
+      <text class="text-gray text-small">信誉分：{{product.seller.credit || '-'}}</text>
+    </view>
+  </view>
+
+  <!--底部操作栏-->
+  <view class="bottom-bar flex-between">
+    <button class="btn-contact" open-type="contact">
+      <text>联系卖家</text>
+    </button>
+    <button class="btn-primary btn-buy" bindtap="onBuy">我想要</button>
+  </view>
+</view>
+
+<!--加载中-->
+<view class="loading-tip" wx:else>
+  <text>加载中...</text>
+</view>

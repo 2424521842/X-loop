@@ -1,0 +1,132 @@
+/* 全局样式 */
+page {
+  background-color: #F5F3F7;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
+    Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB',
+    'Microsoft Yahei', sans-serif;
+  font-size: 28rpx;
+  color: #333;
+  box-sizing: border-box;
+}
+
+/* 通用工具类 */
+.container {
+  padding: 20rpx;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* 文字 */
+.text-primary {
+  color: #CE57C1;
+}
+
+.text-gray {
+  color: #999;
+}
+
+.text-small {
+  font-size: 24rpx;
+}
+
+.text-large {
+  font-size: 32rpx;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 价格 */
+.price {
+  color: #ff4d4f;
+  font-weight: bold;
+}
+
+.price::before {
+  content: '¥';
+  font-size: 24rpx;
+}
+
+/* 卡片 */
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 按钮 */
+.btn-primary {
+  background: #CE57C1;
+  color: #fff;
+  border: none;
+  border-radius: 12rpx;
+  padding: 20rpx 40rpx;
+  font-size: 30rpx;
+  text-align: center;
+}
+
+.btn-primary::after {
+  border: none;
+}
+
+/* 标签 */
+.tag {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  font-size: 22rpx;
+  border-radius: 8rpx;
+  margin-right: 12rpx;
+}
+
+.tag-green {
+  background: #F0E6F6;
+  color: #CE57C1;
+}
+
+.tag-gray {
+  background: #f0f0f0;
+  color: #999;
+}
+
+.tag-red {
+  background: #fff1f0;
+  color: #ff4d4f;
+}
