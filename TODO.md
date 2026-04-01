@@ -80,10 +80,10 @@
 - ✅ `utils/util.js` (time formatter / price formatter / category constants / status mapping)
 
 ### 3.3 Integration Testing
-- ⬜ End-to-end: user login flow
-- ⬜ End-to-end: publish product → display on homepage
-- ⬜ End-to-end: product search
-- ⬜ End-to-end: view product detail
+- ✅ End-to-end: user login flow
+- ✅ End-to-end: publish product → display on homepage
+- ✅ End-to-end: product search
+- ✅ End-to-end: view product detail
 - ⬜ On-device testing (iOS + Android)
 - ⬜ Fix bugs found during integration
 
