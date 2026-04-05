@@ -1,6 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { hasMenu } from '../utils/permission'
 
+const PlaceholderView = {
+  template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>'
+}
+
 const routes = [
   {
     path: '/login',
@@ -14,17 +18,17 @@ const routes = [
     redirect: '/dashboard',
     children: [
       { path: 'dashboard', name: 'Dashboard', component: () => import('../views/dashboard/DashboardView.vue'), meta: { menu: 'dashboard', title: '数据看板' } },
-      { path: 'users', name: 'UserList', component: { template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>' }, meta: { menu: 'users', title: '用户管理' } },
-      { path: 'users/:openid', name: 'UserDetail', component: { template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>' }, meta: { menu: 'users', title: '用户详情' } },
-      { path: 'products', name: 'ProductList', component: { template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>' }, meta: { menu: 'products', title: '商品管理' } },
-      { path: 'products/:id', name: 'ProductDetail', component: { template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>' }, meta: { menu: 'products', title: '商品详情' } },
-      { path: 'reports', name: 'ReportList', component: { template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>' }, meta: { menu: 'reports', title: '举报处理' } },
-      { path: 'reports/:id', name: 'ReportDetail', component: { template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>' }, meta: { menu: 'reports', title: '举报详情' } },
-      { path: 'orders', name: 'OrderList', component: { template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>' }, meta: { menu: 'orders', title: '订单管理' } },
-      { path: 'orders/:id', name: 'OrderDetail', component: { template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>' }, meta: { menu: 'orders', title: '订单详情' } },
-      { path: 'system/admins', name: 'AdminList', component: { template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>' }, meta: { menu: 'system', title: '管理员管理' } },
-      { path: 'system/logs', name: 'AdminLogs', component: { template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>' }, meta: { menu: 'system', title: '操作日志' } },
-      { path: 'system/categories', name: 'Categories', component: { template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>' }, meta: { menu: 'system', title: '分类管理' } }
+      { path: 'users', name: 'UserList', component: () => import('../views/users/UserList.vue'), meta: { menu: 'users', title: '用户管理' } },
+      { path: 'users/:openid', name: 'UserDetail', component: () => import('../views/users/UserDetail.vue'), meta: { menu: 'users', title: '用户详情' } },
+      { path: 'products', name: 'ProductList', component: PlaceholderView, meta: { menu: 'products', title: '商品管理' } },
+      { path: 'products/:id', name: 'ProductDetail', component: PlaceholderView, meta: { menu: 'products', title: '商品详情' } },
+      { path: 'reports', name: 'ReportList', component: PlaceholderView, meta: { menu: 'reports', title: '举报处理' } },
+      { path: 'reports/:id', name: 'ReportDetail', component: PlaceholderView, meta: { menu: 'reports', title: '举报详情' } },
+      { path: 'orders', name: 'OrderList', component: PlaceholderView, meta: { menu: 'orders', title: '订单管理' } },
+      { path: 'orders/:id', name: 'OrderDetail', component: PlaceholderView, meta: { menu: 'orders', title: '订单详情' } },
+      { path: 'system/admins', name: 'AdminList', component: PlaceholderView, meta: { menu: 'system', title: '管理员管理' } },
+      { path: 'system/logs', name: 'AdminLogs', component: PlaceholderView, meta: { menu: 'system', title: '操作日志' } },
+      { path: 'system/categories', name: 'Categories', component: PlaceholderView, meta: { menu: 'system', title: '分类管理' } }
     ]
   }
 ]
