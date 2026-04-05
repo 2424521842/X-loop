@@ -94,27 +94,26 @@ exports.main = async (event) => {
 }
 ```
 
-### JWT Auth Pattern
-```javascript
-const JWT_SECRET = process.env.JWT_SECRET || 'xloop-admin-secret-key-change-in-production'
+### JWT Auth & Audit Logging — MUST import from admin-common
 
-function verifyToken(token, requiredPerm) {
-  if (!token) throw new Error('未提供认证令牌')
-  const actualToken = token.startsWith('Bearer ') ? token.slice(7) : token
-  const decoded = jwt.verify(actualToken, JWT_SECRET)
-  // Check role permissions
-  return decoded
-}
+**CRITICAL: Do NOT duplicate JWT_SECRET, verifyToken, or logAction in each function.**
+All admin cloud functions MUST import shared utilities from `admin-common`:
+
+```javascript
+const { verifyAdmin } = require('../admin-common/auth')
+const { logAction } = require('../admin-common/logger')
 ```
 
-### Audit Logging Pattern
-```javascript
-async function logAction(username, action, targetType, targetId, detail) {
-  await db.collection('admin_logs').add({
-    data: { username, action, targetType, targetId, detail, createTime: db.serverDate() }
-  })
-}
-```
+Function signatures:
+- `verifyAdmin(token, requiredPermissions=[])` — returns `{ username, role }`, throws on failure. Pass permissions as an array, e.g. `verifyAdmin(token, ['users:write'])`.
+- `logAction(db, username, action, targetType, targetId, detail={})` — needs the `db` instance as first arg.
+
+`ROLE_PERMISSIONS` is already defined centrally in `admin-common/auth.js`. Do NOT redefine it in each function.
+
+**Do NOT** import or use `jsonwebtoken` directly — `admin-common/auth.js` encapsulates it.
+**Do NOT** export or reference `JWT_SECRET` — it is internal to `admin-common/auth.js`.
+
+Note: Each cloud function deploys independently, so you must still include `jsonwebtoken` in each function's `package.json` since `require('../admin-common/auth')` resolves at runtime within the cloud environment. But the **code** should only call the shared functions, never duplicate the logic.
 
 ## Admin Web Conventions
 
