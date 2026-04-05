@@ -24,8 +24,8 @@ const routes = [
       { path: 'products/:id', name: 'ProductDetail', component: () => import('../views/products/ProductDetail.vue'), meta: { menu: 'products', title: '商品详情' } },
       { path: 'reports', name: 'ReportList', component: () => import('../views/reports/ReportList.vue'), meta: { menu: 'reports', title: '举报处理' } },
       { path: 'reports/:id', name: 'ReportDetail', component: () => import('../views/reports/ReportDetail.vue'), meta: { menu: 'reports', title: '举报详情' } },
-      { path: 'orders', name: 'OrderList', component: PlaceholderView, meta: { menu: 'orders', title: '订单管理' } },
-      { path: 'orders/:id', name: 'OrderDetail', component: PlaceholderView, meta: { menu: 'orders', title: '订单详情' } },
+      { path: 'orders', name: 'OrderList', component: () => import('../views/orders/OrderList.vue'), meta: { menu: 'orders', title: '订单管理' } },
+      { path: 'orders/:id', name: 'OrderDetail', component: () => import('../views/orders/OrderDetail.vue'), meta: { menu: 'orders', title: '订单详情' } },
       { path: 'system/admins', name: 'AdminList', component: PlaceholderView, meta: { menu: 'system', title: '管理员管理' } },
       { path: 'system/logs', name: 'AdminLogs', component: PlaceholderView, meta: { menu: 'system', title: '操作日志' } },
       { path: 'system/categories', name: 'Categories', component: PlaceholderView, meta: { menu: 'system', title: '分类管理' } }
