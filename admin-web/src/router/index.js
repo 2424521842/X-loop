@@ -1,10 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { hasMenu } from '../utils/permission'
 
-const PlaceholderView = {
-  template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>'
-}
-
 const routes = [
   {
     path: '/login',
@@ -26,9 +22,9 @@ const routes = [
       { path: 'reports/:id', name: 'ReportDetail', component: () => import('../views/reports/ReportDetail.vue'), meta: { menu: 'reports', title: '举报详情' } },
       { path: 'orders', name: 'OrderList', component: () => import('../views/orders/OrderList.vue'), meta: { menu: 'orders', title: '订单管理' } },
       { path: 'orders/:id', name: 'OrderDetail', component: () => import('../views/orders/OrderDetail.vue'), meta: { menu: 'orders', title: '订单详情' } },
-      { path: 'system/admins', name: 'AdminList', component: PlaceholderView, meta: { menu: 'system', title: '管理员管理' } },
-      { path: 'system/logs', name: 'AdminLogs', component: PlaceholderView, meta: { menu: 'system', title: '操作日志' } },
-      { path: 'system/categories', name: 'Categories', component: PlaceholderView, meta: { menu: 'system', title: '分类管理' } }
+      { path: 'system/admins', name: 'AdminList', component: () => import('../views/system/AdminList.vue'), meta: { menu: 'system', title: '管理员管理' } },
+      { path: 'system/logs', name: 'AdminLogs', component: () => import('../views/system/AdminLogs.vue'), meta: { menu: 'system', title: '操作日志' } },
+      { path: 'system/categories', name: 'Categories', component: () => import('../views/system/Categories.vue'), meta: { menu: 'system', title: '分类管理' } }
     ]
   }
 ]
