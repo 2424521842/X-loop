@@ -61,4 +61,4 @@ function verifyAdmin(token, requiredPermissions = []) {
   return { username, role }
 }
 
-module.exports = { signToken, verifyAdmin, JWT_SECRET, ROLE_PERMISSIONS }
+module.exports = { signToken, verifyAdmin, ROLE_PERMISSIONS }
