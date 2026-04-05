@@ -47,7 +47,7 @@ exports.main = async (event) => {
     }
 
     // 签发 JWT
-    const token = signToken({ username: admin.username, role: admin.role })
+    const token = signToken({ adminId: admin._id, username: admin.username, role: admin.role })
 
     // 更新最后登录时间
     await db.collection('admins').doc(admin._id).update({

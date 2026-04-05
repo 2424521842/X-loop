@@ -117,18 +117,22 @@ async function fetchData() {
 }
 
 async function handleRemove() {
-  await removeProduct(product.value._id, removeReason.value)
-  ElMessage.success('已下架')
-  showRemoveDialog.value = false
-  removeReason.value = ''
-  fetchData()
+  try {
+    await removeProduct(product.value._id, removeReason.value)
+    ElMessage.success('已下架')
+    showRemoveDialog.value = false
+    removeReason.value = ''
+    fetchData()
+  } catch (err) { /* 错误已在 request.js 中处理 */ }
 }
 
 async function handleRestore() {
-  await ElMessageBox.confirm('确定恢复该商品上架？', '提示')
-  await restoreProduct(product.value._id)
-  ElMessage.success('已恢复上架')
-  fetchData()
+  try {
+    await ElMessageBox.confirm('确定恢复该商品上架？', '提示')
+    await restoreProduct(product.value._id)
+    ElMessage.success('已恢复上架')
+    fetchData()
+  } catch (err) { /* 取消或错误 */ }
 }
 
 onMounted(fetchData)

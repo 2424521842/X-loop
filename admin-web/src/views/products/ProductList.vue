@@ -176,26 +176,32 @@ function openRemoveDialog(row) {
 }
 
 async function handleRemove() {
-  await removeProduct(currentProduct.value._id, removeReason.value)
-  ElMessage.success('已下架')
-  showRemoveDialog.value = false
-  fetchData()
+  try {
+    await removeProduct(currentProduct.value._id, removeReason.value)
+    ElMessage.success('已下架')
+    showRemoveDialog.value = false
+    fetchData()
+  } catch (err) { /* 错误已在 request.js 中处理 */ }
 }
 
 async function handleRestore(row) {
-  await ElMessageBox.confirm('确定恢复该商品上架？', '提示')
-  await restoreProduct(row._id)
-  ElMessage.success('已恢复上架')
-  fetchData()
+  try {
+    await ElMessageBox.confirm('确定恢复该商品上架？', '提示')
+    await restoreProduct(row._id)
+    ElMessage.success('已恢复上架')
+    fetchData()
+  } catch (err) { /* 取消或错误 */ }
 }
 
 async function handleBatchRemove() {
-  await batchRemoveProducts(selectedIds.value, batchReason.value)
-  ElMessage.success('已批量下架')
-  showBatchDialog.value = false
-  batchReason.value = ''
-  selectedIds.value = []
-  fetchData()
+  try {
+    await batchRemoveProducts(selectedIds.value, batchReason.value)
+    ElMessage.success('已批量下架')
+    showBatchDialog.value = false
+    batchReason.value = ''
+    selectedIds.value = []
+    fetchData()
+  } catch (err) { /* 错误已在 request.js 中处理 */ }
 }
 
 onMounted(fetchData)

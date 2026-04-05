@@ -114,11 +114,13 @@ async function fetchData() {
 }
 
 async function handleIntervene() {
-  await interveneOrder(route.params.id, interveneNote.value)
-  ElMessage.success('已标记纠纷')
-  showInterveneDialog.value = false
-  interveneNote.value = ''
-  fetchData()
+  try {
+    await interveneOrder(route.params.id, interveneNote.value)
+    ElMessage.success('已标记纠纷')
+    showInterveneDialog.value = false
+    interveneNote.value = ''
+    fetchData()
+  } catch (err) { /* 错误已在 request.js 中处理 */ }
 }
 
 function openResolve(type) {
@@ -128,11 +130,13 @@ function openResolve(type) {
 }
 
 async function handleResolve() {
-  await resolveOrder(route.params.id, resolveType.value, resolveNote.value)
-  ElMessage.success('已裁决')
-  showResolveDialog.value = false
-  resolveNote.value = ''
-  fetchData()
+  try {
+    await resolveOrder(route.params.id, resolveType.value, resolveNote.value)
+    ElMessage.success('已裁决')
+    showResolveDialog.value = false
+    resolveNote.value = ''
+    fetchData()
+  } catch (err) { /* 错误已在 request.js 中处理 */ }
 }
 
 onMounted(fetchData)

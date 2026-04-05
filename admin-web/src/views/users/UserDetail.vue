@@ -97,26 +97,32 @@ async function fetchData() {
 }
 
 async function handleBan() {
-  await banUser(user.value.openid, banReason.value)
-  ElMessage.success('已封禁')
-  showBanDialog.value = false
-  banReason.value = ''
-  fetchData()
+  try {
+    await banUser(user.value.openid, banReason.value)
+    ElMessage.success('已封禁')
+    showBanDialog.value = false
+    banReason.value = ''
+    fetchData()
+  } catch (err) { /* 错误已在 request.js 中处理 */ }
 }
 
 async function handleUnban() {
-  await ElMessageBox.confirm('确定解除该用户的封禁？', '提示')
-  await unbanUser(user.value.openid)
-  ElMessage.success('已解封')
-  fetchData()
+  try {
+    await ElMessageBox.confirm('确定解除该用户的封禁？', '提示')
+    await unbanUser(user.value.openid)
+    ElMessage.success('已解封')
+    fetchData()
+  } catch (err) { /* 取消或错误 */ }
 }
 
 async function handleAdjustCredit() {
-  await adjustCredit(user.value.openid, newCredit.value, creditReason.value)
-  ElMessage.success('信誉分已调整')
-  showCreditDialog.value = false
-  creditReason.value = ''
-  fetchData()
+  try {
+    await adjustCredit(user.value.openid, newCredit.value, creditReason.value)
+    ElMessage.success('信誉分已调整')
+    showCreditDialog.value = false
+    creditReason.value = ''
+    fetchData()
+  } catch (err) { /* 错误已在 request.js 中处理 */ }
 }
 
 onMounted(fetchData)

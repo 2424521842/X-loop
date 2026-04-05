@@ -8,7 +8,7 @@ const ROLE_PERMISSIONS = {
   super_admin: ['dashboard', 'users', 'users:write', 'products', 'products:write', 'orders', 'orders:write', 'reports', 'reports:write', 'system'],
   content_moderator: ['dashboard', 'users', 'users:write', 'products', 'products:write', 'reports', 'reports:write'],
   customer_service: ['dashboard', 'users', 'orders', 'orders:write', 'products'],
-  data_analyst: ['dashboard']
+  data_analyst: ['dashboard', 'users', 'products', 'orders', 'stats']
 }
 
 /**

@@ -3,7 +3,7 @@
     <el-card>
       <div class="card-header">
         <h3>管理员列表</h3>
-        <el-button type="primary" @click="showAddDialog = true">新增管理员</el-button>
+        <el-button v-if="isSuperAdmin" type="primary" @click="showAddDialog = true">新增管理员</el-button>
       </div>
       <el-table :data="admins" v-loading="loading" stripe>
         <el-table-column prop="username" label="用户名" width="150" />
@@ -44,11 +44,14 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { ROLE_LABELS } from '../../utils/permission'
 import { createAdmin, getAdminList } from '../../api/system'
+import { useAuthStore } from '../../stores/auth'
 
+const authStore = useAuthStore()
+const isSuperAdmin = computed(() => authStore.role === 'super_admin')
 const roleLabels = ROLE_LABELS
 const loading = ref(false)
 const admins = ref([])
@@ -70,12 +73,22 @@ async function handleAdd() {
     ElMessage.warning('请填写完整信息')
     return
   }
+  if (newAdmin.username.length < 3 || newAdmin.username.length > 20) {
+    ElMessage.warning('用户名长度需在 3-20 个字符之间')
+    return
+  }
+  if (newAdmin.password.length < 8) {
+    ElMessage.warning('密码长度不能少于 8 个字符')
+    return
+  }
 
-  await createAdmin(newAdmin)
-  ElMessage.success('已创建')
-  showAddDialog.value = false
-  Object.assign(newAdmin, { username: '', password: '', displayName: '', role: 'content_moderator' })
-  fetchData()
+  try {
+    await createAdmin(newAdmin)
+    ElMessage.success('已创建')
+    showAddDialog.value = false
+    Object.assign(newAdmin, { username: '', password: '', displayName: '', role: 'content_moderator' })
+    fetchData()
+  } catch (err) { /* 错误已在 request.js 中处理 */ }
 }
 
 onMounted(fetchData)

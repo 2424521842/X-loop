@@ -119,9 +119,11 @@ async function fetchData() {
 }
 
 async function handleClaim() {
-  await claimReport(route.params.id)
-  ElMessage.success('已认领')
-  fetchData()
+  try {
+    await claimReport(route.params.id)
+    ElMessage.success('已认领')
+    fetchData()
+  } catch (err) { /* 错误已在 request.js 中处理 */ }
 }
 
 function openResolve(action) {
@@ -131,11 +133,13 @@ function openResolve(action) {
 }
 
 async function handleResolve() {
-  await resolveReport(route.params.id, resolveResult.value, resolveAction.value)
-  ElMessage.success('已处理')
-  showResolveDialog.value = false
-  resolveResult.value = ''
-  fetchData()
+  try {
+    await resolveReport(route.params.id, resolveResult.value, resolveAction.value)
+    ElMessage.success('已处理')
+    showResolveDialog.value = false
+    resolveResult.value = ''
+    fetchData()
+  } catch (err) { /* 错误已在 request.js 中处理 */ }
 }
 
 onMounted(fetchData)
