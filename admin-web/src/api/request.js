@@ -1,56 +1,52 @@
-import axios from 'axios'
+import cloudbase from '@cloudbase/js-sdk'
 import { ElMessage } from 'element-plus'
 
-// 云函数 HTTP 触发器的基础 URL - 部署后替换为实际地址
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://your-cloud-env.service.tcloudbase.com'
+// 云开发环境 ID - 部署时替换为实际环境 ID
+const ENV_ID = import.meta.env.VITE_CLOUD_ENV_ID || 'your-cloud-env-id'
 
-const request = axios.create({
-  baseURL: BASE_URL,
-  timeout: 30000
-})
+// 初始化 CloudBase
+const app = cloudbase.init({ env: ENV_ID })
 
-// 请求拦截器：添加 token
-request.interceptors.request.use(config => {
-  const token = localStorage.getItem('admin_token')
-  if (token) {
-    config.headers = config.headers || {}
-    config.headers.Authorization = `Bearer ${token}`
+// 匿名登录（admin-web 不需要微信用户身份，JWT 自行管理）
+let loginPromise = null
+async function ensureLogin() {
+  if (!loginPromise) {
+    loginPromise = app.auth().anonymousAuthProvider().signIn()
   }
-  return config
-})
-
-// 响应拦截器：统一错误处理
-request.interceptors.response.use(
-  response => {
-    const res = response.data
-    if (res.code !== 0) {
-      ElMessage.error(res.message || '请求失败')
-      if (res.message && res.message.includes('令牌已过期')) {
-        localStorage.removeItem('admin_token')
-        window.location.href = '/login'
-      }
-      return Promise.reject(new Error(res.message))
-    }
-    return res.data
-  },
-  error => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('admin_token')
-      window.location.href = '/login'
-      return Promise.reject(error)
-    }
-    ElMessage.error('网络异常，请重试')
-    return Promise.reject(error)
-  }
-)
+  return loginPromise
+}
 
 /**
  * 调用管理端云函数
  * @param {string} funcName - 云函数名称 (如 'admin-login')
  * @param {object} data - 请求数据 (含 action 和 data 字段)
+ * @returns {Promise} 解析后的 data 字段
  */
-export function callAdminApi(funcName, data = {}) {
-  return request.post(`/${funcName}`, data)
-}
+export async function callAdminApi(funcName, data = {}) {
+  await ensureLogin()
 
-export default request
+  // 将 JWT token 注入请求数据
+  const token = localStorage.getItem('admin_token')
+  const payload = token ? { ...data, token } : data
+
+  try {
+    const res = await app.callFunction({
+      name: funcName,
+      data: payload
+    })
+
+    const result = res.result
+    if (result.code !== 0) {
+      ElMessage.error(result.message || '请求失败')
+      if (result.message && result.message.includes('令牌已过期')) {
+        localStorage.removeItem('admin_token')
+        window.location.href = '/login'
+      }
+      return Promise.reject(new Error(result.message))
+    }
+    return result.data
+  } catch (err) {
+    ElMessage.error('网络异常，请重试')
+    return Promise.reject(err)
+  }
+}
