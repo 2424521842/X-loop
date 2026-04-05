@@ -56,7 +56,13 @@ defineProps({ collapsed: Boolean })
 const route = useRoute()
 const authStore = useAuthStore()
 
-const activeMenu = computed(() => '/' + route.path.split('/').filter(Boolean).slice(0, 1).join('/'))
+const activeMenu = computed(() => {
+  const segments = route.path.split('/').filter(Boolean)
+  if (segments[0] === 'system' && segments[1]) {
+    return '/system/' + segments[1]
+  }
+  return '/' + segments[0]
+})
 const canAccess = menu => authStore.canAccess(menu)
 </script>
 

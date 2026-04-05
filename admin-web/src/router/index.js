@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { hasMenu } from '../utils/permission'
 
 const PlaceholderView = {
   template: '<div style="padding: 24px; background: #fff; border-radius: 12px; color: #666;">页面开发中</div>'
@@ -44,7 +45,11 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('admin_token')
   if (!token) return next('/login')
 
-  // 权限检查由页面组件自行处理（菜单已按角色过滤）
+  // 路由级权限检查：防止通过 URL 直接访问无权限页面
+  const role = localStorage.getItem('admin_role')
+  if (to.meta.menu && !hasMenu(role, to.meta.menu)) {
+    return next('/dashboard')
+  }
   next()
 })
 

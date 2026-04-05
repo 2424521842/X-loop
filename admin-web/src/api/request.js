@@ -34,6 +34,11 @@ request.interceptors.response.use(
     return res.data
   },
   error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('admin_token')
+      window.location.href = '/login'
+      return Promise.reject(error)
+    }
     ElMessage.error('网络异常，请重试')
     return Promise.reject(error)
   }
@@ -45,8 +50,7 @@ request.interceptors.response.use(
  * @param {object} data - 请求数据 (含 action 和 data 字段)
  */
 export function callAdminApi(funcName, data = {}) {
-  const token = localStorage.getItem('admin_token')
-  return request.post(`/${funcName}`, { ...data, token })
+  return request.post(`/${funcName}`, data)
 }
 
 export default request

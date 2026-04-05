@@ -16,7 +16,10 @@ exports.main = async (event, context) => {
   try {
     // 检查用户是否被封禁
     const { data: userList } = await db.collection('users').where({ openid }).limit(1).get()
-    if (userList.length > 0 && userList[0].status === 'banned') {
+    if (userList.length === 0) {
+      return { code: -1, message: '用户不存在', data: null }
+    }
+    if (userList[0].status === 'banned') {
       return { code: -1, message: '您的账号已被封禁，无法发布商品', data: null }
     }
 
