@@ -13,6 +13,12 @@ exports.main = async (event, context) => {
   }
 
   try {
+    // 检查用户是否被封禁
+    const { data: userList } = await db.collection('users').where({ openid }).limit(1).get()
+    if (userList.length > 0 && userList[0].status === 'banned') {
+      return { code: -1, message: '您的账号已被封禁，无法操作', data: null }
+    }
+
     // 验证是否为商品所有者
     const { data: product } = await db.collection('products').doc(id).get()
 

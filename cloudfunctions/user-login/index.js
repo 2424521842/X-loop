@@ -22,12 +22,18 @@ exports.main = async (event, context) => {
         nickName: '',
         avatarUrl: '',
         credit: 100,
+        status: 'active',
         createTime: db.serverDate(),
         updateTime: db.serverDate()
       }
       await db.collection('users').add({ data: userInfo })
     } else {
       userInfo = users[0]
+
+      // 检查用户是否被封禁
+      if (userInfo.status === 'banned') {
+        return { code: -1, message: '您的账号已被封禁，原因: ' + (userInfo.banReason || '违规操作'), data: null }
+      }
     }
 
     return {
