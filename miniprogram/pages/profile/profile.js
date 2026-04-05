@@ -3,10 +3,18 @@ const { callCloud } = require('../../utils/api')
 Page({
   data: {
     userInfo: null,
-    stats: {}
+    stats: {},
+    statusBarHeight: 0,
+    navBarHeight: 0
   },
 
   onShow() {
+    // 计算状态栏和导航栏高度（自定义导航需要）
+    const sysInfo = wx.getSystemInfoSync()
+    this.setData({
+      statusBarHeight: sysInfo.statusBarHeight,
+      navBarHeight: sysInfo.statusBarHeight + 44
+    })
     this.checkLogin()
   },
 

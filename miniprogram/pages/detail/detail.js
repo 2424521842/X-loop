@@ -3,10 +3,17 @@ const { formatTime, CATEGORIES, PRODUCT_STATUS_TEXT } = require('../../utils/uti
 
 Page({
   data: {
-    product: null
+    product: null,
+    statusBarHeight: 20,
+    navBarHeight: 64,
+    currentImageIndex: 0,
+    backArrow: '<'
   },
 
   onLoad(options) {
+    const sysInfo = wx.getSystemInfoSync()
+    const statusBarHeight = sysInfo.statusBarHeight || 20
+    this.setData({ statusBarHeight, navBarHeight: statusBarHeight + 44 })
     if (options.id) {
       this.loadProduct(options.id)
     }
@@ -50,5 +57,13 @@ Page({
       title: product ? `${product.title} - ¥${product.price}` : 'X-Loop 二手好物',
       path: `/pages/detail/detail?id=${product._id}`
     }
+  },
+
+  goBack() {
+    wx.navigateBack()
+  },
+
+  onSwiperChange(e) {
+    this.setData({ currentImageIndex: e.detail.current })
   }
 })

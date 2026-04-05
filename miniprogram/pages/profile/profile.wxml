@@ -1,60 +1,105 @@
-<!--个人中心页-->
+<!--个人中心页 - 自定义导航-->
 <view class="page-profile">
-  <!--用户信息-->
-  <view class="user-header" style="background: linear-gradient(to right, #010544, #CE57C1);">
-    <block wx:if="{{userInfo}}">
-      <image class="user-avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" />
-      <text class="user-name">{{userInfo.nickName || '微信用户'}}</text>
-      <text class="user-credit">信誉分：{{userInfo.credit || 100}}</text>
-    </block>
-    <block wx:else>
-      <view class="login-btn" bindtap="onLogin">
-        <image class="user-avatar" src="/images/default-avatar.png" />
-        <text class="user-name">点击登录</text>
+
+  <!-- 渐变头部区域 -->
+  <view class="hero-header" style="padding-top: {{statusBarHeight}}px;">
+    <!-- 装饰性大X -->
+    <text class="hero-bg-x">X</text>
+
+    <!-- 用户信息区域 -->
+    <view class="hero-content">
+      <!-- 已登录状态 -->
+      <block wx:if="{{userInfo}}">
+        <image
+          class="avatar"
+          src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}"
+          mode="aspectFill"
+        />
+        <text class="user-name">{{userInfo.nickName || '微信用户'}}</text>
+        <view class="school-badge">
+          <text class="school-badge-text">西交利物浦大学</text>
+        </view>
+      </block>
+
+      <!-- 未登录状态 -->
+      <block wx:else>
+        <view class="avatar-placeholder" bindtap="onLogin">
+          <text class="avatar-placeholder-icon">+</text>
+        </view>
+        <text class="login-text" bindtap="onLogin">点击登录</text>
+      </block>
+    </view>
+  </view>
+
+  <!-- 统计浮动卡片 -->
+  <view class="stats-card">
+    <view class="stats-item" bindtap="goMyProducts">
+      <text class="stats-num">{{stats.published || 0}}</text>
+      <text class="stats-label">发布的</text>
+    </view>
+    <view class="stats-divider"></view>
+    <view class="stats-item" bindtap="goMyOrders">
+      <text class="stats-num">{{stats.sold || 0}}</text>
+      <text class="stats-label">卖出的</text>
+    </view>
+    <view class="stats-divider"></view>
+    <view class="stats-item" bindtap="goMyOrders">
+      <text class="stats-num">{{stats.bought || 0}}</text>
+      <text class="stats-label">购买到的</text>
+    </view>
+  </view>
+
+  <!-- 推广横幅卡片 -->
+  <view class="promo-card">
+    <view class="promo-content">
+      <text class="promo-title">校园循环计划</text>
+      <text class="promo-desc">让闲置物品重获新生，共建绿色校园</text>
+      <view class="promo-btn" bindtap="goAbout">
+        <text class="promo-btn-text">了解更多</text>
       </view>
-    </block>
+    </view>
+    <text class="promo-deco">X</text>
   </view>
 
-  <!--统计-->
-  <view class="stats-bar card flex-between" wx:if="{{userInfo}}">
-    <view class="stat-item flex-col flex-center">
-      <text class="stat-num">{{stats.published || 0}}</text>
-      <text class="text-gray text-small">已发布</text>
+  <!-- 菜单列表 -->
+  <view class="menu-card">
+    <view class="menu-row" bindtap="goMyFavorites">
+      <view class="menu-icon-box" style="background: #ffd7f3;">
+        <text class="menu-icon-star">*</text>
+      </view>
+      <text class="menu-label">我的收藏</text>
+      <text class="menu-arrow">></text>
     </view>
-    <view class="stat-item flex-col flex-center">
-      <text class="stat-num">{{stats.sold || 0}}</text>
-      <text class="text-gray text-small">已卖出</text>
+
+    <view class="menu-row" bindtap="goMyOrders">
+      <view class="menu-icon-box" style="background: #dfe0ff;">
+        <text class="menu-icon-star">~</text>
+      </view>
+      <text class="menu-label">我的足迹</text>
+      <text class="menu-arrow">></text>
     </view>
-    <view class="stat-item flex-col flex-center">
-      <text class="stat-num">{{stats.bought || 0}}</text>
-      <text class="text-gray text-small">已购买</text>
+
+    <view class="menu-row" bindtap="goFeedback">
+      <view class="menu-icon-box" style="background: #e9e7eb;">
+        <text class="menu-icon-star">!</text>
+      </view>
+      <text class="menu-label">意见反馈</text>
+      <text class="menu-arrow">></text>
+    </view>
+
+    <view class="menu-row" hover-class="none">
+      <view class="menu-icon-box" style="background: #ffdad7;">
+        <text class="menu-icon-star">?</text>
+      </view>
+      <button class="menu-label menu-contact-btn" open-type="contact">联系客服</button>
+      <text class="menu-arrow">></text>
     </view>
   </view>
 
-  <!--菜单列表-->
-  <view class="menu-list card">
-    <view class="menu-item flex-between" bindtap="goMyProducts">
-      <text>我发布的</text>
-      <text class="text-gray">›</text>
-    </view>
-    <view class="menu-item flex-between" bindtap="goMyOrders">
-      <text>我的订单</text>
-      <text class="text-gray">›</text>
-    </view>
-    <view class="menu-item flex-between" bindtap="goMyFavorites">
-      <text>我的收藏</text>
-      <text class="text-gray">›</text>
-    </view>
+  <!-- 底部信息 -->
+  <view class="footer">
+    <text class="footer-link">隐私政策</text>
+    <text class="footer-version">版本 2.4.1</text>
   </view>
 
-  <view class="menu-list card">
-    <view class="menu-item flex-between" bindtap="goAbout">
-      <text>关于 X-Loop</text>
-      <text class="text-gray">›</text>
-    </view>
-    <view class="menu-item flex-between" bindtap="goFeedback">
-      <text>意见反馈</text>
-      <text class="text-gray">›</text>
-    </view>
-  </view>
 </view>

@@ -1,77 +1,135 @@
-<!--搜索页-->
+<!--搜索结果页-->
 <view class="page-search">
-  <!--搜索框-->
-  <view class="search-header">
-    <view class="search-input-wrap">
-      <input
-        class="search-input"
-        placeholder="搜索商品"
-        value="{{keyword}}"
-        bindinput="onInput"
-        bindconfirm="onSearch"
-        focus="{{true}}"
-        confirm-type="search"
-      />
-      <view class="search-btn" bindtap="onSearch" wx:if="{{keyword}}">搜索</view>
+
+  <!-- 自定义导航栏 -->
+  <view class="nav-bar" style="padding-top:{{statusBarHeight}}px;height:{{navBarHeight}}px;">
+    <view class="nav-bar-inner">
+      <view class="nav-back" bindtap="goBack">
+        <view class="nav-back-arrow"></view>
+      </view>
+      <text class="nav-title">搜索结果</text>
+      <view class="nav-placeholder"></view>
     </view>
   </view>
 
-  <!--筛选栏-->
-  <view class="filter-bar flex-row" wx:if="{{results.length > 0 || hasSearched}}">
-    <view
-      class="filter-item {{sortBy === 'time' ? 'active' : ''}}"
-      bindtap="changeSort"
-      data-sort="time"
-    >最新</view>
-    <view
-      class="filter-item {{sortBy === 'price_asc' ? 'active' : ''}}"
-      bindtap="changeSort"
-      data-sort="price_asc"
-    >价格↑</view>
-    <view
-      class="filter-item {{sortBy === 'price_desc' ? 'active' : ''}}"
-      bindtap="changeSort"
-      data-sort="price_desc"
-    >价格↓</view>
+  <!-- 占位，防止内容被导航栏遮挡 -->
+  <view style="height:{{navBarHeight}}px;"></view>
+
+  <!-- 搜索栏（吸顶） -->
+  <view class="search-bar-sticky" style="top:{{navBarHeight}}px;">
+    <view class="search-bar-wrap">
+      <view class="search-input-box">
+        <icon type="search" size="14" color="#777681" />
+        <input
+          class="search-input"
+          placeholder="搜索你想要的宝贝"
+          placeholder-style="color:#777681;"
+          value="{{keyword}}"
+          bindinput="onInput"
+          bindconfirm="onSearch"
+          confirm-type="search"
+        />
+      </view>
+      <view class="search-btn" bindtap="onSearch">搜索</view>
+    </view>
   </view>
 
-  <!--搜索结果-->
-  <view class="result-list" wx:if="{{results.length > 0}}">
+  <!-- 筛选标签行 -->
+  <view class="filter-section" wx:if="{{hasSearched || results.length > 0}}">
+    <scroll-view class="filter-scroll" scroll-x enable-flex>
+      <view
+        class="filter-chip {{sortBy === 'time' ? 'filter-chip-active' : ''}}"
+        bindtap="changeSort"
+        data-sort="time"
+      >
+        <text>100%全新</text>
+      </view>
+      <view
+        class="filter-chip {{sortBy === 'price_asc' ? 'filter-chip-active' : ''}}"
+        bindtap="changeSort"
+        data-sort="price_asc"
+      >
+        <text>价格最低</text>
+      </view>
+      <view
+        class="filter-chip {{sortBy === 'credit' ? 'filter-chip-active' : ''}}"
+        bindtap="changeSort"
+        data-sort="credit"
+      >
+        <text>信用优良</text>
+      </view>
+      <view
+        class="filter-chip {{sortBy === 'campus' ? 'filter-chip-active' : ''}}"
+        bindtap="changeSort"
+        data-sort="campus"
+      >
+        <text>同校区</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 结果计数与排序 -->
+  <view class="result-meta" wx:if="{{hasSearched && results.length > 0}}">
+    <text class="result-count">找到 {{results.length}} 个相关宝贝</text>
+    <text class="result-sort">综合排序</text>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-wrap" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">搜索中...</text>
+  </view>
+
+  <!-- 搜索结果列表（竖向卡片） -->
+  <view class="result-list" wx:if="{{results.length > 0 && !loading}}">
     <view
       wx:for="{{results}}"
       wx:key="_id"
-      class="result-item card flex-row"
+      class="result-card"
       bindtap="goDetail"
       data-id="{{item._id}}"
     >
-      <image class="result-image" src="{{item.images[0]}}" mode="aspectFill" />
-      <view class="result-info flex-1">
-        <text class="result-title">{{item.title}}</text>
-        <text class="price">{{item.price}}</text>
-        <text class="text-gray text-small">{{item.categoryName}}</text>
+      <image
+        class="result-card-img"
+        src="{{item.images[0]}}"
+        mode="aspectFill"
+        lazy-load
+      />
+      <view class="result-card-body">
+        <text class="result-card-title">{{item.title}}</text>
+        <view class="result-card-tags" wx:if="{{item.categoryName}}">
+          <text class="result-tag">{{item.categoryName}}</text>
+        </view>
+        <view class="result-card-bottom">
+          <text class="result-card-price">{{item.price}}</text>
+          <text class="result-card-location">XJTLU</text>
+        </view>
       </view>
     </view>
   </view>
 
-  <!--空状态-->
-  <view class="empty-tip" wx:elif="{{hasSearched}}">
-    <text>未找到相关商品</text>
+  <!-- 无结果 -->
+  <view class="empty-state" wx:if="{{hasSearched && results.length === 0 && !loading}}">
+    <text class="empty-icon">?</text>
+    <text class="empty-text">未找到相关商品</text>
+    <text class="empty-sub">换个关键词试试吧</text>
   </view>
 
-  <!--搜索历史-->
-  <view class="search-history" wx:elif="{{history.length > 0}}">
-    <view class="flex-between">
-      <text class="section-title">搜索历史</text>
-      <text class="text-gray text-small" bindtap="clearHistory">清空</text>
+  <!-- 搜索历史（未搜索时显示） -->
+  <view class="history-section" wx:if="{{!hasSearched && history.length > 0}}">
+    <view class="history-header">
+      <text class="history-title">搜索历史</text>
+      <text class="history-clear" bindtap="clearHistory">清空</text>
     </view>
-    <view class="history-tags flex-row flex-wrap">
+    <view class="history-tags">
       <text
         wx:for="{{history}}"
         wx:key="*this"
-        class="tag tag-gray"
+        class="history-chip"
         bindtap="searchFromHistory"
         data-keyword="{{item}}"
       >{{item}}</text>
     </view>
   </view>
+
 </view>

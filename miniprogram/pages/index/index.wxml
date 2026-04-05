@@ -1,50 +1,82 @@
-<!--首页 - 商品列表-->
+<!--首页 - Stitch UI 设计-->
 <view class="page-index">
-  <!--搜索栏-->
-  <view class="search-bar" bindtap="goSearch">
-    <view class="search-input">
-      <text class="search-icon">🔍</text>
-      <text class="search-placeholder">搜索你想要的商品</text>
+
+  <!--自定义导航栏-->
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-bar-content">
+      <view class="nav-left">
+        <text class="nav-brand">X-Loop</text>
+      </view>
     </view>
   </view>
 
-  <!--分类导航-->
-  <scroll-view class="category-bar" scroll-x enable-flex>
-    <view
-      class="category-item {{currentCategory === '' ? 'active' : ''}}"
-      bindtap="switchCategory"
-      data-id=""
-    >全部</view>
-    <view
-      wx:for="{{categories}}"
-      wx:key="id"
-      class="category-item {{currentCategory === item.id ? 'active' : ''}}"
-      bindtap="switchCategory"
-      data-id="{{item.id}}"
-    >{{item.name}}</view>
-  </scroll-view>
+  <!--占位高度-->
+  <view style="height: {{navBarHeight}}px;"></view>
 
-  <!--商品列表-->
-  <view class="product-list">
+  <!--Hero 区域 + 搜索栏-->
+  <view class="hero-section">
+    <view class="hero-content">
+      <view class="hero-title">
+        <text class="hero-title-text">校园好物，</text>
+        <text class="hero-title-accent">即刻流转</text>
+      </view>
+      <text class="hero-subtitle">发现西浦学子正在交易的优质闲置</text>
+
+      <!--搜索栏-->
+      <view class="search-bar" bindtap="goSearch">
+        <icon type="search" size="16" color="#777681" />
+        <text class="search-placeholder">搜索您需要的物品</text>
+      </view>
+    </view>
+    <!--背景装饰圆-->
+    <view class="hero-decoration"></view>
+  </view>
+
+  <!--分类标签-->
+  <view class="category-section">
+    <view class="category-header">
+      <text class="category-title">热门分类</text>
+      <text class="category-more">查看全部</text>
+    </view>
+    <scroll-view class="category-scroll" scroll-x enable-flex>
+      <view
+        class="category-chip {{currentCategory === '' ? 'active' : ''}}"
+        bindtap="switchCategory"
+        data-id=""
+      >全部</view>
+      <view
+        wx:for="{{categories}}"
+        wx:key="id"
+        class="category-chip {{currentCategory === item.id ? 'active' : ''}}"
+        bindtap="switchCategory"
+        data-id="{{item.id}}"
+      >{{item.name}}</view>
+    </scroll-view>
+  </view>
+
+  <!--商品列表 - 双列网格-->
+  <view class="product-grid">
     <view
       wx:for="{{products}}"
       wx:key="_id"
-      class="product-card card"
+      class="product-card"
       bindtap="goDetail"
       data-id="{{item._id}}"
     >
-      <image
-        class="product-image"
-        src="{{item.images[0]}}"
-        mode="aspectFill"
-        lazy-load
-      />
-      <view class="product-info">
-        <text class="product-title text-ellipsis">{{item.title}}</text>
-        <text class="price">{{item.price}}</text>
-        <view class="product-meta flex-between">
-          <text class="text-gray text-small">{{item.categoryName}}</text>
-          <text class="text-gray text-small">{{item.timeText}}</text>
+      <view class="card-image-wrap">
+        <image
+          class="card-image"
+          src="{{item.images[0]}}"
+          mode="aspectFill"
+          lazy-load
+        />
+      </view>
+
+      <view class="card-body">
+        <text class="card-title">{{item.title}}</text>
+        <text class="card-location-text">西交利物浦大学</text>
+        <view class="card-footer">
+          <text class="card-price">¥{{item.price}}</text>
         </view>
       </view>
     </view>
@@ -54,10 +86,16 @@
   <view class="loading-tip" wx:if="{{loading}}">
     <text>加载中...</text>
   </view>
-  <view class="loading-tip" wx:elif="{{noMore}}">
+  <view class="loading-tip" wx:elif="{{noMore && products.length > 0}}">
     <text class="text-gray">没有更多了</text>
   </view>
-  <view class="empty-tip" wx:elif="{{products.length === 0}}">
+  <view class="empty-tip" wx:elif="{{!loading && products.length === 0}}">
     <text>暂无商品，快去发布吧~</text>
   </view>
+
+</view>
+
+<!--浮动发布按钮-->
+<view class="fab-btn" bindtap="goPublish">
+  <text class="fab-icon">+</text>
 </view>

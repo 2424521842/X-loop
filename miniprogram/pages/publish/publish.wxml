@@ -1,78 +1,114 @@
-<!--发布商品页-->
-<view class="page-publish container">
-  <view class="card">
-    <!--图片上传-->
-    <view class="section">
-      <text class="section-title">商品图片</text>
-      <view class="image-upload flex-row flex-wrap">
-        <view wx:for="{{images}}" wx:key="*this" class="upload-item">
-          <image src="{{item}}" mode="aspectFill" class="upload-image" />
-          <view class="upload-delete" bindtap="deleteImage" data-index="{{index}}">×</view>
-        </view>
-        <view class="upload-add" bindtap="chooseImage" wx:if="{{images.length < 9}}">
-          <text class="upload-add-icon">+</text>
-          <text class="upload-add-text">添加图片</text>
+<!-- 发布商品页面 -->
+<view class="publish-page">
+
+  <!-- 图片上传区域 -->
+  <view class="card section">
+    <view class="section-header">
+      <text class="label">商品图片</text>
+      <text class="sub-label">{{images.length}}/9</text>
+    </view>
+    <view class="image-grid">
+      <!-- 已上传的图片 -->
+      <view class="image-item" wx:for="{{images}}" wx:key="*this">
+        <image class="uploaded-img" src="{{item}}" mode="aspectFill" lazy-load />
+        <view class="delete-btn" bindtap="deleteImage" data-index="{{index}}">
+          <text class="delete-icon">x</text>
         </view>
       </view>
-      <text class="text-gray text-small">最多上传9张图片，第一张为封面</text>
+      <!-- 添加图片按钮 -->
+      <view class="image-add" bindtap="chooseImage" wx:if="{{images.length < 9}}">
+        <view class="add-inner">
+          <text class="camera-icon">+</text>
+          <text class="add-text">上传图片</text>
+        </view>
+      </view>
     </view>
+    <text class="image-tip">最多可上传9张照片</text>
+  </view>
 
-    <!--商品标题-->
-    <view class="section">
-      <text class="section-title">商品标题</text>
+  <!-- 表单区域 -->
+  <view class="card section">
+    <!-- 标题输入 -->
+    <view class="input-group border-bottom">
+      <text class="label">标题</text>
       <input
-        class="form-input"
-        placeholder="请输入商品标题"
-        maxlength="30"
+        class="input-field"
+        placeholder="给你的宝贝起个名字..."
+        placeholder-class="placeholder"
         value="{{title}}"
-        bindinput="onInput"
         data-field="title"
+        bindinput="onInput"
+        maxlength="30"
       />
     </view>
 
-    <!--商品描述-->
-    <view class="section">
-      <text class="section-title">商品描述</text>
+    <!-- 描述输入 -->
+    <view class="input-group border-bottom">
+      <text class="label">描述</text>
       <textarea
-        class="form-textarea"
-        placeholder="描述一下你的商品（成色、使用时长、转手原因等）"
-        maxlength="500"
+        class="textarea-field"
+        placeholder="描述一下宝贝的品牌、型号、新旧程度、入手渠道等..."
+        placeholder-class="placeholder"
         value="{{description}}"
-        bindinput="onInput"
         data-field="description"
-      />
-    </view>
-
-    <!--价格-->
-    <view class="section">
-      <text class="section-title">价格（¥）</text>
-      <input
-        class="form-input"
-        type="digit"
-        placeholder="请输入价格"
-        value="{{price}}"
         bindinput="onInput"
-        data-field="price"
+        maxlength="500"
+        auto-height
       />
     </view>
 
-    <!--分类-->
-    <view class="section">
-      <text class="section-title">分类</text>
-      <view class="category-select flex-row flex-wrap">
+    <!-- 价格输入 -->
+    <view class="input-group border-bottom">
+      <text class="label">价格</text>
+      <view class="price-input-wrap">
+        <text class="yen-sign">¥</text>
+        <input
+          class="input-field price-input"
+          type="digit"
+          placeholder="输入价格"
+          placeholder-class="placeholder"
+          value="{{price}}"
+          data-field="price"
+          bindinput="onInput"
+        />
+      </view>
+    </view>
+
+    <!-- 分类选择 -->
+    <view class="input-group border-bottom">
+      <text class="label">选择分类</text>
+      <view class="category-list">
         <view
+          class="category-chip {{selectedCategory === item.id ? 'chip-active' : ''}}"
           wx:for="{{categories}}"
           wx:key="id"
-          class="category-option {{selectedCategory === item.id ? 'selected' : ''}}"
           bindtap="selectCategory"
           data-id="{{item.id}}"
-        >{{item.name}}</view>
+        >
+          <text>{{item.name}}</text>
+        </view>
       </view>
+    </view>
+
+    <!-- 发布位置 -->
+    <view class="input-group location-row">
+      <text class="label">发布位置</text>
+      <text class="location-text">XJTLU 西交利物浦大学</text>
     </view>
   </view>
 
-  <!--发布按钮-->
-  <button class="btn-primary btn-publish" bindtap="onPublish" loading="{{submitting}}">
-    发布商品
-  </button>
+  <!-- 服务条款提示 -->
+  <view class="terms-wrap">
+    <text class="terms-text">发布即表示同意X-Loop平台服务条款，请确保商品信息真实有效</text>
+  </view>
+
+  <!-- 底部占位，防止按钮遮挡内容 -->
+  <view class="bottom-placeholder"></view>
+</view>
+
+<!-- 固定底部发布按钮 -->
+<view class="fixed-bottom">
+  <view class="publish-btn {{submitting ? 'btn-disabled' : ''}}" bindtap="onPublish">
+    <text class="publish-btn-text">{{submitting ? '发布中...' : '确认发布'}}</text>
+  </view>
 </view>

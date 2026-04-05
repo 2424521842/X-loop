@@ -10,13 +10,26 @@ Page({
     results: [],
     hasSearched: false,
     sortBy: 'time',
-    history: []
+    history: [],
+    loading: false,
+    statusBarHeight: 0,
+    navBarHeight: 0
   },
 
   onLoad() {
+    const sysInfo = wx.getSystemInfoSync()
+    const statusBarHeight = sysInfo.statusBarHeight || 20
+    const navBarHeight = statusBarHeight + 44
     this.setData({
+      statusBarHeight,
+      navBarHeight,
       history: wx.getStorageSync(HISTORY_KEY) || []
     })
+  },
+
+  // 返回上一页
+  goBack() {
+    wx.navigateBack({ delta: 1 })
   },
 
   onInput(e) {
@@ -29,6 +42,7 @@ Page({
     if (!keyword) return
 
     this.saveHistory(keyword)
+    this.setData({ loading: true })
 
     try {
       const results = await callCloud('product-search', {
@@ -41,10 +55,11 @@ Page({
           ...item,
           categoryName: CATEGORIES.find(c => c.id === item.category)?.name || ''
         })),
-        hasSearched: true
+        hasSearched: true,
+        loading: false
       })
     } catch (err) {
-      this.setData({ hasSearched: true, results: [] })
+      this.setData({ hasSearched: true, results: [], loading: false })
     }
   },
 

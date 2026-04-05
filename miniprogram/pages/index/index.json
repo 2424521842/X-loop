@@ -1,4 +1,4 @@
 {
-  "navigationBarTitleText": "X-Loop",
+  "navigationStyle": "custom",
   "enablePullDownRefresh": true
 }

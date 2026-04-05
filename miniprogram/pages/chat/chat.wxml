@@ -1,0 +1,94 @@
+<!--聊天详情页-->
+<view class="page-chat">
+
+  <!--自定义导航栏-->
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-bar-inner">
+      <view class="nav-back" bindtap="goBack">
+        <text class="nav-back-arrow">{{backArrow}}</text>
+        <text class="nav-title">{{otherUser.nickName || '聊天'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!--导航栏占位-->
+  <view style="height: {{navBarHeight}}px;"></view>
+
+  <!--商品引用卡片-->
+  <view class="product-ref-bar" wx:if="{{product}}" bindtap="goProductDetail">
+    <view class="product-ref-left">
+      <image class="product-ref-img" src="{{product.images[0]}}" mode="aspectFill" lazy-load />
+      <view class="product-ref-info">
+        <text class="product-ref-title">{{product.title}}</text>
+        <text class="product-ref-price">¥{{product.price}}</text>
+      </view>
+    </view>
+    <view class="product-ref-btn">
+      <text class="product-ref-btn-text">交易详情</text>
+    </view>
+  </view>
+
+  <!--聊天消息列表-->
+  <scroll-view
+    class="chat-scroll"
+    scroll-y
+    scroll-into-view="{{scrollToView}}"
+    scroll-with-animation
+    style="height: calc(100vh - {{navBarHeight + (product ? 120 : 0) + 120}}px);"
+  >
+    <view class="chat-list">
+      <view
+        wx:for="{{messages}}"
+        wx:key="_id"
+        id="msg-{{index}}"
+        class="msg-row {{item.isMine ? 'msg-mine' : 'msg-other'}}"
+      >
+        <!--对方头像-->
+        <image
+          wx:if="{{!item.isMine}}"
+          class="msg-avatar"
+          src="{{otherUser.avatarUrl || '/images/default-avatar.png'}}"
+          mode="aspectFill"
+          lazy-load
+        />
+
+        <!--消息内容-->
+        <view class="msg-content-wrap">
+          <view class="msg-bubble {{item.isMine ? 'bubble-mine' : 'bubble-other'}}">
+            <text class="msg-text">{{item.content}}</text>
+          </view>
+          <text class="msg-time">{{item.timeText}}</text>
+        </view>
+
+        <!--自己的头像-->
+        <view wx:if="{{item.isMine}}" class="msg-avatar-me">
+          <text class="avatar-me-text">ME</text>
+        </view>
+      </view>
+
+      <!--空消息提示-->
+      <view wx:if="{{messages.length === 0}}" class="empty-chat">
+        <text class="empty-chat-text">开始聊天吧~</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!--底部输入栏-->
+  <view class="input-bar">
+    <view class="input-wrap">
+      <input
+        class="chat-input"
+        placeholder="给同学留言..."
+        value="{{inputValue}}"
+        bindinput="onInput"
+        bindconfirm="sendMessage"
+        confirm-type="send"
+        adjust-position="{{true}}"
+      />
+    </view>
+    <view class="send-btn" bindtap="sendMessage">
+      <text class="send-btn-text">发送</text>
+    </view>
+  </view>
+
+</view>

@@ -9,10 +9,17 @@ Page({
     loading: false,
     noMore: false,
     page: 0,
-    pageSize: 10
+    pageSize: 10,
+    statusBarHeight: 20,
+    navBarHeight: 64
   },
 
   onLoad() {
+    // 获取系统信息设置自定义导航栏高度
+    const sysInfo = wx.getSystemInfoSync()
+    const statusBarHeight = sysInfo.statusBarHeight || 20
+    const navBarHeight = statusBarHeight + 44
+    this.setData({ statusBarHeight, navBarHeight })
     this.loadProducts()
   },
 
@@ -77,5 +84,10 @@ Page({
   goDetail(e) {
     const id = e.currentTarget.dataset.id
     wx.navigateTo({ url: `/pages/detail/detail?id=${id}` })
+  },
+
+  // 跳转发布页
+  goPublish() {
+    wx.switchTab({ url: '/pages/publish/publish' })
   }
 })
