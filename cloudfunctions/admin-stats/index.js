@@ -1,11 +1,13 @@
 const cloud = require('wx-server-sdk')
-const { verifyAdmin } = require('../admin-common/auth')
+const { verifyAdmin } = require('admin-common/auth')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const _ = db.command
 
 // 获取今日零点的 Date 对象
+// 这里使用运行时本地时间做统计边界；db.serverDate() 适合写入时间，不适合做日期区间运算。
+// 如果后续需要严格按固定时区统计，再统一切换为显式时区方案。
 function getTodayStart() {
   const now = new Date()
   return new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -58,9 +60,10 @@ exports.main = async (event) => {
       case 'trend': {
         const { type = 'users', days = 7 } = reqData || {}
         const collectionName = type === 'users' ? 'users' : type === 'products' ? 'products' : 'orders'
+        const safeDays = Math.min(Math.max(Number(days) || 7, 1), 30)
 
         const result = []
-        for (let i = days - 1; i >= 0; i--) {
+        for (let i = safeDays - 1; i >= 0; i--) {
           const dayStart = getDaysAgo(i)
           const dayEnd = getDaysAgo(i - 1)
           const { total: count } = await db.collection(collectionName)

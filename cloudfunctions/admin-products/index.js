@@ -1,6 +1,6 @@
 const cloud = require('wx-server-sdk')
-const { verifyAdmin } = require('../admin-common/auth')
-const { logAction } = require('../admin-common/logger')
+const { verifyAdmin } = require('admin-common/auth')
+const { logAction } = require('admin-common/logger')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()

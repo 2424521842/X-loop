@@ -1,6 +1,6 @@
 const cloud = require('wx-server-sdk')
 const bcrypt = require('bcryptjs')
-const { signToken } = require('../admin-common/auth')
+const { signToken } = require('admin-common/auth')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()

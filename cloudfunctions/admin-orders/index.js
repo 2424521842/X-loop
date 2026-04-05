@@ -1,6 +1,6 @@
 const cloud = require('wx-server-sdk')
-const { verifyAdmin } = require('../admin-common/auth')
-const { logAction } = require('../admin-common/logger')
+const { verifyAdmin } = require('admin-common/auth')
+const { logAction } = require('admin-common/logger')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -29,17 +29,26 @@ exports.main = async (event) => {
           .limit(pageSize)
           .get()
 
-        // 批量获取商品标题
-        for (const order of orders) {
-          if (order.productId) {
-            try {
-              const { data: product } = await db.collection('products').doc(order.productId).get()
-              order.productTitle = product.title
-            } catch (e) {
-              order.productTitle = '(已删除)'
-            }
-          }
+        // 批量查询商品，避免列表页逐条读取造成 N+1 查询
+        const productIds = [...new Set(orders.map(order => order.productId).filter(Boolean))]
+        const productTitleMap = {}
+
+        if (productIds.length > 0) {
+          const { data: products } = await db.collection('products')
+            .where({ _id: _.in(productIds) })
+            .field({ title: true })
+            .get()
+
+          products.forEach(product => {
+            productTitleMap[product._id] = product.title
+          })
         }
+
+        orders.forEach(order => {
+          if (order.productId) {
+            order.productTitle = productTitleMap[order.productId] || '(已删除)'
+          }
+        })
 
         return { code: 0, message: 'success', data: { list: orders, total, page, pageSize } }
       }

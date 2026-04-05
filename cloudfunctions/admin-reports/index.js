@@ -1,6 +1,6 @@
 const cloud = require('wx-server-sdk')
-const { verifyAdmin } = require('../admin-common/auth')
-const { logAction } = require('../admin-common/logger')
+const { verifyAdmin } = require('admin-common/auth')
+const { logAction } = require('admin-common/logger')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -71,9 +71,15 @@ exports.main = async (event) => {
         const { id } = reqData || {}
         if (!id) return { code: -1, message: '缺少举报ID', data: null }
 
+        const { data: report } = await db.collection('reports').doc(id).get()
+        if (report.status !== 'pending') {
+          return { code: -1, message: '该举报当前状态不可认领', data: null }
+        }
+
         await db.collection('reports').doc(id).update({
           data: { status: 'processing', handlerUsername: admin.username }
         })
+        await logAction(db, admin.username, 'claim_report', 'report', id, {})
         return { code: 0, message: 'success', data: null }
       }
 
