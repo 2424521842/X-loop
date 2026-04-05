@@ -41,7 +41,7 @@
           <div v-else>暂无对象详情</div>
         </el-card>
 
-        <el-card v-if="report.status === 'pending' || report.status === 'processing'">
+        <el-card v-if="canWrite && (report.status === 'pending' || report.status === 'processing')">
           <el-button v-if="report.status === 'pending'" type="warning" @click="handleClaim">认领</el-button>
           <el-button
             v-if="report.targetType === 'product'"
@@ -88,8 +88,11 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getReportDetail, claimReport, resolveReport } from '../../api/reports'
+import { useAuthStore } from '../../stores/auth'
 
 const route = useRoute()
+const authStore = useAuthStore()
+const canWrite = computed(() => ['super_admin', 'content_moderator'].includes(authStore.role))
 const loading = ref(true)
 const report = ref({})
 const showResolveDialog = ref(false)

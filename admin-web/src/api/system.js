@@ -5,7 +5,7 @@ export function getAdminList() {
 }
 
 export function createAdmin(data) {
-  return callAdminApi('admin-login', { action: 'create-admin', ...data })
+  return callAdminApi('admin-login', { action: 'create-admin', data })
 }
 
 export function getAdminLogs(params) {

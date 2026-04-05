@@ -33,7 +33,7 @@
           </div>
         </el-card>
 
-        <el-card>
+        <el-card v-if="canWrite">
           <el-button
             v-if="!order.disputeStatus || order.disputeStatus === 'none'"
             type="warning"
@@ -87,12 +87,15 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getOrderDetail, interveneOrder, resolveOrder } from '../../api/orders'
+import { useAuthStore } from '../../stores/auth'
 
 const route = useRoute()
+const authStore = useAuthStore()
+const canWrite = computed(() => ['super_admin', 'customer_service'].includes(authStore.role))
 const loading = ref(true)
 const order = ref({})
 const showInterveneDialog = ref(false)
