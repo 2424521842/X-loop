@@ -1,6 +1,6 @@
 # X-Loop Development Task Checklist
 
-> Last updated: 2026-04-01
+> Last updated: 2026-04-05
 > Status: ✅ Done | 🔄 In Progress | ⬜ To Do
 
 ---
@@ -138,6 +138,43 @@
 
 ---
 
+## Phase 4.5: Admin Management System
+
+### 4.5.1 Cloud Functions — Backend
+- ⬜ Create `admin-common` shared auth (JWT) + audit logger module
+- ⬜ Create `admin-login` cloud function (username/password → JWT)
+- ⬜ Create `admin-users` cloud function (list/detail/ban/unban/adjust-credit)
+- ⬜ Create `admin-products` cloud function (list/detail/remove/restore/batch-remove)
+- ⬜ Create `admin-orders` cloud function (list/detail/intervene/resolve)
+- ⬜ Create `admin-reports` cloud function (list/detail/claim/resolve)
+- ⬜ Create `admin-stats` cloud function (overview/trend/distribution)
+- ⬜ Add banned user checks to existing cloud functions (user-login, product-create, product-update)
+
+### 4.5.2 Database Setup
+- ⬜ Create `admins` collection
+- ⬜ Create `reports` collection
+- ⬜ Create `admin_logs` collection
+- ⬜ Seed initial super_admin account
+
+### 4.5.3 Admin Web Frontend
+- ⬜ Scaffold admin-web project (Vue 3 + Element Plus + Vite)
+- ⬜ Implement login page + JWT auth store + route guards
+- ⬜ Implement layout components (sidebar + header + role-filtered menus)
+- ⬜ Implement dashboard page (stat cards + ECharts trend/distribution)
+- ⬜ Implement user management pages (list + detail + ban/unban/credit)
+- ⬜ Implement product management pages (list + detail + remove/restore/batch)
+- ⬜ Implement report management pages (list + detail + claim/resolve)
+- ⬜ Implement order management pages (list + detail + dispute handling)
+- ⬜ Implement system management pages (admin list, audit logs, categories)
+
+### 4.5.4 Deployment
+- ⬜ Deploy admin cloud functions with HTTP triggers
+- ⬜ Build and deploy admin-web to WeChat Cloud static hosting
+- ⬜ Configure CORS and JWT secret in cloud environment variables
+- ⬜ End-to-end verification of admin panel
+
+---
+
 ## Phase 5: Testing & Optimization (Week 13-14)
 
 ### 5.1 Testing
@@ -186,6 +223,7 @@
 | Phase 2: Design & Setup | 21 | 20 | 95% |
 | Phase 3: MVP Development | 13 | 7 | 54% |
 | Phase 4: Feature Expansion | 27 | 0 | 0% |
+| Phase 4.5: Admin Management System | 24 | 0 | 0% |
 | Phase 5: Testing & Optimization | 10 | 0 | 0% |
 | Phase 6: Launch & Operations | 12 | 0 | 0% |
-| **Total** | **89** | **27** | **30%** |
+| **Total** | **113** | **27** | **24%** |
