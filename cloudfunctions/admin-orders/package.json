@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
-    "admin-common": "file:../admin-common",
+    "jsonwebtoken": "^9.0.3",
     "wx-server-sdk": "~2.6.3"
   }
 }

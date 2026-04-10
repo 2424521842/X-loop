@@ -1,0 +1,1 @@
+import{c as a}from"./request-BAJoIxDz.js";function n(t){return a("admin-reports",{action:"list",data:t})}function o(t){return a("admin-reports",{action:"detail",data:{id:t}})}function c(t){return a("admin-reports",{action:"claim",data:{id:t}})}function s(t,r,e){return a("admin-reports",{action:"resolve",data:{id:t,result:r,handleAction:e}})}export{o as a,c,n as g,s as r};

@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
-    "admin-common": "file:../admin-common",
-    "wx-server-sdk": "~2.6.3",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.3",
+    "wx-server-sdk": "~2.6.3"
   }
 }

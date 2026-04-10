@@ -1,0 +1,1 @@
+import{c as t}from"./request-BAJoIxDz.js";function a(){return t("admin-users",{action:"admin-list"})}function o(i){return t("admin-login",{action:"create-admin",data:i})}function r(i){return t("admin-stats",{action:"logs",data:i})}function s(){return t("admin-stats",{action:"distribution"})}export{r as a,s as b,o as c,a as g};

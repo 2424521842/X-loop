@@ -6,13 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server.js"
   },
   "dependencies": {
-    "@cloudbase/js-sdk": "^2.27.2",
     "@element-plus/icons-vue": "^2.3.1",
     "echarts": "^5.5.0",
     "element-plus": "^2.7.0",
+    "express": "^4.22.1",
     "pinia": "^2.1.0",
     "vue": "^3.4.0",
     "vue-router": "^4.3.0"
