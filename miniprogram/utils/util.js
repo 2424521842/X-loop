@@ -65,10 +65,65 @@ const CATEGORIES = [
   { id: 'other', name: '其他' }
 ]
 
+/**
+ * 订单状态
+ */
+const ORDER_STATUS = {
+  PENDING: 'pending',         // 待确认
+  CONFIRMED: 'confirmed',     // 已确认
+  COMPLETED: 'completed',     // 已完成
+  CANCELLED: 'cancelled'      // 已取消
+}
+
+const ORDER_STATUS_TEXT = {
+  pending: '待确认',
+  confirmed: '已确认',
+  completed: '已完成',
+  cancelled: '已取消'
+}
+
+/**
+ * 团购状态
+ */
+const GROUP_BUY_STATUS = {
+  RECRUITING: 'recruiting',   // 拼团中
+  SUCCESS: 'success',         // 拼团成功
+  FAILED: 'failed'            // 拼团失败
+}
+
+const GROUP_BUY_STATUS_TEXT = {
+  recruiting: '拼团中',
+  success: '拼团成功',
+  failed: '拼团失败'
+}
+
+/**
+ * 代购状态
+ */
+const AGENT_BUY_STATUS = {
+  OPEN: 'open',               // 待接单
+  ACCEPTED: 'accepted',       // 已接单
+  COMPLETED: 'completed',     // 已完成
+  CANCELLED: 'cancelled'      // 已取消
+}
+
+const AGENT_BUY_STATUS_TEXT = {
+  open: '待接单',
+  accepted: '已接单',
+  completed: '已完成',
+  cancelled: '已取消'
+}
+
 module.exports = {
   formatTime,
   formatPrice,
   PRODUCT_STATUS,
   PRODUCT_STATUS_TEXT,
-  CATEGORIES
+  CATEGORIES,
+  ORDER_STATUS,
+  ORDER_STATUS_TEXT,
+  GROUP_BUY_STATUS,
+  GROUP_BUY_STATUS_TEXT,
+  AGENT_BUY_STATUS,
+  AGENT_BUY_STATUS_TEXT
 }
