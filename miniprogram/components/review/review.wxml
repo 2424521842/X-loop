@@ -1,0 +1,29 @@
+<view class="review-section">
+  <view class="review-header">
+    <text class="review-title">用户评价</text>
+    <text class="review-count">{{reviews.length}}条</text>
+  </view>
+
+  <view class="review-list" wx:if="{{reviews.length > 0}}">
+    <view class="review-item" wx:for="{{reviews}}" wx:key="_id">
+      <view class="review-user">
+        <image
+          class="review-avatar"
+          src="{{item.fromUser.avatarUrl || '/images/default-avatar.png'}}"
+          mode="aspectFill"
+          lazy-load
+        />
+        <view class="review-user-info">
+          <text class="review-name">{{item.fromUser.nickName}}</text>
+          <text class="review-stars">{{item.stars}}</text>
+        </view>
+        <text class="review-time">{{item.timeText}}</text>
+      </view>
+      <text class="review-content" wx:if="{{item.content}}">{{item.content}}</text>
+    </view>
+  </view>
+
+  <view class="review-empty" wx:elif="{{!loading}}">
+    <text class="review-empty-text">暂无评价</text>
+  </view>
+</view>
