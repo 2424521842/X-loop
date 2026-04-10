@@ -1,0 +1,48 @@
+<view class="page-chat-list">
+  <!-- 自定义导航栏 -->
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-bar-inner">
+      <view class="nav-back" bindtap="goBack">
+        <text class="nav-back-arrow">&lt;</text>
+        <text class="nav-title">消息</text>
+      </view>
+    </view>
+  </view>
+  <view style="height: {{navBarHeight}}px;"></view>
+
+  <!-- 会话列表 -->
+  <view class="conv-list" wx:if="{{conversations.length > 0}}">
+    <view
+      class="conv-item"
+      wx:for="{{conversations}}"
+      wx:key="conversationId"
+      bindtap="goChat"
+      data-openid="{{item.otherOpenid}}"
+    >
+      <view class="conv-avatar-wrap">
+        <image
+          class="conv-avatar"
+          src="{{item.otherUser.avatarUrl || '/images/default-avatar.png'}}"
+          mode="aspectFill"
+          lazy-load
+        />
+        <view class="conv-badge" wx:if="{{item.unreadCount > 0}}">
+          <text class="conv-badge-text">{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</text>
+        </view>
+      </view>
+      <view class="conv-content">
+        <view class="conv-top">
+          <text class="conv-name">{{item.otherUser.nickName || '未知用户'}}</text>
+          <text class="conv-time">{{item.timeText}}</text>
+        </view>
+        <text class="conv-preview text-ellipsis">{{item.preview}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:elif="{{!loading}}">
+    <text class="empty-text">暂无消息</text>
+    <text class="empty-hint">去商品详情页联系卖家吧~</text>
+  </view>
+</view>

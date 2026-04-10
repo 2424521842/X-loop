@@ -25,6 +25,7 @@ Page({
     if (options.targetOpenid) {
       this.data.targetOpenid = options.targetOpenid
       this.loadMessages()
+      this.startWatcher()
     }
   },
 
@@ -56,6 +57,24 @@ Page({
     } catch (err) {
       console.error('加载消息失败', err)
     }
+  },
+
+  startWatcher() {
+    const db = wx.cloud.database()
+    const conversationId = [getApp().globalData.openid, this.data.targetOpenid].sort().join('_')
+    this._watcher = db.collection('messages')
+      .where({ conversationId })
+      .orderBy('createTime', 'asc')
+      .watch({
+        onChange: (snapshot) => {
+          if (snapshot.type !== 'init') {
+            this.loadMessages()
+          }
+        },
+        onError: (err) => {
+          console.error('消息监听失败', err)
+        }
+      })
   },
 
   // 输入消息
@@ -104,5 +123,11 @@ Page({
 
   goBack() {
     wx.navigateBack()
+  },
+
+  onUnload() {
+    if (this._watcher) {
+      this._watcher.close()
+    }
   }
 })

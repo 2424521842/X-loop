@@ -5,6 +5,7 @@
     "pages/publish/publish",
     "pages/search/search",
     "pages/profile/profile",
+    "pages/chat-list/chat-list",
     "pages/chat/chat"
   ],
   "window": {

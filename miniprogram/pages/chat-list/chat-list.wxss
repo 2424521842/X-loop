@@ -1,0 +1,123 @@
+.page-chat-list {
+  min-height: 100vh;
+  background: #F5F3F7;
+}
+
+.nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: linear-gradient(to right, #010544, #CE57C1);
+}
+
+.nav-bar-inner {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 20rpx;
+}
+
+.nav-back {
+  display: flex;
+  align-items: center;
+}
+
+.nav-back-arrow {
+  color: #fff;
+  font-size: 36rpx;
+  margin-right: 12rpx;
+}
+
+.nav-title {
+  color: #fff;
+  font-size: 34rpx;
+  font-weight: bold;
+}
+
+.conv-list {
+  padding: 20rpx;
+}
+
+.conv-item {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+}
+
+.conv-avatar-wrap {
+  position: relative;
+  margin-right: 20rpx;
+}
+
+.conv-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+}
+
+.conv-badge {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  background: #ff4d4f;
+  border-radius: 20rpx;
+  padding: 2rpx 10rpx;
+  min-width: 32rpx;
+  text-align: center;
+}
+
+.conv-badge-text {
+  color: #fff;
+  font-size: 20rpx;
+}
+
+.conv-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.conv-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.conv-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.conv-time {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.conv-preview {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 200rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #999;
+  margin-bottom: 16rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #ccc;
+}
