@@ -31,8 +31,18 @@ exports.main = async (event, context) => {
       users.forEach(u => { userMap[u.openid] = u })
     }
 
+    // 脱敏返回数据，不暴露 participants openid 数组
     const result = groups.map(g => ({
-      ...g,
+      _id: g._id,
+      title: g.title,
+      description: g.description,
+      images: g.images,
+      unitPrice: g.unitPrice,
+      targetCount: g.targetCount,
+      currentCount: g.currentCount,
+      status: g.status,
+      deadline: g.deadline,
+      createTime: g.createTime,
       creator: userMap[g.creatorOpenid] || { nickName: '未知用户', avatarUrl: '' },
       joined: g.participants.includes(openid),
       progress: Math.round((g.currentCount / g.targetCount) * 100)

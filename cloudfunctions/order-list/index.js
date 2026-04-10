@@ -40,10 +40,21 @@ exports.main = async (event, context) => {
       users.forEach(u => { userMap[u.openid] = u })
     }
 
-    const result = orders.map(o => ({
-      ...o,
-      otherUser: userMap[role === 'buyer' ? o.sellerOpenid : o.buyerOpenid] || { nickName: '未知用户', avatarUrl: '' }
-    }))
+    // 脱敏返回数据，仅保留前端需要的字段
+    const result = orders.map(o => {
+      const otherOpenid = role === 'buyer' ? o.sellerOpenid : o.buyerOpenid
+      return {
+        _id: o._id,
+        productId: o.productId,
+        productTitle: o.productTitle,
+        productImage: o.productImage,
+        price: o.price,
+        status: o.status,
+        createTime: o.createTime,
+        otherOpenid,
+        otherUser: userMap[otherOpenid] || { nickName: '未知用户', avatarUrl: '' }
+      }
+    })
 
     return { code: 0, message: 'success', data: result }
   } catch (err) {

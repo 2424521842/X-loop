@@ -74,9 +74,13 @@ Page({
   },
 
   async chooseImage() {
-    const res = await wx.chooseMedia({ count: 3, mediaType: ['image'] })
-    const images = res.tempFiles.map(f => f.tempFilePath)
-    this.setData({ 'form.images': [...this.data.form.images, ...images].slice(0, 3) })
+    try {
+      const res = await wx.chooseMedia({ count: 3, mediaType: ['image'] })
+      const images = res.tempFiles.map(f => f.tempFilePath)
+      this.setData({ 'form.images': [...this.data.form.images, ...images].slice(0, 3) })
+    } catch (err) {
+      // 用户取消选择，忽略
+    }
   },
 
   removeImage(e) {

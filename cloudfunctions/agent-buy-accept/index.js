@@ -45,6 +45,10 @@ exports.main = async (event, context) => {
         }
       })
     } else if (action === 'cancel') {
+      // 只有 open 和 accepted 状态可以取消
+      if (agentBuy.status !== 'open' && agentBuy.status !== 'accepted') {
+        return { code: -1, message: '当前状态不允许取消', data: null }
+      }
       if (agentBuy.requesterOpenid !== openid && agentBuy.agentOpenid !== openid) {
         return { code: -1, message: '无权操作', data: null }
       }
@@ -54,6 +58,8 @@ exports.main = async (event, context) => {
           updateTime: db.serverDate()
         }
       })
+    } else {
+      return { code: -1, message: '无效的操作', data: null }
     }
 
     return { code: 0, message: 'success', data: null }

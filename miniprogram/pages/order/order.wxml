@@ -59,7 +59,7 @@
 
       <!-- 操作按钮 -->
       <view class="order-actions">
-        <view class="order-btn order-btn-chat" bindtap="goChat" data-openid="{{activeTab === 'buyer' ? item.sellerOpenid : item.buyerOpenid}}" data-productid="{{item.productId}}">
+        <view class="order-btn order-btn-chat" bindtap="goChat" data-openid="{{item.otherOpenid}}" data-productid="{{item.productId}}">
           <text>联系对方</text>
         </view>
         <!-- 卖家：待确认→确认 -->

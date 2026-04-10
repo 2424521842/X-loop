@@ -50,8 +50,16 @@ exports.main = async (event, context) => {
       users.forEach(u => { userMap[u.openid] = u })
     }
 
+    // 脱敏返回数据，仅保留前端需要的 openid（用于聊天跳转）
     const result = agentBuys.map(a => ({
-      ...a,
+      _id: a._id,
+      description: a.description,
+      budget: a.budget,
+      commission: a.commission,
+      status: a.status,
+      createTime: a.createTime,
+      requesterOpenid: a.requesterOpenid,
+      agentOpenid: a.agentOpenid || '',
       requester: userMap[a.requesterOpenid] || { nickName: '未知用户', avatarUrl: '' },
       agent: a.agentOpenid ? (userMap[a.agentOpenid] || { nickName: '未知用户', avatarUrl: '' }) : null,
       isRequester: a.requesterOpenid === openid,

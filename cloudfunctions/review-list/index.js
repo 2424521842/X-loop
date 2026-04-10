@@ -29,8 +29,13 @@ exports.main = async (event, context) => {
       users.forEach(u => { userMap[u.openid] = u })
     }
 
+    // 脱敏返回数据
     const result = reviews.map(r => ({
-      ...r,
+      _id: r._id,
+      orderId: r.orderId,
+      rating: r.rating,
+      content: r.content,
+      createTime: r.createTime,
       fromUser: userMap[r.fromOpenid] || { nickName: '匿名用户', avatarUrl: '' }
     }))
 
