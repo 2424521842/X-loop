@@ -1,0 +1,100 @@
+<view class="page-group-buy">
+  <!-- 自定义导航栏 -->
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-bar-inner">
+      <view class="nav-back" bindtap="goBack">
+        <text class="nav-back-arrow">&lt;</text>
+        <text class="nav-title">拼团</text>
+      </view>
+      <view class="nav-action" bindtap="togglePublish">
+        <text class="nav-action-text">{{showPublish ? '取消' : '发起拼团'}}</text>
+      </view>
+    </view>
+  </view>
+  <view style="height: {{navBarHeight}}px;"></view>
+
+  <!-- 发布表单 -->
+  <view class="publish-form card" wx:if="{{showPublish}}">
+    <input class="form-input" placeholder="拼团标题" value="{{form.title}}" bindinput="onFormInput" data-field="title" />
+    <textarea class="form-textarea" placeholder="拼团描述" value="{{form.description}}" bindinput="onFormInput" data-field="description" />
+    <view class="form-row">
+      <text class="form-label">单价 (¥)</text>
+      <input class="form-input-sm" type="digit" placeholder="0.00" value="{{form.unitPrice}}" bindinput="onFormInput" data-field="unitPrice" />
+    </view>
+    <view class="form-row">
+      <text class="form-label">目标人数</text>
+      <input class="form-input-sm" type="number" placeholder="0" value="{{form.targetCount}}" bindinput="onFormInput" data-field="targetCount" />
+    </view>
+    <view class="form-row">
+      <text class="form-label">截止日期</text>
+      <picker mode="date" value="{{form.deadline}}" bindchange="onDateChange">
+        <text class="form-date-text">{{form.deadline || '选择日期'}}</text>
+      </picker>
+    </view>
+    <!-- 图片上传 -->
+    <view class="form-images">
+      <view class="form-image-item" wx:for="{{form.images}}" wx:key="*this">
+        <image class="form-image" src="{{item}}" mode="aspectFill" />
+        <view class="form-image-del" bindtap="removeImage" data-index="{{index}}">×</view>
+      </view>
+      <view class="form-image-add" bindtap="chooseImage" wx:if="{{form.images.length < 3}}">
+        <text class="form-image-add-icon">+</text>
+      </view>
+    </view>
+    <view class="btn-primary form-submit" bindtap="submitGroup">发布拼团</view>
+  </view>
+
+  <!-- 切换标签 -->
+  <view class="role-tabs" wx:if="{{!showPublish}}">
+    <view class="role-tab {{activeTab === 'list' ? 'role-tab-active' : ''}}" bindtap="switchTab" data-tab="list">
+      <text>进行中</text>
+    </view>
+    <view class="role-tab {{activeTab === 'mine' ? 'role-tab-active' : ''}}" bindtap="switchTab" data-tab="mine">
+      <text>我发起的</text>
+    </view>
+  </view>
+
+  <!-- 团购列表 -->
+  <view class="group-list" wx:if="{{groups.length > 0 && !showPublish}}">
+    <view class="group-card" wx:for="{{groups}}" wx:key="_id">
+      <view class="group-top">
+        <image class="group-avatar" src="{{item.creator.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill" lazy-load />
+        <view class="group-info">
+          <text class="group-title">{{item.title}}</text>
+          <text class="group-creator">{{item.creator.nickName}} · {{item.timeText}}</text>
+        </view>
+        <text class="group-status tag {{item.status === 'recruiting' ? 'tag-green' : item.status === 'success' ? 'tag-green' : 'tag-gray'}}">
+          {{item.statusText}}
+        </text>
+      </view>
+      <text class="group-desc" wx:if="{{item.description}}">{{item.description}}</text>
+      <!-- 图片 -->
+      <view class="group-images" wx:if="{{item.images.length > 0}}">
+        <image class="group-img" wx:for="{{item.images}}" wx:for-item="img" wx:key="*this" src="{{img}}" mode="aspectFill" lazy-load />
+      </view>
+      <!-- 进度 -->
+      <view class="group-progress-wrap">
+        <view class="group-progress-bar">
+          <view class="group-progress-fill" style="width: {{item.progress}}%;"></view>
+        </view>
+        <text class="group-progress-text">{{item.currentCount}}/{{item.targetCount}}人 · ¥{{item.unitPrice}}/人</text>
+      </view>
+      <text class="group-deadline">截止: {{item.deadlineText}}</text>
+      <!-- 参团按钮 -->
+      <view class="group-actions" wx:if="{{item.status === 'recruiting'}}">
+        <view class="btn-primary group-join-btn" bindtap="joinGroup" data-id="{{item._id}}" wx:if="{{!item.joined}}">
+          <text>立即参团</text>
+        </view>
+        <view class="group-joined-tag" wx:else>
+          <text>已参团</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:elif="{{!loading && !showPublish}}">
+    <text class="empty-text">暂无团购活动</text>
+    <text class="empty-hint">点击右上角发起拼团吧~</text>
+  </view>
+</view>
