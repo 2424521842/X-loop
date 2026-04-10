@@ -28,9 +28,13 @@ exports.main = async (event, context) => {
         })
         .update({ data: { read: true } })
 
-      // 标记哪些是自己发的
+      // 标记哪些是自己发的，并移除 openid 字段
       const result = messages.map(msg => ({
-        ...msg,
+        _id: msg._id,
+        content: msg.content,
+        type: msg.type,
+        read: msg.read,
+        createTime: msg.createTime,
         isMine: msg.fromOpenid === openid
       }))
 
@@ -78,15 +82,24 @@ exports.main = async (event, context) => {
         })
       }
 
-      // 计算每个会话的未读数
-      for (const conv of conversations) {
+      // 计算每个会话的未读数，并脱敏返回数据
+      const safeConversations = conversations.map(conv => {
         const unreadCount = allMsgs.filter(
           m => m.conversationId === conv.conversationId && m.toOpenid === openid && !m.read
         ).length
-        conv.unreadCount = unreadCount
-      }
+        return {
+          conversationId: conv.conversationId,
+          content: conv.content,
+          type: conv.type,
+          createTime: conv.createTime,
+          isMine: conv.isMine,
+          otherOpenid: conv.otherOpenid,
+          otherUser: conv.otherUser,
+          unreadCount
+        }
+      })
 
-      return { code: 0, message: 'success', data: conversations }
+      return { code: 0, message: 'success', data: safeConversations }
     }
   } catch (err) {
     return { code: -1, message: err.message, data: null }
