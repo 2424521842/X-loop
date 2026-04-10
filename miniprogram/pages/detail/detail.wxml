@@ -103,6 +103,9 @@
     </view>
   </view>
 
+  <!-- 卖家评价 -->
+  <review-list targetOpenid="{{product.sellerOpenid}}" wx:if="{{product.sellerOpenid}}" />
+
   <!-- 底部安全区占位 -->
   <view style="height: 180rpx;"></view>
 </view>
@@ -123,7 +126,7 @@
     </view>
   </view>
   <view class="action-right">
-    <button class="btn-chat" plain>聊一聊</button>
+    <button class="btn-chat" plain bindtap="goChat">聊一聊</button>
     <button class="btn-want" bindtap="onBuy">我想要</button>
   </view>
 </view>

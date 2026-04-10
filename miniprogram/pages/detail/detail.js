@@ -45,10 +45,33 @@ Page({
     })
   },
 
-  // 我想要 - 联系卖家
-  onBuy() {
-    // TODO: 创建订单或跳转聊天
-    wx.showToast({ title: '功能开发中', icon: 'none' })
+  // 我想要 - 创建订单
+  async onBuy() {
+    const app = getApp()
+    if (!app.globalData.openid) {
+      return wx.showToast({ title: '请先登录', icon: 'none' })
+    }
+    const res = await wx.showModal({
+      title: '确认购买',
+      content: `确定要购买「${this.data.product.title}」吗？价格：¥${this.data.product.price}`
+    })
+    if (!res.confirm) return
+
+    try {
+      await callCloud('order-create', { productId: this.data.product._id })
+      wx.showToast({ title: '下单成功', icon: 'success' })
+      this.loadProduct(this.data.product._id)
+    } catch (err) {
+      wx.showToast({ title: err.message || '下单失败', icon: 'none' })
+    }
+  },
+
+  // 聊一聊 - 联系卖家
+  goChat() {
+    if (!this.data.product) return
+    wx.navigateTo({
+      url: `/pages/chat/chat?targetOpenid=${this.data.product.sellerOpenid}&productId=${this.data.product._id}`
+    })
   },
 
   onShareAppMessage() {

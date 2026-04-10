@@ -43,10 +43,21 @@ Page({
 
   // 加载统计数据
   async loadStats() {
-    // TODO: 从云函数获取用户统计数据
-    this.setData({
-      stats: { published: 0, sold: 0, bought: 0 }
-    })
+    try {
+      const [buyOrders, sellOrders] = await Promise.all([
+        callCloud('order-list', { role: 'buyer', status: 'completed' }, false).catch(() => []),
+        callCloud('order-list', { role: 'seller', status: 'completed' }, false).catch(() => [])
+      ])
+      this.setData({
+        stats: {
+          published: 0,
+          sold: (sellOrders || []).length,
+          bought: (buyOrders || []).length
+        }
+      })
+    } catch (err) {
+      console.error('加载统计失败', err)
+    }
   },
 
   goMyProducts() {
@@ -54,7 +65,19 @@ Page({
   },
 
   goMyOrders() {
-    wx.showToast({ title: '功能开发中', icon: 'none' })
+    wx.navigateTo({ url: '/pages/order/order' })
+  },
+
+  goMyMessages() {
+    wx.navigateTo({ url: '/pages/chat-list/chat-list' })
+  },
+
+  goGroupBuy() {
+    wx.navigateTo({ url: '/pages/group-buy/group-buy' })
+  },
+
+  goAgentBuy() {
+    wx.navigateTo({ url: '/pages/agent-buy/agent-buy' })
   },
 
   goMyFavorites() {

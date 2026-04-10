@@ -1,6 +1,6 @@
 # X-Loop Development Task Checklist
 
-> Last updated: 2026-04-05
+> Last updated: 2026-04-10
 > Status: ✅ Done | 🔄 In Progress | ⬜ To Do
 
 ---
@@ -92,24 +92,24 @@
 ## Phase 4: Feature Expansion (Week 9-12)
 
 ### 4.1 Chat
-- ⬜ Implement cloud function `message-send`
-- ⬜ Implement cloud function `message-list`
-- ⬜ Develop chat page `pages/chat/`
-- ⬜ Develop chat list page `pages/chat-list/`
-- ⬜ Implement real-time messaging via cloud database watch
+- ✅ Implement cloud function `message-send`
+- ✅ Implement cloud function `message-list`
+- ✅ Develop chat page `pages/chat/`
+- ✅ Develop chat list page `pages/chat-list/`
+- ✅ Implement real-time messaging via cloud database watch
 
 ### 4.2 Order System
-- ⬜ Implement cloud function `order-create`
-- ⬜ Implement cloud function `order-update`
-- ⬜ Implement cloud function `order-list`
-- ⬜ Develop order page `pages/order/`
-- ⬜ Implement order flow: place order → confirm → complete
+- ✅ Implement cloud function `order-create`
+- ✅ Implement cloud function `order-update`
+- ✅ Implement cloud function `order-list`
+- ✅ Develop order page `pages/order/`
+- ✅ Implement order flow: place order → confirm → complete
 
 ### 4.3 Review System
-- ⬜ Implement cloud function `review-create`
-- ⬜ Implement cloud function `review-list`
-- ⬜ Develop review component `components/review/`
-- ⬜ Implement credit score calculation logic
+- ✅ Implement cloud function `review-create`
+- ✅ Implement cloud function `review-list`
+- ✅ Develop review component `components/review/`
+- ✅ Implement credit score calculation logic
 
 ### 4.4 Notifications
 - ⬜ Configure WeChat subscription message templates
@@ -117,18 +117,18 @@
 - ⬜ Implement new message notification
 
 ### 4.5 Group Buy
-- ⬜ Implement cloud function `group-buy-create`
-- ⬜ Implement cloud function `group-buy-join`
-- ⬜ Implement cloud function `group-buy-list`
-- ⬜ Develop group buy page `pages/group-buy/`
-- ⬜ Implement create group / join group / group success logic
+- ✅ Implement cloud function `group-buy-create`
+- ✅ Implement cloud function `group-buy-join`
+- ✅ Implement cloud function `group-buy-list`
+- ✅ Develop group buy page `pages/group-buy/`
+- ✅ Implement create group / join group / group success logic
 
 ### 4.6 Purchasing Agent
-- ⬜ Implement cloud function `agent-buy-create`
-- ⬜ Implement cloud function `agent-buy-accept`
-- ⬜ Implement cloud function `agent-buy-list`
-- ⬜ Develop purchasing agent page `pages/agent-buy/`
-- ⬜ Implement post request / accept order / commission settlement
+- ✅ Implement cloud function `agent-buy-create`
+- ✅ Implement cloud function `agent-buy-accept`
+- ✅ Implement cloud function `agent-buy-list`
+- ✅ Develop purchasing agent page `pages/agent-buy/`
+- ✅ Implement post request / accept order / commission settlement
 
 ### 4.7 Non-functional Requirements
 - ⬜ Anonymous browsing (no login required for browsing, triggered on order)
@@ -141,37 +141,37 @@
 ## Phase 4.5: Admin Management System
 
 ### 4.5.1 Cloud Functions — Backend
-- ⬜ Create `admin-common` shared auth (JWT) + audit logger module
-- ⬜ Create `admin-login` cloud function (username/password → JWT)
-- ⬜ Create `admin-users` cloud function (list/detail/ban/unban/adjust-credit)
-- ⬜ Create `admin-products` cloud function (list/detail/remove/restore/batch-remove)
-- ⬜ Create `admin-orders` cloud function (list/detail/intervene/resolve)
-- ⬜ Create `admin-reports` cloud function (list/detail/claim/resolve)
-- ⬜ Create `admin-stats` cloud function (overview/trend/distribution)
-- ⬜ Add banned user checks to existing cloud functions (user-login, product-create, product-update)
+- ✅ Create `admin-common` shared auth (JWT) + audit logger module
+- ✅ Create `admin-login` cloud function (username/password → JWT)
+- ✅ Create `admin-users` cloud function (list/detail/ban/unban/adjust-credit)
+- ✅ Create `admin-products` cloud function (list/detail/remove/restore/batch-remove)
+- ✅ Create `admin-orders` cloud function (list/detail/intervene/resolve)
+- ✅ Create `admin-reports` cloud function (list/detail/claim/resolve)
+- ✅ Create `admin-stats` cloud function (overview/trend/distribution)
+- ✅ Add banned user checks to existing cloud functions (user-login, product-create, product-update)
 
 ### 4.5.2 Database Setup
-- ⬜ Create `admins` collection
-- ⬜ Create `reports` collection
-- ⬜ Create `admin_logs` collection
-- ⬜ Seed initial super_admin account
+- ✅ Create `admins` collection
+- ✅ Create `reports` collection
+- ✅ Create `admin_logs` collection
+- ✅ Seed initial super_admin account
 
 ### 4.5.3 Admin Web Frontend
-- ⬜ Scaffold admin-web project (Vue 3 + Element Plus + Vite)
-- ⬜ Implement login page + JWT auth store + route guards
-- ⬜ Implement layout components (sidebar + header + role-filtered menus)
-- ⬜ Implement dashboard page (stat cards + ECharts trend/distribution)
-- ⬜ Implement user management pages (list + detail + ban/unban/credit)
-- ⬜ Implement product management pages (list + detail + remove/restore/batch)
-- ⬜ Implement report management pages (list + detail + claim/resolve)
-- ⬜ Implement order management pages (list + detail + dispute handling)
-- ⬜ Implement system management pages (admin list, audit logs, categories)
+- ✅ Scaffold admin-web project (Vue 3 + Element Plus + Vite)
+- ✅ Implement login page + JWT auth store + route guards
+- ✅ Implement layout components (sidebar + header + role-filtered menus)
+- ✅ Implement dashboard page (stat cards + ECharts trend/distribution)
+- ✅ Implement user management pages (list + detail + ban/unban/credit)
+- ✅ Implement product management pages (list + detail + remove/restore/batch)
+- ✅ Implement report management pages (list + detail + claim/resolve)
+- ✅ Implement order management pages (list + detail + dispute handling)
+- ✅ Implement system management pages (admin list, audit logs, categories)
 
 ### 4.5.4 Deployment
-- ⬜ Deploy admin cloud functions with HTTP triggers
-- ⬜ Build and deploy admin-web to WeChat Cloud static hosting
-- ⬜ Configure CORS and JWT secret in cloud environment variables
-- ⬜ End-to-end verification of admin panel
+- ✅ Deploy admin cloud functions with HTTP triggers
+- ✅ Build and deploy admin-web to WeChat Cloud static hosting
+- ✅ Configure CORS and JWT secret in cloud environment variables
+- ✅ End-to-end verification of admin panel
 
 ---
 
@@ -222,8 +222,8 @@
 | Phase 1: Kickoff & Requirements | 6 | 0 | 0% |
 | Phase 2: Design & Setup | 21 | 20 | 95% |
 | Phase 3: MVP Development | 13 | 7 | 54% |
-| Phase 4: Feature Expansion | 27 | 0 | 0% |
-| Phase 4.5: Admin Management System | 24 | 0 | 0% |
+| Phase 4: Feature Expansion | 27 | 24 | 89% |
+| Phase 4.5: Admin Management System | 24 | 24 | 100% |
 | Phase 5: Testing & Optimization | 10 | 0 | 0% |
 | Phase 6: Launch & Operations | 12 | 0 | 0% |
-| **Total** | **113** | **27** | **24%** |
+| **Total** | **113** | **75** | **66%** |
