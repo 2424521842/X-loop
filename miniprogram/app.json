@@ -8,6 +8,7 @@
     "pages/chat-list/chat-list",
     "pages/order/order",
     "pages/group-buy/group-buy",
+    "pages/agent-buy/agent-buy",
     "pages/chat/chat"
   ],
   "window": {
