@@ -6,6 +6,7 @@
     "pages/search/search",
     "pages/profile/profile",
     "pages/chat-list/chat-list",
+    "pages/order/order",
     "pages/chat/chat"
   ],
   "window": {

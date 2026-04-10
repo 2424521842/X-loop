@@ -1,0 +1,85 @@
+<view class="page-order">
+  <!-- 自定义导航栏 -->
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-bar-inner">
+      <view class="nav-back" bindtap="goBack">
+        <text class="nav-back-arrow">&lt;</text>
+        <text class="nav-title">我的订单</text>
+      </view>
+    </view>
+  </view>
+  <view style="height: {{navBarHeight}}px;"></view>
+
+  <!-- 买/卖切换 -->
+  <view class="role-tabs">
+    <view
+      class="role-tab {{activeTab === item.key ? 'role-tab-active' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="key"
+      bindtap="switchTab"
+      data-tab="{{item.key}}"
+    >
+      <text>{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 状态筛选 -->
+  <view class="status-tabs">
+    <view
+      class="status-tab {{activeStatus === item.key ? 'status-tab-active' : ''}}"
+      wx:for="{{statusTabs}}"
+      wx:key="key"
+      bindtap="switchStatus"
+      data-status="{{item.key}}"
+    >
+      <text>{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="order-list" wx:if="{{orders.length > 0}}">
+    <view class="order-card" wx:for="{{orders}}" wx:key="_id">
+      <!-- 订单头 -->
+      <view class="order-header">
+        <text class="order-status {{item.status === 'completed' ? 'status-green' : item.status === 'cancelled' ? 'status-gray' : 'status-primary'}}">
+          {{item.statusText}}
+        </text>
+        <text class="order-time">{{item.timeText}}</text>
+      </view>
+
+      <!-- 商品信息 -->
+      <view class="order-product" bindtap="goDetail" data-id="{{item.productId}}">
+        <image class="order-product-img" src="{{item.productImage}}" mode="aspectFill" lazy-load />
+        <view class="order-product-info">
+          <text class="order-product-title text-ellipsis">{{item.productTitle}}</text>
+          <text class="order-product-price">¥{{item.price}}</text>
+          <text class="order-product-user">{{activeTab === 'buyer' ? '卖家' : '买家'}}：{{item.otherUser.nickName}}</text>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="order-actions">
+        <view class="order-btn order-btn-chat" bindtap="goChat" data-openid="{{activeTab === 'buyer' ? item.sellerOpenid : item.buyerOpenid}}" data-productid="{{item.productId}}">
+          <text>联系对方</text>
+        </view>
+        <!-- 卖家：待确认→确认 -->
+        <view class="order-btn order-btn-primary" wx:if="{{activeTab === 'seller' && item.status === 'pending'}}" bindtap="onAction" data-id="{{item._id}}" data-action="confirm">
+          <text>确认订单</text>
+        </view>
+        <!-- 买家：已确认→完成 -->
+        <view class="order-btn order-btn-primary" wx:if="{{activeTab === 'buyer' && item.status === 'confirmed'}}" bindtap="onAction" data-id="{{item._id}}" data-action="complete">
+          <text>确认收货</text>
+        </view>
+        <!-- 双方：待确认/已确认→取消 -->
+        <view class="order-btn order-btn-cancel" wx:if="{{item.status === 'pending' || item.status === 'confirmed'}}" bindtap="onAction" data-id="{{item._id}}" data-action="cancel">
+          <text>取消订单</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:elif="{{!loading}}">
+    <text class="empty-text">暂无订单</text>
+  </view>
+</view>

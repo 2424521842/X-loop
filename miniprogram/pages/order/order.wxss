@@ -1,0 +1,132 @@
+.page-order {
+  min-height: 100vh;
+  background: #F5F3F7;
+}
+
+.nav-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: linear-gradient(to right, #010544, #CE57C1);
+}
+
+.nav-bar-inner {
+  height: 44px; display: flex; align-items: center; padding: 0 20rpx;
+}
+
+.nav-back {
+  display: flex; align-items: center;
+}
+
+.nav-back-arrow {
+  color: #fff; font-size: 36rpx; margin-right: 12rpx;
+}
+
+.nav-title {
+  color: #fff; font-size: 34rpx; font-weight: bold;
+}
+
+.role-tabs {
+  display: flex; background: #fff; padding: 0 40rpx;
+}
+
+.role-tab {
+  flex: 1; text-align: center; padding: 24rpx 0; font-size: 30rpx; color: #666;
+  border-bottom: 4rpx solid transparent;
+}
+
+.role-tab-active {
+  color: #CE57C1; font-weight: bold;
+  border-bottom-color: #CE57C1;
+}
+
+.status-tabs {
+  display: flex; background: #fff; padding: 16rpx 20rpx; margin-bottom: 16rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.status-tab {
+  padding: 8rpx 24rpx; font-size: 24rpx; color: #999;
+  border-radius: 24rpx; margin-right: 16rpx;
+}
+
+.status-tab-active {
+  background: #F0E6F6; color: #CE57C1;
+}
+
+.order-list {
+  padding: 0 20rpx 20rpx;
+}
+
+.order-card {
+  background: #fff; border-radius: 16rpx; padding: 24rpx;
+  margin-bottom: 20rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05);
+}
+
+.order-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.order-status {
+  font-size: 26rpx; font-weight: bold;
+}
+
+.status-primary { color: #CE57C1; }
+.status-green { color: #52c41a; }
+.status-gray { color: #999; }
+
+.order-time {
+  font-size: 22rpx; color: #999;
+}
+
+.order-product {
+  display: flex; padding: 16rpx 0; border-top: 1rpx solid #f5f5f5;
+}
+
+.order-product-img {
+  width: 160rpx; height: 160rpx; border-radius: 12rpx; margin-right: 20rpx;
+}
+
+.order-product-info {
+  flex: 1; display: flex; flex-direction: column; justify-content: space-between;
+}
+
+.order-product-title {
+  font-size: 28rpx; color: #333;
+}
+
+.order-product-price {
+  font-size: 32rpx; color: #ff4d4f; font-weight: bold;
+}
+
+.order-product-user {
+  font-size: 24rpx; color: #999;
+}
+
+.order-actions {
+  display: flex; justify-content: flex-end; gap: 16rpx;
+  padding-top: 20rpx; border-top: 1rpx solid #f5f5f5; margin-top: 16rpx;
+}
+
+.order-btn {
+  padding: 12rpx 28rpx; border-radius: 24rpx; font-size: 24rpx;
+}
+
+.order-btn-chat {
+  border: 1rpx solid #ddd; color: #666;
+}
+
+.order-btn-primary {
+  background: #CE57C1; color: #fff;
+}
+
+.order-btn-cancel {
+  border: 1rpx solid #ddd; color: #999;
+}
+
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; padding-top: 200rpx;
+}
+
+.empty-text {
+  font-size: 32rpx; color: #999;
+}
