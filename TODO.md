@@ -1,6 +1,6 @@
 # X-Loop Development Task Checklist
 
-> Last updated: 2026-04-10
+> Last updated: 2026-04-17
 > Status: ✅ Done | 🔄 In Progress | ⬜ To Do
 
 ---
@@ -131,10 +131,10 @@
 - ✅ Implement post request / accept order / commission settlement
 
 ### 4.7 Non-functional Requirements
-- ⬜ Anonymous browsing (no login required for browsing, triggered on order)
-- ⬜ Frontend image compression before upload
-- ⬜ Cloud database permission rules (users can only modify their own data)
-- ⬜ Integrate WeChat Content Security API (text + image moderation)
+- ✅ Anonymous browsing (no login required for browsing, triggered on order)
+- ✅ Frontend image compression before upload
+- ✅ Cloud database permission rules (users can only modify their own data)
+- ✅ Integrate WeChat Content Security API (text + image moderation)
 
 ---
 
@@ -222,8 +222,8 @@
 | Phase 1: Kickoff & Requirements | 6 | 0 | 0% |
 | Phase 2: Design & Setup | 21 | 20 | 95% |
 | Phase 3: MVP Development | 13 | 7 | 54% |
-| Phase 4: Feature Expansion | 27 | 24 | 89% |
+| Phase 4: Feature Expansion | 27 | 27 | 100% |
 | Phase 4.5: Admin Management System | 24 | 24 | 100% |
 | Phase 5: Testing & Optimization | 10 | 0 | 0% |
 | Phase 6: Launch & Operations | 12 | 0 | 0% |
-| **Total** | **113** | **75** | **66%** |
+| **Total** | **113** | **78** | **69%** |

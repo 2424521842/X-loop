@@ -1,4 +1,4 @@
-const { callCloud } = require('../../utils/api')
+const { callCloud, ensureLogin } = require('../../utils/api')
 const { formatTime } = require('../../utils/util')
 
 Page({
@@ -86,6 +86,12 @@ Page({
   async sendMessage() {
     const content = this.data.inputValue.trim()
     if (!content) return
+
+    try {
+      await ensureLogin()
+    } catch (err) {
+      return
+    }
 
     // 先在本地显示
     const newMsg = {

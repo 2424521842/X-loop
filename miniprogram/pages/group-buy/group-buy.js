@@ -1,4 +1,4 @@
-const { callCloud, uploadImage } = require('../../utils/api')
+const { callCloud, ensureLogin, uploadImage } = require('../../utils/api')
 const { formatTime, GROUP_BUY_STATUS_TEXT } = require('../../utils/util')
 
 Page({
@@ -95,6 +95,12 @@ Page({
       return wx.showToast({ title: '请填写完整信息', icon: 'none' })
     }
 
+    try {
+      await ensureLogin()
+    } catch (err) {
+      return
+    }
+
     wx.showLoading({ title: '发布中...' })
     try {
       // 上传图片
@@ -130,6 +136,12 @@ Page({
     const groupId = e.currentTarget.dataset.id
     const res = await wx.showModal({ title: '提示', content: '确定参加此团购吗？' })
     if (!res.confirm) return
+
+    try {
+      await ensureLogin()
+    } catch (err) {
+      return
+    }
 
     try {
       await callCloud('group-buy-join', { groupId })

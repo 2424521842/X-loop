@@ -1,4 +1,4 @@
-const { callCloud, uploadImage } = require('../../utils/api')
+const { callCloud, ensureLogin, uploadImage } = require('../../utils/api')
 const { CATEGORIES } = require('../../utils/util')
 
 Page({
@@ -57,6 +57,12 @@ Page({
     if (!title.trim()) return wx.showToast({ title: '请输入商品标题', icon: 'none' })
     if (!price || Number(price) <= 0) return wx.showToast({ title: '请输入有效价格', icon: 'none' })
     if (!selectedCategory) return wx.showToast({ title: '请选择分类', icon: 'none' })
+
+    try {
+      await ensureLogin()
+    } catch (err) {
+      return
+    }
 
     this.setData({ submitting: true })
     wx.showLoading({ title: '发布中...' })

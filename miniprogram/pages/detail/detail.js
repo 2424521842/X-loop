@@ -1,4 +1,4 @@
-const { callCloud } = require('../../utils/api')
+const { callCloud, ensureLogin } = require('../../utils/api')
 const { formatTime, CATEGORIES, PRODUCT_STATUS_TEXT } = require('../../utils/util')
 
 Page({
@@ -47,9 +47,10 @@ Page({
 
   // 我想要 - 创建订单
   async onBuy() {
-    const app = getApp()
-    if (!app.globalData.openid) {
-      return wx.showToast({ title: '请先登录', icon: 'none' })
+    try {
+      await ensureLogin()
+    } catch (err) {
+      return
     }
     const res = await wx.showModal({
       title: '确认购买',
@@ -67,8 +68,13 @@ Page({
   },
 
   // 聊一聊 - 联系卖家
-  goChat() {
+  async goChat() {
     if (!this.data.product) return
+    try {
+      await ensureLogin()
+    } catch (err) {
+      return
+    }
     wx.navigateTo({
       url: `/pages/chat/chat?targetOpenid=${this.data.product.sellerOpenid}&productId=${this.data.product._id}`
     })

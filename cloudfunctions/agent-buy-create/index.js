@@ -12,6 +12,26 @@ exports.main = async (event, context) => {
   }
 
   try {
+    // 发布前进行文本内容安全检测
+    if (description.length > 0) {
+      let secCheckResult
+      try {
+        secCheckResult = await cloud.openapi.security.msgSecCheck({
+          version: 2,
+          scene: 2,
+          openid,
+          content: description
+        })
+      } catch (err) {
+        return { code: -1, message: '内容安全检测失败，请稍后重试', data: null }
+      }
+
+      const suggest = secCheckResult && secCheckResult.result ? secCheckResult.result.suggest : ''
+      if (suggest === 'risky' || suggest === 'review') {
+        return { code: -1, message: '内容包含违规信息，请修改后重试', data: null }
+      }
+    }
+
     const result = await db.collection('agent_buys').add({
       data: {
         description,

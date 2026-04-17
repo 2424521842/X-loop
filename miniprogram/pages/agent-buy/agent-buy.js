@@ -1,4 +1,4 @@
-const { callCloud } = require('../../utils/api')
+const { callCloud, ensureLogin } = require('../../utils/api')
 const { formatTime, AGENT_BUY_STATUS_TEXT } = require('../../utils/util')
 
 Page({
@@ -64,6 +64,12 @@ Page({
     }
 
     try {
+      await ensureLogin()
+    } catch (err) {
+      return
+    }
+
+    try {
       await callCloud('agent-buy-create', {
         description,
         budget: Number(budget),
@@ -85,6 +91,12 @@ Page({
     const actionText = { accept: '接单', complete: '确认完成', cancel: '取消' }
     const res = await wx.showModal({ title: '提示', content: `确定要${actionText[action]}吗？` })
     if (!res.confirm) return
+
+    try {
+      await ensureLogin()
+    } catch (err) {
+      return
+    }
 
     try {
       await callCloud('agent-buy-accept', { agentBuyId: id, action })

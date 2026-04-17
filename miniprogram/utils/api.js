@@ -42,10 +42,17 @@ function uploadImage(filePath, cloudDir = 'products') {
   const ext = filePath.split('.').pop()
   const cloudPath = `${cloudDir}/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${ext}`
 
-  return wx.cloud.uploadFile({
-    cloudPath,
-    filePath
-  }).then(res => res.fileID)
+  // 上传前先尝试压缩图片，压缩失败时回退到原图继续上传
+  return wx.compressImage({
+    src: filePath,
+    quality: 80
+  }).then(res => res.tempFilePath)
+    .catch(() => filePath)
+    .then(finalPath => wx.cloud.uploadFile({
+      cloudPath,
+      filePath: finalPath
+    }))
+    .then(res => res.fileID)
 }
 
 /**
@@ -61,8 +68,27 @@ function getTempFileURL(fileList) {
   }).then(res => res.fileList.map(f => f.tempFileURL))
 }
 
+/**
+ * 确保用户已登录，未登录时自动触发登录
+ * @returns {Promise} 登录成功时 resolve，失败时 reject
+ */
+function ensureLogin() {
+  const app = getApp()
+  if (app.globalData.openid) {
+    return Promise.resolve()
+  }
+  return callCloud('user-login', {}).then(result => {
+    app.globalData.userInfo = result.userInfo
+    app.globalData.openid = result.openid
+  }).catch(err => {
+    wx.showToast({ title: '登录失败，请重试', icon: 'none' })
+    throw err
+  })
+}
+
 module.exports = {
   callCloud,
+  ensureLogin,
   uploadImage,
   getTempFileURL
 }

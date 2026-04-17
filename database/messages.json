@@ -1,0 +1,4 @@
+{
+  "read": "doc.fromOpenid == auth.openid || doc.toOpenid == auth.openid",
+  "write": false
+}
