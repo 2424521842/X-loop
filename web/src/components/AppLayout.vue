@@ -65,7 +65,8 @@ import tabProfile from '../assets/mobile/tab-profile-v2.png'
 import tabProfileActive from '../assets/mobile/tab-profile-active-v2.png'
 import tabPublish from '../assets/mobile/tab-publish-v2.png'
 import tabPublishActive from '../assets/mobile/tab-publish-active-v2.png'
-import tabMessage from '../assets/mobile/icon-message-v2.png'
+import tabMessage from '../assets/mobile/tab-message-v2.png'
+import tabMessageActive from '../assets/mobile/tab-message-active-v2.png'
 
 const router = useRouter()
 const route = useRoute()
@@ -74,7 +75,7 @@ const userStore = useUserStore()
 const tabItems = [
   { path: '/', name: 'home', label: '首页', icon: tabHome, activeIcon: tabHomeActive },
   { path: '/publish', name: 'publish', label: '发布', icon: tabPublish, activeIcon: tabPublishActive },
-  { path: '/chat-list', name: 'chat-list', label: '消息', icon: tabMessage, activeIcon: tabMessage },
+  { path: '/chat-list', name: 'chat-list', label: '消息', icon: tabMessage, activeIcon: tabMessageActive },
   { path: '/profile', name: 'profile', label: '我的', icon: tabProfile, activeIcon: tabProfileActive }
 ]
 
