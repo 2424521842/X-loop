@@ -65,6 +65,7 @@ import tabProfile from '../assets/mobile/tab-profile-v2.png'
 import tabProfileActive from '../assets/mobile/tab-profile-active-v2.png'
 import tabPublish from '../assets/mobile/tab-publish-v2.png'
 import tabPublishActive from '../assets/mobile/tab-publish-active-v2.png'
+import tabMessage from '../assets/mobile/icon-message-v2.png'
 
 const router = useRouter()
 const route = useRoute()
@@ -73,6 +74,7 @@ const userStore = useUserStore()
 const tabItems = [
   { path: '/', name: 'home', label: '首页', icon: tabHome, activeIcon: tabHomeActive },
   { path: '/publish', name: 'publish', label: '发布', icon: tabPublish, activeIcon: tabPublishActive },
+  { path: '/chat-list', name: 'chat-list', label: '消息', icon: tabMessage, activeIcon: tabMessage },
   { path: '/profile', name: 'profile', label: '我的', icon: tabProfile, activeIcon: tabProfileActive }
 ]
 
@@ -90,6 +92,7 @@ const showTopbar = computed(() => route.meta?.hideShellTopbar !== true)
 const navTitle = computed(() => route.meta?.title || 'X-Loop')
 const tabTitle = computed(() => {
   if (route.name === 'publish') return '发布商品'
+  if (route.name === 'chat-list') return '消息'
   if (route.name === 'profile') return '个人中心'
   return 'X-Loop'
 })
@@ -215,7 +218,7 @@ function goBack() {
   left: 0;
   z-index: 110;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   min-height: calc(var(--mobile-tabbar-height) + env(safe-area-inset-bottom));
   padding: 7px max(8px, env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
   border-top: 1px solid rgba(1, 5, 68, 0.08);

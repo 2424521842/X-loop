@@ -72,7 +72,6 @@ import iconCampus from '../assets/mobile/icon-campus-v2.png'
 import iconEmail from '../assets/mobile/icon-email-v2.png'
 import iconFavorite from '../assets/mobile/icon-favorite-v2.png'
 import iconFeedback from '../assets/mobile/icon-feedback-v2.png'
-import iconMessage from '../assets/mobile/icon-message-v2.png'
 import iconOrder from '../assets/mobile/icon-order-v2.png'
 
 const router = useRouter()
@@ -102,7 +101,6 @@ const menuItems = computed(() => [
   { label: '所在校区', value: campusText.value, icon: iconCampus, bg: '#dfe0ff', to: '/profile/edit' },
   { label: '我的发布', icon: iconFavorite, bg: '#ffd7f3', to: '/my-products' },
   { label: '我的订单', icon: iconOrder, bg: '#dfe0ff', to: '/orders' },
-  { label: '我的消息', icon: iconMessage, bg: '#d7f0ff', to: '/chat-list' },
   { label: '收到的评价', icon: iconFeedback, bg: '#e9e7eb', to: `/reviews/${userId.value}` },
   { label: '编辑资料', icon: iconCampus, bg: '#dfe0ff', to: '/profile/edit' },
   { label: '退出登录', icon: iconFeedback, bg: '#ffdad7', action: 'logout' }
