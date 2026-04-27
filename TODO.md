@@ -1,7 +1,15 @@
 # X-Loop Development Task Checklist
 
-> Last updated: 2026-04-17
+> Last updated: 2026-04-27
 > Status: ✅ Done | 🔄 In Progress | ⬜ To Do
+
+---
+
+## Direction Update: Web MVP Pivot
+
+- ✅ Pivot public-facing client from WeChat Mini Program launch path to a web MVP.
+- ✅ Adjust trading model to buyer-seller contact + offline handover + order status tracking.
+- ✅ Scaffold static web prototype in `web/` without online payment or fund custody.
 
 ---
 
@@ -30,7 +38,7 @@
 - ⬜ Design profile page prototype
 - ⬜ Design chat page prototype
 - ⬜ Design group buy / purchasing agent section prototype
-- ⬜ Create tabBar icons (Home / Publish / Profile, normal + active states)
+- ✅ Create tabBar icons (Home / Publish / Profile, normal + active states)
 
 ### 2.2 Technical Setup
 - ✅ Register WeChat Mini Program account, obtain AppID
@@ -69,17 +77,26 @@
 - ✅ Homepage (product list + category tabs + pull-to-refresh + infinite scroll)
 - ✅ Product detail page (image carousel + product info + seller info + bottom action bar)
 - ✅ Publish product page (image upload + form + category picker + submit)
+- ✅ Publish product campus selector (SIP / TC) and campus display
 - ✅ Search page (search bar + sort/filter + search history + result list)
 - ✅ Profile page (user info + stats + menu list)
 - ✅ Global styles (app.wxss utility classes)
-- ⬜ Add tabBar icon assets (png)
-- ⬜ Add default avatar image `images/default-avatar.png`
+- ✅ Add tabBar icon assets (png)
+- ✅ Add default avatar image `images/default-avatar.png`
 
 ### 3.2 Utility Modules
 - ✅ `utils/api.js` (cloud function wrapper / image upload / temp URL fetcher)
 - ✅ `utils/util.js` (time formatter / price formatter / category constants / status mapping)
 
-### 3.3 Integration Testing
+### 3.3 Campus Verification
+- ✅ Develop email verification page `pages/email-verify/`
+- ✅ Develop campus selection page `pages/campus-select/`
+- ✅ Implement cloud function `email-code-send`
+- ✅ Implement cloud function `email-code-verify`
+- ✅ Implement cloud function `user-profile-update`
+- ✅ Create cloud database collection: `email_codes`
+
+### 3.4 Integration Testing
 - ✅ End-to-end: user login flow
 - ✅ End-to-end: publish product → display on homepage
 - ✅ End-to-end: product search
@@ -220,10 +237,10 @@
 | Phase | Total | Done | Progress |
 |-------|-------|------|----------|
 | Phase 1: Kickoff & Requirements | 6 | 0 | 0% |
-| Phase 2: Design & Setup | 21 | 20 | 95% |
-| Phase 3: MVP Development | 13 | 7 | 54% |
-| Phase 4: Feature Expansion | 27 | 27 | 100% |
-| Phase 4.5: Admin Management System | 24 | 24 | 100% |
+| Phase 2: Design & Setup | 32 | 22 | 69% |
+| Phase 3: MVP Development | 22 | 18 | 82% |
+| Phase 4: Feature Expansion | 31 | 28 | 90% |
+| Phase 4.5: Admin Management System | 25 | 25 | 100% |
 | Phase 5: Testing & Optimization | 10 | 0 | 0% |
 | Phase 6: Launch & Operations | 12 | 0 | 0% |
-| **Total** | **113** | **78** | **69%** |
+| **Total** | **138** | **93** | **67%** |

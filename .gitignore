@@ -9,6 +9,7 @@
 
 # 临时文件
 stitch-prompts.md
+.mcp.json
 
 # 微信开发者工具个人配置
 project.private.config.json
