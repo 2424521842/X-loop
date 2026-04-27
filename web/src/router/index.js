@@ -19,7 +19,7 @@ const routes = [
   {
     path: '/search',
     name: 'search',
-    component: Placeholder,
+    component: () => import('../pages/Search.vue'),
     meta: { public: true, title: '搜索' }
   },
   {
