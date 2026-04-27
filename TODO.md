@@ -17,8 +17,8 @@
 - ✅ Phase 4b-1: Orders (买/卖 tabs + 状态流转) + Reviews (评分 + 列表 + 平均分)
 - ✅ Phase 4b-2: ChatList (5s 轮询) + Chat (3s 增量轮询 + 乐观 UI)
 - ✅ Phase 4b-3: Search 页（URL 驱动 + localStorage 历史 + 竞态保护）
-- ⬜ Phase 5: admin-web 迁移到新栈 + 部署（Vercel + Render + Atlas + Cloudinary）
-- ⬜ Phase 6: 端到端验收
+- ✅ Phase 5: admin-web 迁移到新栈 + 部署（Vercel + Render + Atlas + Cloudinary）
+- 🔄 Phase 6: 端到端验收（部署完成，待人工逐项测试）
 
 ---
 
