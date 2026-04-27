@@ -3,7 +3,8 @@ import { ElMessage } from 'element-plus'
 const baseURL = import.meta.env.VITE_API_BASE || '/api/admin'
 
 function buildUrl(path, params) {
-  const url = new URL(`${baseURL}${path}`, window.location.origin)
+  const isAbsolute = /^https?:\/\//i.test(baseURL)
+  const url = new URL(`${baseURL}${path}`, isAbsolute ? undefined : window.location.origin)
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
@@ -11,7 +12,7 @@ function buildUrl(path, params) {
       }
     })
   }
-  return url.pathname + url.search
+  return isAbsolute ? url.toString() : url.pathname + url.search
 }
 
 async function request(method, path, options = {}) {
