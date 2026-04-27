@@ -9,7 +9,7 @@
             <el-descriptions-item label="举报类型">{{ targetTypeText(report.targetType) }}</el-descriptions-item>
             <el-descriptions-item label="原因">{{ report.reason }}</el-descriptions-item>
             <el-descriptions-item label="状态"><el-tag>{{ report.status }}</el-tag></el-descriptions-item>
-            <el-descriptions-item label="举报人">{{ report.reporter?.nickName || report.reporterOpenid || '-' }}</el-descriptions-item>
+            <el-descriptions-item label="举报人">{{ report.reporter?.nickName || report.reporterId || '-' }}</el-descriptions-item>
             <el-descriptions-item label="说明" :span="2">{{ report.description || '-' }}</el-descriptions-item>
             <el-descriptions-item v-if="report.handleResult" label="处理结果" :span="2">{{ report.handleResult }}</el-descriptions-item>
           </el-descriptions>
@@ -41,7 +41,7 @@
           <div v-else>暂无对象详情</div>
         </el-card>
 
-        <el-card v-if="canWrite && (report.status === 'pending' || report.status === 'processing')">
+        <el-card v-if="canWrite && (report.status === 'pending' || report.status === 'claimed')">
           <el-button v-if="report.status === 'pending'" type="warning" @click="handleClaim">认领</el-button>
           <el-button
             v-if="report.targetType === 'product'"
@@ -64,7 +64,7 @@
       <el-col :xs="24" :xl="8">
         <el-card header="同对象其他举报">
           <el-empty v-if="!report.relatedReports || report.relatedReports.length === 0" description="无其他举报" />
-          <div v-for="item in report.relatedReports" :key="item._id" class="related-item">
+          <div v-for="item in report.relatedReports" :key="item.id" class="related-item">
             <div>{{ item.reason }} - {{ item.description || '-' }}</div>
             <el-tag size="small">{{ item.status }}</el-tag>
           </div>

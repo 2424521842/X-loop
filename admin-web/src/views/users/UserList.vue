@@ -20,7 +20,7 @@
     <el-card>
       <el-table :data="users" v-loading="loading" stripe>
         <el-table-column prop="nickName" label="昵称" min-width="120" />
-        <el-table-column prop="openid" label="OpenID" min-width="220" show-overflow-tooltip />
+        <el-table-column prop="id" label="用户ID" min-width="220" show-overflow-tooltip />
         <el-table-column prop="credit" label="信誉分" width="90" />
         <el-table-column label="状态" width="90">
           <template #default="{ row }">
@@ -30,11 +30,11 @@
           </template>
         </el-table-column>
         <el-table-column label="注册时间" width="180">
-          <template #default="{ row }">{{ formatDate(row.createTime) }}</template>
+          <template #default="{ row }">{{ formatDate(row.createdAt) }}</template>
         </el-table-column>
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="$router.push(`/users/${row.openid}`)">详情</el-button>
+            <el-button type="primary" link @click="$router.push(`/users/${row.id}`)">详情</el-button>
             <el-button
               v-if="canWrite && row.status !== 'banned'"
               type="danger"
@@ -66,7 +66,7 @@
     </el-card>
 
     <el-dialog v-model="showBanDialog" title="封禁用户" width="420px">
-      <div class="dialog-user">用户：{{ currentUser?.nickName || currentUser?.openid }}</div>
+      <div class="dialog-user">用户：{{ currentUser?.nickName || currentUser?.id }}</div>
       <el-input v-model="banReason" type="textarea" :rows="3" placeholder="请输入封禁原因（必填）" />
       <template #footer>
         <el-button @click="showBanDialog = false">取消</el-button>
@@ -103,7 +103,7 @@ async function fetchData() {
   loading.value = true
   try {
     const res = await getUserList({ ...query, page: currentPage.value - 1 })
-    users.value = res.list || []
+    users.value = res.items || []
     total.value = res.total || 0
   } catch (err) {
     users.value = []
@@ -131,7 +131,7 @@ function openBanDialog(row) {
 
 async function handleBan() {
   try {
-    await banUser(currentUser.value.openid, banReason.value)
+    await banUser(currentUser.value.id, banReason.value)
     ElMessage.success('已封禁')
     showBanDialog.value = false
     banReason.value = ''
@@ -142,7 +142,7 @@ async function handleBan() {
 async function handleUnban(row) {
   try {
     await ElMessageBox.confirm('确定解除该用户的封禁？', '提示')
-    await unbanUser(row.openid)
+    await unbanUser(row.id)
     ElMessage.success('已解封')
     fetchData()
   } catch (err) { /* 取消或错误 */ }

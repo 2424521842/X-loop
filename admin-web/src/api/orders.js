@@ -1,17 +1,17 @@
-import { callAdminApi } from './request'
+import request from './request'
 
 export function getOrderList(params) {
-  return callAdminApi('admin-orders', { action: 'list', data: params })
+  return request.get('/orders', { params })
 }
 
 export function getOrderDetail(id) {
-  return callAdminApi('admin-orders', { action: 'detail', data: { id } })
+  return request.get(`/orders/${id}`)
 }
 
 export function interveneOrder(id, note) {
-  return callAdminApi('admin-orders', { action: 'intervene', data: { id, note } })
+  return request.post(`/orders/${id}/intervene`, { note })
 }
 
 export function resolveOrder(id, resolution, note) {
-  return callAdminApi('admin-orders', { action: 'resolve', data: { id, resolution, note } })
+  return request.post(`/orders/${id}/resolve`, { resolution, note })
 }

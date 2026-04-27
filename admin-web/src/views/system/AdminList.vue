@@ -19,7 +19,7 @@
           </template>
         </el-table-column>
         <el-table-column label="最后登录" width="180">
-          <template #default="{ row }">{{ row.lastLoginTime ? new Date(row.lastLoginTime).toLocaleString('zh-CN') : '-' }}</template>
+          <template #default="{ row }">{{ row.lastLoginAt ? new Date(row.lastLoginAt).toLocaleString('zh-CN') : '-' }}</template>
         </el-table-column>
       </el-table>
     </el-card>
@@ -62,7 +62,7 @@ async function fetchData() {
   loading.value = true
   try {
     const res = await getAdminList()
-    admins.value = res.list || []
+    admins.value = res.items || []
   } finally {
     loading.value = false
   }

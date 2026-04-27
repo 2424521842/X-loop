@@ -5,7 +5,7 @@
     <el-card class="card-gap">
       <el-descriptions :column="3" border>
         <el-descriptions-item label="昵称">{{ user.nickName || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="OpenID">{{ user.openid }}</el-descriptions-item>
+        <el-descriptions-item label="用户ID">{{ user.id }}</el-descriptions-item>
         <el-descriptions-item label="信誉分">
           {{ user.credit || 100 }}
           <el-button
@@ -27,7 +27,7 @@
         <el-descriptions-item label="发布商品数">{{ user.productCount || 0 }}</el-descriptions-item>
         <el-descriptions-item label="订单数">{{ user.orderCount || 0 }}</el-descriptions-item>
         <el-descriptions-item label="被举报次数">{{ user.reportCount || 0 }}</el-descriptions-item>
-        <el-descriptions-item label="注册时间">{{ formatDate(user.createTime) }}</el-descriptions-item>
+        <el-descriptions-item label="注册时间">{{ formatDate(user.createdAt) }}</el-descriptions-item>
         <el-descriptions-item v-if="user.banReason" label="封禁原因" :span="3">{{ user.banReason }}</el-descriptions-item>
       </el-descriptions>
     </el-card>
@@ -89,7 +89,7 @@ function formatDate(value) {
 async function fetchData() {
   loading.value = true
   try {
-    user.value = await getUserDetail(route.params.openid)
+    user.value = await getUserDetail(route.params.id)
     newCredit.value = user.value.credit || 100
   } finally {
     loading.value = false
@@ -98,7 +98,7 @@ async function fetchData() {
 
 async function handleBan() {
   try {
-    await banUser(user.value.openid, banReason.value)
+    await banUser(user.value.id, banReason.value)
     ElMessage.success('已封禁')
     showBanDialog.value = false
     banReason.value = ''
@@ -109,7 +109,7 @@ async function handleBan() {
 async function handleUnban() {
   try {
     await ElMessageBox.confirm('确定解除该用户的封禁？', '提示')
-    await unbanUser(user.value.openid)
+    await unbanUser(user.value.id)
     ElMessage.success('已解封')
     fetchData()
   } catch (err) { /* 取消或错误 */ }
@@ -117,7 +117,7 @@ async function handleUnban() {
 
 async function handleAdjustCredit() {
   try {
-    await adjustCredit(user.value.openid, newCredit.value, creditReason.value)
+    await adjustCredit(user.value.id, newCredit.value, creditReason.value)
     ElMessage.success('信誉分已调整')
     showCreditDialog.value = false
     creditReason.value = ''

@@ -46,7 +46,7 @@
         <el-table-column prop="reportCount" label="举报" width="80" />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="$router.push(`/products/${row._id}`)">详情</el-button>
+            <el-button type="primary" link @click="$router.push(`/products/${row.id}`)">详情</el-button>
             <el-button
               v-if="canWrite && row.status !== 'off_shelf'"
               type="danger"
@@ -148,7 +148,7 @@ async function fetchData() {
   loading.value = true
   try {
     const res = await getProductList({ ...query, page: currentPage.value - 1 })
-    products.value = res.list || []
+    products.value = res.items || []
     total.value = res.total || 0
   } finally {
     loading.value = false
@@ -161,7 +161,7 @@ function handleSearch() {
 }
 
 function handleSelection(rows) {
-  selectedIds.value = rows.map(row => row._id)
+  selectedIds.value = rows.map(row => row.id)
 }
 
 function handlePageChange(page) {
@@ -177,7 +177,7 @@ function openRemoveDialog(row) {
 
 async function handleRemove() {
   try {
-    await removeProduct(currentProduct.value._id, removeReason.value)
+    await removeProduct(currentProduct.value.id, removeReason.value)
     ElMessage.success('已下架')
     showRemoveDialog.value = false
     fetchData()
@@ -187,7 +187,7 @@ async function handleRemove() {
 async function handleRestore(row) {
   try {
     await ElMessageBox.confirm('确定恢复该商品上架？', '提示')
-    await restoreProduct(row._id)
+    await restoreProduct(row.id)
     ElMessage.success('已恢复上架')
     fetchData()
   } catch (err) { /* 取消或错误 */ }

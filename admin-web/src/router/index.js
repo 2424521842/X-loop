@@ -15,7 +15,7 @@ const routes = [
     children: [
       { path: 'dashboard', name: 'Dashboard', component: () => import('../views/dashboard/DashboardView.vue'), meta: { menu: 'dashboard', title: '数据看板' } },
       { path: 'users', name: 'UserList', component: () => import('../views/users/UserList.vue'), meta: { menu: 'users', title: '用户管理' } },
-      { path: 'users/:openid', name: 'UserDetail', component: () => import('../views/users/UserDetail.vue'), meta: { menu: 'users', title: '用户详情' } },
+      { path: 'users/:id', name: 'UserDetail', component: () => import('../views/users/UserDetail.vue'), meta: { menu: 'users', title: '用户详情' } },
       { path: 'products', name: 'ProductList', component: () => import('../views/products/ProductList.vue'), meta: { menu: 'products', title: '商品管理' } },
       { path: 'products/:id', name: 'ProductDetail', component: () => import('../views/products/ProductDetail.vue'), meta: { menu: 'products', title: '商品详情' } },
       { path: 'reports', name: 'ReportList', component: () => import('../views/reports/ReportList.vue'), meta: { menu: 'reports', title: '举报处理' } },

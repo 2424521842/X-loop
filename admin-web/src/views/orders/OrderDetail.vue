@@ -6,7 +6,7 @@
       <el-col :xs="24" :xl="16">
         <el-card class="card-gap">
           <el-descriptions :column="2" border>
-            <el-descriptions-item label="订单号">{{ order._id }}</el-descriptions-item>
+            <el-descriptions-item label="订单号">{{ order.id }}</el-descriptions-item>
             <el-descriptions-item label="价格">¥{{ order.price }}</el-descriptions-item>
             <el-descriptions-item label="状态"><el-tag>{{ order.status }}</el-tag></el-descriptions-item>
             <el-descriptions-item label="纠纷">
@@ -58,8 +58,8 @@
         <el-card header="聊天记录">
           <el-empty v-if="!order.messages || order.messages.length === 0" description="无聊天记录" />
           <div class="chat-messages">
-            <div v-for="message in order.messages" :key="message._id" class="chat-msg">
-              <span class="chat-sender">{{ message.fromOpenid === order.buyerOpenid ? '买家' : '卖家' }}:</span>
+            <div v-for="message in order.messages" :key="message.id" class="chat-msg">
+              <span class="chat-sender">{{ message.fromUserId === order.buyerId ? '买家' : '卖家' }}:</span>
               <span>{{ message.content }}</span>
             </div>
           </div>

@@ -1,13 +1,13 @@
-import { callAdminApi } from './request'
+import request from './request'
 
 export function getOverview() {
-  return callAdminApi('admin-stats', { action: 'overview' })
+  return request.get('/stats/overview')
 }
 
 export function getTrend(type, days) {
-  return callAdminApi('admin-stats', { action: 'trend', data: { type, days } })
+  return request.get('/stats/trend', { params: { type, days } })
 }
 
 export function getDistribution() {
-  return callAdminApi('admin-stats', { action: 'distribution' })
+  return request.get('/stats/distribution')
 }

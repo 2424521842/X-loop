@@ -1,5 +1,5 @@
-import { callAdminApi } from './request'
+import request from './request'
 
 export function login(username, password) {
-  return callAdminApi('admin-login', { username, password })
+  return request.post('/login', { username, password })
 }

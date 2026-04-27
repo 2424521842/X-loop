@@ -1,21 +1,21 @@
-import { callAdminApi } from './request'
+import request from './request'
 
 export function getProductList(params) {
-  return callAdminApi('admin-products', { action: 'list', data: params })
+  return request.get('/products', { params })
 }
 
 export function getProductDetail(id) {
-  return callAdminApi('admin-products', { action: 'detail', data: { id } })
+  return request.get(`/products/${id}`)
 }
 
 export function removeProduct(id, reason) {
-  return callAdminApi('admin-products', { action: 'remove', data: { id, reason } })
+  return request.post(`/products/${id}/remove`, { reason })
 }
 
 export function restoreProduct(id) {
-  return callAdminApi('admin-products', { action: 'restore', data: { id } })
+  return request.post(`/products/${id}/restore`, {})
 }
 
 export function batchRemoveProducts(ids, reason) {
-  return callAdminApi('admin-products', { action: 'batch-remove', data: { ids, reason } })
+  return request.post('/products/batch-remove', { ids, reason })
 }

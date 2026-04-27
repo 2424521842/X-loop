@@ -1,17 +1,17 @@
-import { callAdminApi } from './request'
+import request from './request'
 
 export function getReportList(params) {
-  return callAdminApi('admin-reports', { action: 'list', data: params })
+  return request.get('/reports', { params })
 }
 
 export function getReportDetail(id) {
-  return callAdminApi('admin-reports', { action: 'detail', data: { id } })
+  return request.get(`/reports/${id}`)
 }
 
 export function claimReport(id) {
-  return callAdminApi('admin-reports', { action: 'claim', data: { id } })
+  return request.post(`/reports/${id}/claim`, {})
 }
 
 export function resolveReport(id, result, handleAction) {
-  return callAdminApi('admin-reports', { action: 'resolve', data: { id, result, handleAction } })
+  return request.post(`/reports/${id}/resolve`, { result, handleAction })
 }

@@ -3,7 +3,7 @@
     <el-card>
       <el-tabs v-model="activeTab" @tab-change="handleTabChange">
         <el-tab-pane label="待处理" name="pending" />
-        <el-tab-pane label="处理中" name="processing" />
+        <el-tab-pane label="处理中" name="claimed" />
         <el-tab-pane label="已完结" name="resolved" />
       </el-tabs>
 
@@ -13,13 +13,13 @@
         </el-table-column>
         <el-table-column prop="reason" label="原因" width="120" />
         <el-table-column prop="description" label="说明" min-width="220" show-overflow-tooltip />
-        <el-table-column prop="handlerUsername" label="处理人" width="110" />
+        <el-table-column prop="claimedBy" label="处理人" width="110" />
         <el-table-column label="时间" width="180">
-          <template #default="{ row }">{{ formatDate(row.createTime) }}</template>
+          <template #default="{ row }">{{ formatDate(row.createdAt) }}</template>
         </el-table-column>
         <el-table-column label="操作" width="100" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="$router.push(`/reports/${row._id}`)">处理</el-button>
+            <el-button type="primary" link @click="$router.push(`/reports/${row.id}`)">处理</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -61,7 +61,7 @@ async function fetchData() {
   loading.value = true
   try {
     const res = await getReportList({ status: activeTab.value, page: currentPage.value - 1, pageSize })
-    reports.value = res.list || []
+    reports.value = res.items || []
     total.value = res.total || 0
   } finally {
     loading.value = false

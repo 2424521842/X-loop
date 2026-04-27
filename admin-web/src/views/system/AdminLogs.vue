@@ -31,7 +31,7 @@
           <template #default="{ row }">{{ JSON.stringify(row.detail || {}) }}</template>
         </el-table-column>
         <el-table-column label="时间" width="180">
-          <template #default="{ row }">{{ formatDate(row.createTime) }}</template>
+          <template #default="{ row }">{{ formatDate(row.createdAt) }}</template>
         </el-table-column>
       </el-table>
 
@@ -68,7 +68,7 @@ async function fetchData() {
   loading.value = true
   try {
     const res = await getAdminLogs({ ...query, page: currentPage.value - 1, pageSize })
-    logs.value = res.list || []
+    logs.value = res.items || []
     total.value = res.total || 0
   } finally {
     loading.value = false

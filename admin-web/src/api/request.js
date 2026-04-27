@@ -1,35 +1,63 @@
 import { ElMessage } from 'element-plus'
 
-/**
- * 调用管理端云函数（通过 Express 代理 → 微信服务端 API）
- * @param {string} funcName - 云函数名称 (如 'admin-login')
- * @param {object} data - 请求数据 (含 action 和 data 字段)
- * @returns {Promise} 解析后的 data 字段
- */
-export async function callAdminApi(funcName, data = {}) {
-  // 将 JWT token 注入请求数据
+const baseURL = import.meta.env.VITE_API_BASE || '/api/admin'
+
+function buildUrl(path, params) {
+  const url = new URL(`${baseURL}${path}`, window.location.origin)
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        url.searchParams.set(key, value)
+      }
+    })
+  }
+  return url.pathname + url.search
+}
+
+async function request(method, path, options = {}) {
   const token = localStorage.getItem('admin_token')
-  const payload = token ? { ...data, token } : data
+  const headers = { 'Content-Type': 'application/json' }
+  if (token) headers.Authorization = `Bearer ${token}`
 
   try {
-    const res = await fetch(`/api/${funcName}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+    const res = await fetch(buildUrl(path, options.params), {
+      method,
+      headers,
+      body: options.data === undefined ? undefined : JSON.stringify(options.data)
     })
-
     const result = await res.json()
+
+    if (res.status === 401) {
+      localStorage.removeItem('admin_token')
+      localStorage.removeItem('admin_role')
+      window.location.href = '/login'
+    }
+
     if (result.code !== 0) {
       ElMessage.error(result.message || '请求失败')
-      if (result.message && result.message.includes('令牌已过期')) {
-        localStorage.removeItem('admin_token')
-        window.location.href = '/login'
-      }
-      return Promise.reject(new Error(result.message))
+      throw new Error(result.message || '请求失败')
     }
+
     return result.data
   } catch (err) {
-    ElMessage.error('网络异常，请重试')
-    return Promise.reject(err)
+    if (!err.message || err.message === 'Failed to fetch') {
+      ElMessage.error('网络异常，请重试')
+    }
+    throw err
+  }
+}
+
+export default {
+  get(path, options) {
+    return request('GET', path, options)
+  },
+  post(path, data, options = {}) {
+    return request('POST', path, { ...options, data })
+  },
+  patch(path, data, options = {}) {
+    return request('PATCH', path, { ...options, data })
+  },
+  delete(path, options) {
+    return request('DELETE', path, options)
   }
 }

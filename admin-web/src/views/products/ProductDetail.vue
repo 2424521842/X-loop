@@ -55,7 +55,7 @@
 
         <el-card header="举报记录">
           <el-empty v-if="!product.reports || product.reports.length === 0" description="暂无举报" />
-          <div v-for="report in product.reports" :key="report._id" class="report-item">
+          <div v-for="report in product.reports" :key="report.id" class="report-item">
             <div>原因：{{ report.reason }}</div>
             <div class="report-desc">{{ report.description || '-' }}</div>
             <el-tag size="small">{{ report.status }}</el-tag>
@@ -118,7 +118,7 @@ async function fetchData() {
 
 async function handleRemove() {
   try {
-    await removeProduct(product.value._id, removeReason.value)
+    await removeProduct(product.value.id, removeReason.value)
     ElMessage.success('已下架')
     showRemoveDialog.value = false
     removeReason.value = ''
@@ -129,7 +129,7 @@ async function handleRemove() {
 async function handleRestore() {
   try {
     await ElMessageBox.confirm('确定恢复该商品上架？', '提示')
-    await restoreProduct(product.value._id)
+    await restoreProduct(product.value.id)
     ElMessage.success('已恢复上架')
     fetchData()
   } catch (err) { /* 取消或错误 */ }

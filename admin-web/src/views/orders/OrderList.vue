@@ -19,7 +19,7 @@
       </el-form>
 
       <el-table :data="orders" v-loading="loading" stripe>
-        <el-table-column prop="_id" label="订单号" width="220" show-overflow-tooltip />
+        <el-table-column prop="id" label="订单号" width="220" show-overflow-tooltip />
         <el-table-column prop="productTitle" label="商品" min-width="180" show-overflow-tooltip />
         <el-table-column prop="price" label="价格" width="100">
           <template #default="{ row }">¥{{ row.price }}</template>
@@ -37,11 +37,11 @@
           </template>
         </el-table-column>
         <el-table-column label="时间" width="180">
-          <template #default="{ row }">{{ formatDate(row.createTime) }}</template>
+          <template #default="{ row }">{{ formatDate(row.createdAt) }}</template>
         </el-table-column>
         <el-table-column label="操作" width="100" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="$router.push(`/orders/${row._id}`)">详情</el-button>
+            <el-button type="primary" link @click="$router.push(`/orders/${row.id}`)">详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -86,7 +86,7 @@ async function fetchData() {
   loading.value = true
   try {
     const res = await getOrderList({ ...query, page: currentPage.value - 1, pageSize })
-    orders.value = res.list || []
+    orders.value = res.items || []
     total.value = res.total || 0
   } finally {
     loading.value = false

@@ -1,21 +1,21 @@
-import { callAdminApi } from './request'
+import request from './request'
 
 export function getUserList(params) {
-  return callAdminApi('admin-users', { action: 'list', data: params })
+  return request.get('/users', { params })
 }
 
-export function getUserDetail(openid) {
-  return callAdminApi('admin-users', { action: 'detail', data: { openid } })
+export function getUserDetail(id) {
+  return request.get(`/users/${id}`)
 }
 
-export function banUser(openid, reason) {
-  return callAdminApi('admin-users', { action: 'ban', data: { openid, reason } })
+export function banUser(id, reason) {
+  return request.post(`/users/${id}/ban`, { reason })
 }
 
-export function unbanUser(openid) {
-  return callAdminApi('admin-users', { action: 'unban', data: { openid } })
+export function unbanUser(id) {
+  return request.post(`/users/${id}/unban`, {})
 }
 
-export function adjustCredit(openid, credit, reason) {
-  return callAdminApi('admin-users', { action: 'adjust-credit', data: { openid, credit, reason } })
+export function adjustCredit(id, credit, reason) {
+  return request.post(`/users/${id}/credit`, { credit, reason })
 }

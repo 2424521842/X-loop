@@ -20,6 +20,7 @@ const ordersRoutes = require('./routes/orders')
 const reviewsRoutes = require('./routes/reviews')
 const messagesRoutes = require('./routes/messages')
 const uploadRoutes = require('./routes/upload')
+const adminRoutes = require('./routes/admin')
 const errorHandler = require('./middleware/error-handler')
 const { success } = require('./utils/response')
 
@@ -44,6 +45,7 @@ app.use('/api/orders', ordersRoutes)
 app.use('/api/reviews', reviewsRoutes)
 app.use('/api/messages', messagesRoutes)
 app.use('/api/upload', uploadRoutes)
+app.use('/api/admin', adminRoutes)
 
 // 404 处理
 app.use((req, res) => {
