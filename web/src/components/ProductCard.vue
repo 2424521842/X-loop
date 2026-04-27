@@ -16,12 +16,11 @@
       <div v-else class="image-placeholder">X-Loop</div>
     </div>
 
-    <div class="product-body">
-      <h3>{{ product.title || '未命名商品' }}</h3>
-      <div class="price">{{ formatPrice(product.price) }}</div>
-      <div class="meta-row">
-        <span class="tag tag-green">{{ categoryLabel }}</span>
-        <span class="views">{{ product.viewCount || 0 }} 浏览</span>
+    <div class="card-body">
+      <h3 class="card-title">{{ product.title || '未命名商品' }}</h3>
+      <span class="card-meta">{{ subMeta }}</span>
+      <div class="card-footer">
+        <span class="card-price">¥{{ formatPrice(product.price) }}</span>
       </div>
     </div>
   </article>
@@ -51,10 +50,19 @@ const coverImage = computed(() => {
 })
 
 const categoryLabel = computed(() => {
-  const category = props.product?.category || '其他'
+  const category = props.product?.category || ''
   const match = CATEGORIES.find((item) => item.id === category || item.name === category)
-  return match?.name || category
+  return match?.name || category || '其他'
 })
+
+const campusLabel = computed(() => {
+  const campus = props.product?.campus
+  if (campus === 'sip') return 'SIP 校区'
+  if (campus === 'tc') return 'TC 校区'
+  return ''
+})
+
+const subMeta = computed(() => campusLabel.value || categoryLabel.value)
 
 function handleOpen() {
   if (!props.link || !productId.value) return
@@ -66,9 +74,9 @@ function handleOpen() {
 .product-card {
   overflow: hidden;
   width: 100%;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fff;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 4px 20px rgba(1, 5, 68, 0.03);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
@@ -87,7 +95,7 @@ function handleOpen() {
   position: relative;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: var(--color-tag-bg);
+  background: #F0E6F6;
 }
 
 .image-wrap img {
@@ -102,52 +110,54 @@ function handleOpen() {
   justify-content: center;
   width: 100%;
   height: 100%;
-  color: var(--color-primary);
+  color: #010544;
   font-size: 18px;
   font-weight: 800;
 }
 
-.product-body {
-  padding: 12px;
+.card-body {
+  padding: 10px 12px 12px;
 }
 
-h3 {
-  display: -webkit-box;
-  min-height: 40px;
-  margin: 0 0 8px;
+.card-title {
+  display: block;
+  margin: 0 0 4px;
   overflow: hidden;
-  color: var(--color-text);
-  font-size: 15px;
+  color: #1b1b1e;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 1.35;
-  text-overflow: ellipsis;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.price {
-  margin-bottom: 10px;
-  font-size: 18px;
-}
-
-.meta-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-width: 0;
-}
-
-.tag {
-  max-width: 70%;
-  overflow: hidden;
+  line-height: 1.3;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.views {
-  flex: 0 0 auto;
-  color: var(--color-text-secondary);
-  font-size: 12px;
+.card-meta {
+  display: block;
+  margin-bottom: 8px;
+  color: #464650;
+  font-size: 11px;
+}
+
+.card-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.card-price {
+  color: #ff4d4f;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+@media (min-width: 768px) {
+  .card-title {
+    font-size: 15px;
+  }
+
+  .card-price {
+    font-size: 19px;
+  }
 }
 </style>

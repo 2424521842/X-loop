@@ -1,32 +1,42 @@
 <template>
   <section class="home-page">
-    <div class="hero-bar">
-      <h1>🔁 X-Loop 校园闲置</h1>
-      <el-input
-        v-model.trim="keyword"
-        class="search-input"
-        placeholder="搜索教材、电子产品、生活用品"
-        clearable
-        @keyup.enter="handleSearch"
-      >
-        <template #prefix>
-          <span class="search-icon" aria-hidden="true">⌕</span>
-        </template>
-      </el-input>
-    </div>
+    <header class="hero-section">
+      <div class="hero-decoration" aria-hidden="true"></div>
+      <div class="hero-content">
+        <h1 class="hero-title">
+          <span class="hero-title-text">校园好物，</span>
+          <span class="hero-title-accent">即刻流转</span>
+        </h1>
+        <p class="hero-subtitle">发现西浦学子正在交易的优质闲置</p>
 
-    <nav class="category-tabs" aria-label="商品分类">
-      <button
-        v-for="category in categoryTabs"
-        :key="category"
-        class="category-tab"
-        :class="{ active: selectedCategory === category }"
-        type="button"
-        @click="handleCategoryChange(category)"
-      >
-        {{ category }}
-      </button>
-    </nav>
+        <button
+          class="search-bar"
+          type="button"
+          @click="goSearch"
+        >
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <span class="search-placeholder">搜索您需要的物品</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="category-section" aria-label="商品分类">
+      <div class="category-header">
+        <span class="category-title">热门分类</span>
+      </div>
+      <div class="category-scroll">
+        <button
+          v-for="category in categoryTabs"
+          :key="category"
+          class="category-chip"
+          :class="{ active: selectedCategory === category }"
+          type="button"
+          @click="handleCategoryChange(category)"
+        >
+          {{ category }}
+        </button>
+      </div>
+    </section>
 
     <section
       v-infinite-scroll="loadMore"
@@ -53,13 +63,22 @@
 
         <EmptyState
           v-else
-          text="暂无商品"
+          text="暂无商品，快去发布吧~"
         />
 
         <div v-if="loading && products.length" class="load-more">加载中...</div>
-        <div v-else-if="!finished && products.length" class="load-more">继续下滑查看更多</div>
+        <div v-else-if="finished && products.length" class="load-more">没有更多了</div>
       </template>
     </section>
+
+    <button
+      class="fab-btn"
+      type="button"
+      aria-label="发布商品"
+      @click="goPublish"
+    >
+      <span class="fab-icon">+</span>
+    </button>
   </section>
 </template>
 
@@ -74,7 +93,6 @@ import { CATEGORIES } from '../utils/format'
 const PAGE_SIZE = 20
 
 const router = useRouter()
-const keyword = ref('')
 const selectedCategory = ref('全部')
 const products = ref([])
 const page = ref(0)
@@ -129,13 +147,12 @@ function handleCategoryChange(category) {
   resetAndLoad()
 }
 
-function handleSearch() {
-  const q = keyword.value.trim()
-  if (!q) return
-  router.push({
-    path: '/search',
-    query: { q }
-  })
+function goSearch() {
+  router.push('/search')
+}
+
+function goPublish() {
+  router.push('/publish')
 }
 
 onMounted(() => {
@@ -145,98 +162,214 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .home-page {
+  position: relative;
   width: min(1280px, 100%);
   margin: 0 auto;
-  padding: 20px 16px 40px;
+  padding: 0 0 32px;
 }
 
-.hero-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  min-height: 80px;
-  padding: 0 24px;
-  border-radius: 8px;
-  background: var(--gradient-brand);
-  color: #fff;
+.hero-section {
+  position: relative;
+  padding: 24px 20px 32px;
+  background: linear-gradient(to bottom, #fbf8fc, #f5f3f7);
+  overflow: hidden;
 }
 
-.hero-bar h1 {
-  margin: 0;
-  font-size: 24px;
+.hero-decoration {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 150px;
+  height: 150px;
+  background: rgba(203, 85, 191, 0.05);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-title {
+  margin: 0 0 6px;
+  font-size: 26px;
   font-weight: 800;
+  line-height: 1.3;
   letter-spacing: 0;
 }
 
-.search-input {
-  width: min(360px, 46vw);
+.hero-title-text {
+  color: #0d144e;
+}
+
+.hero-title-accent {
+  color: #cb55bf;
+}
+
+.hero-subtitle {
+  margin: 0 0 20px;
+  color: #464650;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(1, 5, 68, 0.04);
+  cursor: pointer;
+  text-align: left;
 }
 
 .search-icon {
-  color: var(--color-text-secondary);
+  color: #777681;
   font-size: 16px;
 }
 
-.category-tabs {
+.search-placeholder {
+  flex: 1;
+  color: #777681;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.category-section {
+  margin: 0 0 20px;
+}
+
+.category-header {
+  padding: 0 20px;
+  margin-bottom: 12px;
+}
+
+.category-title {
+  color: #464650;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.category-scroll {
   display: flex;
   gap: 10px;
-  margin: 18px 0;
+  padding: 0 20px;
   overflow-x: auto;
-  padding-bottom: 2px;
   scrollbar-width: none;
   white-space: nowrap;
 }
 
-.category-tabs::-webkit-scrollbar {
+.category-scroll::-webkit-scrollbar {
   display: none;
 }
 
-.category-tab {
+.category-chip {
   flex: 0 0 auto;
-  min-height: 34px;
-  padding: 0 14px;
+  padding: 8px 18px;
   border: 0;
   border-radius: 8px;
-  background: #fff;
-  color: var(--color-text);
+  background: #F0E6F6;
+  color: #010544;
   cursor: pointer;
+  font-size: 12px;
   font-weight: 700;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
-.category-tab.active,
-.category-tab:hover {
-  background: var(--color-tag-bg);
-  color: var(--color-primary);
+.category-chip.active {
+  background: linear-gradient(135deg, #010544, #CE57C1);
+  color: #fff;
 }
 
 .products-section {
   min-height: 240px;
+  padding: 0 15px;
 }
 
 .home-skeleton {
   padding: 18px;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fff;
 }
 
 .product-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .load-more {
-  padding: 20px 0 4px;
-  color: var(--color-text-secondary);
-  font-size: 14px;
+  padding: 24px 0 4px;
+  color: #777681;
+  font-size: 13px;
   text-align: center;
 }
 
+.fab-btn {
+  position: fixed;
+  right: 20px;
+  bottom: 90px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #010544, #CE57C1);
+  box-shadow: 0 8px 24px rgba(1, 5, 68, 0.25);
+  cursor: pointer;
+}
+
+.fab-icon {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1;
+}
+
 @media (min-width: 768px) {
+  .home-page {
+    padding: 0 0 40px;
+  }
+
+  .hero-section {
+    padding: 40px 32px 48px;
+  }
+
+  .hero-title {
+    font-size: 36px;
+  }
+
+  .hero-subtitle {
+    font-size: 15px;
+  }
+
+  .products-section {
+    padding: 0 20px;
+  }
+
   .product-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
+  }
+
+  .fab-btn {
+    width: 56px;
+    height: 56px;
+    right: 32px;
+    bottom: 32px;
+  }
+
+  .fab-icon {
+    font-size: 26px;
   }
 }
 
@@ -249,30 +382,6 @@ onMounted(() => {
 @media (min-width: 1280px) {
   .product-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
-  .home-page {
-    padding: 14px 12px 32px;
-  }
-
-  .hero-bar {
-    align-items: stretch;
-    flex-direction: column;
-    justify-content: center;
-    gap: 10px;
-    height: auto;
-    min-height: 112px;
-    padding: 14px;
-  }
-
-  .hero-bar h1 {
-    font-size: 21px;
-  }
-
-  .search-input {
-    width: 100%;
   }
 }
 </style>

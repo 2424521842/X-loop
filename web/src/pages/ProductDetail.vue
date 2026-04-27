@@ -13,103 +13,100 @@
     />
 
     <template v-else>
-      <div class="detail-layout">
-        <div class="media-card card">
-          <el-carousel
-            v-if="imageList.length"
-            class="image-carousel"
-            indicator-position="outside"
-            arrow="always"
+      <div class="swiper-wrap">
+        <el-carousel
+          v-if="imageList.length"
+          class="image-carousel"
+          :autoplay="true"
+          :interval="4000"
+          indicator-position="none"
+          arrow="hover"
+          @change="onSlideChange"
+        >
+          <el-carousel-item
+            v-for="(image, index) in imageList"
+            :key="image"
           >
-            <el-carousel-item
-              v-for="(image, index) in imageList"
-              :key="image"
+            <img
+              class="detail-image"
+              :src="image"
+              :alt="`${product.title || '商品图片'} ${index + 1}`"
+              loading="lazy"
+              @click="openViewer(index)"
             >
-              <img
-                class="detail-image"
-                :src="image"
-                :alt="`${product.title || '商品图片'} ${index + 1}`"
-                loading="lazy"
-                @click="openViewer(index)"
-              >
-            </el-carousel-item>
-          </el-carousel>
-          <div v-else class="image-placeholder">X-Loop</div>
+          </el-carousel-item>
+        </el-carousel>
+        <div v-else class="image-placeholder">X-Loop</div>
+        <div v-if="imageList.length > 1" class="swiper-indicator">
+          {{ currentImageIndex + 1 }} / {{ imageList.length }}
+        </div>
+      </div>
+
+      <div class="product-info-card">
+        <h1 class="product-title">{{ product.title || '未命名商品' }}</h1>
+
+        <div class="product-tags">
+          <span class="tag-pill">{{ categoryLabel }}</span>
+          <span class="tag-pill tag-status">{{ statusText }}</span>
         </div>
 
-        <div class="info-panel">
-          <div class="product-card card">
-            <div class="title-row">
-              <h1>{{ product.title || '未命名商品' }}</h1>
-              <el-tag
-                v-if="product.status && product.status !== 'on_sale'"
-                :type="statusTagType"
-                effect="light"
-              >
-                {{ statusText }}
-              </el-tag>
-            </div>
+        <div class="price-row">
+          <span class="price-symbol">¥</span>
+          <span class="price-value">{{ formatPrice(product.price) }}</span>
+        </div>
 
-            <div class="detail-price">{{ formatPrice(product.price) }}</div>
+        <div class="desc-section">
+          <span class="desc-label">商品描述</span>
+          <p class="desc-text">{{ product.description || '卖家暂未填写商品描述。' }}</p>
+        </div>
 
-            <div class="meta-line">
-              <span class="tag tag-green">{{ categoryLabel }}</span>
-              <span>{{ formatTime(product.createdAt || product.createTime) }}</span>
-            </div>
-
-            <p class="description">{{ product.description || '卖家暂未填写商品描述。' }}</p>
+        <div class="info-grid">
+          <div class="info-grid-item">
+            <span class="info-grid-label">交易方式</span>
+            <span class="info-grid-value">当面交易</span>
           </div>
-
-          <button class="seller-card card" type="button" @click="goReviews">
-            <el-avatar :size="48" :src="seller.avatarUrl">
-              {{ sellerName.slice(0, 1).toUpperCase() }}
-            </el-avatar>
-            <div class="seller-info">
-              <div class="seller-name">{{ sellerName }}</div>
-              <div class="seller-meta">信誉分 {{ seller.credit ?? 100 }}</div>
-            </div>
-            <span class="seller-link">查看评价 &gt;</span>
-          </button>
-
-          <div class="action-bar">
-            <template v-if="isSeller">
-              <el-button
-                class="action-button"
-                type="primary"
-                size="large"
-                @click="router.push('/my-products')"
-              >
-                管理我的商品
-              </el-button>
-            </template>
-
-            <template v-else-if="product.status !== 'on_sale'">
-              <span class="status-hint">{{ statusText }}，暂不可交易</span>
-              <el-button class="action-button" size="large" disabled>联系卖家</el-button>
-              <el-button class="action-button" type="primary" size="large" disabled>我要买</el-button>
-            </template>
-
-            <template v-else>
-              <el-button
-                class="action-button"
-                size="large"
-                @click="handleContact"
-              >
-                联系卖家
-              </el-button>
-              <el-button
-                class="action-button"
-                type="primary"
-                size="large"
-                :loading="ordering"
-                @click="handleBuy"
-              >
-                我要买
-              </el-button>
-            </template>
+          <div class="info-grid-item">
+            <span class="info-grid-label">发布位置</span>
+            <span class="info-grid-value">{{ campusLabel }}</span>
+          </div>
+          <div class="info-grid-item">
+            <span class="info-grid-label">发布时间</span>
+            <span class="info-grid-value">{{ formatTime(product.createdAt || product.createTime) }}</span>
           </div>
         </div>
       </div>
+
+      <button
+        type="button"
+        class="seller-card"
+        :disabled="!sellerId"
+        @click="goReviews"
+      >
+        <div class="seller-header">
+          <el-avatar class="seller-avatar" :size="48" :src="seller.avatarUrl">
+            {{ sellerName.slice(0, 1).toUpperCase() }}
+          </el-avatar>
+          <div class="seller-info">
+            <span class="seller-name">{{ sellerName }}</span>
+            <span class="seller-school">西交利物浦大学</span>
+          </div>
+          <span class="seller-link">查看评价 ›</span>
+        </div>
+        <div class="seller-stats">
+          <div class="stat-item">
+            <span class="stat-num">{{ seller.credit ?? 100 }}</span>
+            <span class="stat-label">信誉</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">{{ campusLabel }}</span>
+            <span class="stat-label">校区</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">{{ statusText }}</span>
+            <span class="stat-label">状态</span>
+          </div>
+        </div>
+      </button>
 
       <ElImageViewer
         v-if="viewerVisible"
@@ -117,6 +114,40 @@
         :initial-index="viewerIndex"
         @close="viewerVisible = false"
       />
+
+      <div class="bottom-action-bar">
+        <template v-if="isSeller">
+          <button
+            class="btn-want"
+            type="button"
+            @click="router.push('/my-products')"
+          >
+            管理我的商品
+          </button>
+        </template>
+
+        <template v-else-if="product.status !== 'on_sale'">
+          <span class="status-hint">{{ statusText }}，暂不可交易</span>
+        </template>
+
+        <template v-else>
+          <button
+            class="btn-chat"
+            type="button"
+            @click="handleContact"
+          >
+            聊一聊
+          </button>
+          <button
+            class="btn-want"
+            type="button"
+            :disabled="ordering"
+            @click="handleBuy"
+          >
+            {{ ordering ? '下单中...' : '我想要' }}
+          </button>
+        </template>
+      </div>
     </template>
   </section>
 </template>
@@ -140,6 +171,7 @@ const loading = ref(true)
 const ordering = ref(false)
 const viewerVisible = ref(false)
 const viewerIndex = ref(0)
+const currentImageIndex = ref(0)
 
 const productId = computed(() => String(route.params.id || ''))
 const imageList = computed(() => {
@@ -157,11 +189,13 @@ const categoryLabel = computed(() => {
   const match = CATEGORIES.find((item) => item.id === category || item.name === category)
   return match?.name || category
 })
-const statusText = computed(() => PRODUCT_STATUS_MAP[product.value?.status] || '不可交易')
-const statusTagType = computed(() => {
-  if (product.value?.status === 'reserved') return 'warning'
-  return 'info'
+const campusLabel = computed(() => {
+  const campus = product.value?.campus
+  if (campus === 'sip') return 'SIP 校区'
+  if (campus === 'tc') return 'TC 校区'
+  return '未指定'
 })
+const statusText = computed(() => PRODUCT_STATUS_MAP[product.value?.status] || '不可交易')
 
 async function loadProduct() {
   loading.value = true
@@ -172,6 +206,10 @@ async function loadProduct() {
   } finally {
     loading.value = false
   }
+}
+
+function onSlideChange(index) {
+  currentImageIndex.value = index
 }
 
 function openViewer(index) {
@@ -224,44 +262,37 @@ onMounted(loadProduct)
 
 <style scoped lang="scss">
 .detail-page {
-  width: min(1120px, 100%);
+  width: 100%;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 24px 16px 104px;
+  padding: 0 0 96px;
+  background: #f5f3f7;
 }
 
 .detail-skeleton {
+  margin: 16px;
   padding: 18px;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fff;
 }
 
-.detail-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
-  gap: 18px;
-  align-items: start;
-}
-
-.media-card,
-.product-card {
-  margin: 0;
+.swiper-wrap {
+  position: relative;
+  width: 100%;
 }
 
 .image-carousel {
-  aspect-ratio: 16 / 9;
+  width: 100%;
+  aspect-ratio: 1 / 1;
 }
 
 .image-carousel :deep(.el-carousel__container) {
   height: 100%;
 }
 
-.detail-image,
-.image-placeholder {
+.detail-image {
   width: 100%;
   height: 100%;
-}
-
-.detail-image {
   cursor: zoom-in;
   object-fit: cover;
 }
@@ -270,129 +301,292 @@ onMounted(loadProduct)
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 16 / 9;
-  border-radius: 8px;
-  background: var(--color-tag-bg);
-  color: var(--color-primary);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #F0E6F6;
+  color: #010544;
   font-size: 28px;
   font-weight: 800;
 }
 
-.info-panel {
+.swiper-indicator {
+  position: absolute;
+  right: 16px;
+  bottom: 28px;
+  padding: 3px 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 12px;
+}
+
+.product-info-card {
+  position: relative;
+  z-index: 2;
+  margin-top: -16px;
+  padding: 20px 16px 16px;
+  border-radius: 16px 16px 0 0;
+  background: #fff;
+}
+
+.product-title {
+  margin: 0 0 12px;
+  color: #1b1b1e;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.product-tags {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
 }
 
-.title-row {
+.tag-pill {
+  padding: 4px 12px;
+  border-radius: 10px;
+  background: #F0E6F6;
+  color: #CE57C1;
+  font-size: 12px;
+}
+
+.tag-pill.tag-status {
+  background: #eeedf0;
+  color: #464650;
+}
+
+.price-row {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+  align-items: baseline;
+  margin-bottom: 18px;
 }
 
-h1 {
-  margin: 0;
-  color: var(--color-dark);
-  font-size: 24px;
-  line-height: 1.35;
+.price-symbol {
+  margin-right: 2px;
+  color: #FF4D4F;
+  font-size: 15px;
+  font-weight: 700;
 }
 
-.detail-price {
-  margin: 16px 0 12px;
-  color: var(--color-price);
-  font-size: 28px;
-  font-weight: 800;
+.price-value {
+  color: #FF4D4F;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
 }
 
-.meta-line {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--color-text-secondary);
+.desc-section {
+  margin-bottom: 18px;
+}
+
+.desc-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #1b1b1e;
   font-size: 14px;
+  font-weight: 600;
 }
 
-.description {
-  margin: 18px 0 0;
-  color: var(--color-text);
+.desc-text {
+  margin: 0;
+  color: #464650;
+  font-size: 14px;
   line-height: 1.8;
   white-space: pre-wrap;
 }
 
-.seller-card {
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.info-grid-item {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  padding: 12px;
+  border-radius: 10px;
+  background: #F0E6F6;
+}
+
+.info-grid-label {
+  margin-bottom: 4px;
+  color: #777681;
+  font-size: 11px;
+}
+
+.info-grid-value {
+  overflow: hidden;
+  color: #1b1b1e;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seller-card {
+  display: block;
   width: 100%;
+  margin: 10px 0 0;
+  padding: 18px 16px;
   border: 0;
-  color: var(--color-text);
+  background: #fff;
   cursor: pointer;
   text-align: left;
 }
 
-.seller-card:hover {
-  background: var(--color-tag-bg);
+.seller-card:disabled {
+  cursor: default;
+}
+
+.seller-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.seller-avatar {
+  flex: 0 0 auto;
+  margin-right: 12px;
+  border: 2px solid #F0E6F6;
 }
 
 .seller-info {
-  min-width: 0;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .seller-name {
-  margin-bottom: 4px;
-  font-weight: 800;
+  margin-bottom: 2px;
+  color: #1b1b1e;
+  font-size: 16px;
+  font-weight: 700;
 }
 
-.seller-meta,
+.seller-school {
+  color: #777681;
+  font-size: 12px;
+}
+
 .seller-link {
-  color: var(--color-text-secondary);
+  color: #777681;
   font-size: 13px;
 }
 
-.action-bar {
+.seller-stats {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-top: 2px;
+  padding: 12px 0;
+  border-radius: 10px;
+  background: #f5f3f7;
 }
 
-.action-button {
+.stat-item {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-num {
+  margin-bottom: 2px;
+  color: #1b1b1e;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.stat-label {
+  color: #777681;
+  font-size: 12px;
+}
+
+.bottom-action-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 40;
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  background: #fff;
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.06);
+}
+
+.btn-chat,
+.btn-want {
+  flex: 1;
+  height: 40px;
+  border: 0;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-chat {
+  background: #f0eef2;
+  color: #464650;
+}
+
+.btn-want {
+  background: linear-gradient(to right, #010544, #CE57C1);
+  color: #fff;
+}
+
+.btn-want:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .status-hint {
-  flex: 1 0 100%;
-  color: var(--color-text-secondary);
+  flex: 1;
+  align-self: center;
+  padding: 0 16px;
+  color: #777681;
   font-size: 13px;
-}
-
-@media (max-width: 767px) {
-  .detail-layout {
-    display: block;
-  }
-
-  .info-panel {
-    margin-top: 14px;
-  }
-
-  .action-bar {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 40;
-    flex-wrap: wrap;
-    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-    background: #fff;
-    box-shadow: 0 -6px 18px rgba(1, 5, 68, 0.08);
-  }
+  text-align: center;
 }
 
 @media (min-width: 768px) {
   .detail-page {
-    padding-bottom: 40px;
+    max-width: 720px;
+    padding: 24px 16px 96px;
+    background: transparent;
+  }
+
+  .swiper-wrap,
+  .product-info-card,
+  .seller-card {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .swiper-wrap {
+    margin-bottom: 14px;
+  }
+
+  .image-carousel,
+  .image-placeholder {
+    aspect-ratio: 16 / 10;
+  }
+
+  .product-info-card {
+    margin-top: 0;
+  }
+
+  .seller-card {
+    margin-top: 14px;
+  }
+
+  .bottom-action-bar {
+    position: sticky;
+    margin-top: 14px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(1, 5, 68, 0.06);
   }
 }
 </style>
