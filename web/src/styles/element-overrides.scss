@@ -2,4 +2,24 @@
   --el-color-primary: #CE57C1;
   --el-color-primary-light-3: #d97cce;
   --el-color-primary-dark-2: #b840a8;
+  --el-border-radius-base: 12px;
+  --el-border-radius-round: 999px;
+}
+
+.el-button--primary {
+  --el-button-bg-color: #CE57C1;
+  --el-button-border-color: #CE57C1;
+  --el-button-hover-bg-color: #b840a8;
+  --el-button-hover-border-color: #b840a8;
+}
+
+.el-input__wrapper,
+.el-textarea__inner {
+  border-radius: 14px;
+}
+
+.el-radio-button__original-radio:checked + .el-radio-button__inner {
+  border-color: #CE57C1;
+  background: #CE57C1;
+  box-shadow: -1px 0 0 0 #CE57C1;
 }

@@ -1,45 +1,80 @@
 <template>
-  <div class="app-shell">
-    <header class="app-header">
-      <RouterLink class="brand" to="/" aria-label="X-Loop 首页">
-        <span class="brand-mark">X</span>
-        <span class="brand-text">X-Loop</span>
-      </RouterLink>
+  <div class="app-shell" :class="{ 'has-tabbar': showTabbar }">
+    <header
+      v-if="showTopbar"
+      class="mobile-nav"
+      :class="{ 'mobile-nav-tab': isTabPage }"
+    >
+      <template v-if="isTabPage">
+        <RouterLink class="nav-brand" to="/" aria-label="X-Loop 首页">
+          <span class="nav-wordmark">{{ tabTitle }}</span>
+        </RouterLink>
 
-      <div class="header-actions">
-        <template v-if="userStore.isLoggedIn && userStore.user">
-          <el-dropdown trigger="click" @command="handleCommand">
-            <button class="user-button" type="button">
-              <el-avatar :size="32" :src="userStore.user.avatarUrl">
-                {{ avatarText }}
-              </el-avatar>
-              <span class="nickname text-ellipsis">{{ displayName }}</span>
-            </button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="profile">个人中心</el-dropdown-item>
-                <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </template>
-        <RouterLink v-else class="login-link" to="/login">登录</RouterLink>
-      </div>
+        <RouterLink
+          v-if="userStore.isLoggedIn && userStore.user"
+          class="nav-user"
+          to="/profile"
+          aria-label="个人中心"
+        >
+          <el-avatar :size="28" :src="userStore.user.avatarUrl">
+            {{ avatarText }}
+          </el-avatar>
+        </RouterLink>
+        <RouterLink v-else class="nav-login" to="/login">登录</RouterLink>
+      </template>
+
+      <template v-else>
+        <button class="nav-back" type="button" aria-label="返回" @click="goBack">
+          <span aria-hidden="true">‹</span>
+        </button>
+        <h1 class="nav-title">{{ navTitle }}</h1>
+        <span class="nav-spacer" aria-hidden="true"></span>
+      </template>
     </header>
 
-    <main class="app-main">
+    <main class="app-main" :class="{ 'app-main-tab': showTabbar, 'app-main-no-top': !showTopbar }">
       <RouterView />
     </main>
+
+    <nav v-if="showTabbar" class="mobile-tabbar" aria-label="主导航">
+      <RouterLink
+        v-for="item in tabItems"
+        :key="item.path"
+        class="tab-item"
+        :class="{ active: isTabActive(item) }"
+        :to="item.path"
+      >
+        <img
+          class="tab-icon"
+          :src="isTabActive(item) ? item.activeIcon : item.icon"
+          :alt="item.label"
+        >
+        <span>{{ item.label }}</span>
+      </RouterLink>
+    </nav>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../store/user'
+import tabHome from '../assets/mobile/tab-home-v2.png'
+import tabHomeActive from '../assets/mobile/tab-home-active-v2.png'
+import tabProfile from '../assets/mobile/tab-profile-v2.png'
+import tabProfileActive from '../assets/mobile/tab-profile-active-v2.png'
+import tabPublish from '../assets/mobile/tab-publish-v2.png'
+import tabPublishActive from '../assets/mobile/tab-publish-active-v2.png'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
+
+const tabItems = [
+  { path: '/', name: 'home', label: '首页', icon: tabHome, activeIcon: tabHomeActive },
+  { path: '/publish', name: 'publish', label: '发布', icon: tabPublish, activeIcon: tabPublishActive },
+  { path: '/profile', name: 'profile', label: '我的', icon: tabProfile, activeIcon: tabProfileActive }
+]
 
 const displayName = computed(() => {
   return userStore.user?.nickName || userStore.user?.email || 'X-Loop 用户'
@@ -49,111 +84,187 @@ const avatarText = computed(() => {
   return displayName.value.slice(0, 1).toUpperCase()
 })
 
-function handleCommand(command) {
-  if (command === 'profile') {
-    router.push('/profile')
+const isTabPage = computed(() => tabItems.some((item) => item.name === route.name))
+const showTabbar = computed(() => isTabPage.value)
+const showTopbar = computed(() => route.meta?.hideShellTopbar !== true)
+const navTitle = computed(() => route.meta?.title || 'X-Loop')
+const tabTitle = computed(() => {
+  if (route.name === 'publish') return '发布商品'
+  if (route.name === 'profile') return '个人中心'
+  return 'X-Loop'
+})
+
+function isTabActive(item) {
+  return route.name === item.name
+}
+
+function goBack() {
+  if (window.history.length > 1) {
+    router.back()
     return
   }
-  if (command === 'logout') {
-    userStore.logout()
-  }
+  router.push('/')
 }
 </script>
 
 <style scoped lang="scss">
 .app-shell {
   min-height: 100vh;
+  background: var(--color-bg);
 }
 
-.app-header {
+.mobile-nav {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
-  padding: 0 24px;
-  background: #fff;
-  box-shadow: 0 2px 14px rgba(1, 5, 68, 0.08);
+  min-height: var(--mobile-nav-height);
+  padding: 0 max(18px, env(safe-area-inset-left)) 0 max(18px, env(safe-area-inset-left));
+  background: var(--gradient-brand);
+  box-shadow: 0 4px 18px rgba(1, 5, 68, 0.12);
+  color: #fff;
 }
 
-.brand {
+.mobile-nav-tab {
+  padding-right: max(18px, env(safe-area-inset-right));
+}
+
+.nav-brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
   min-width: 0;
-  font-weight: 800;
+  color: #fff;
 }
 
-.brand-mark {
+.nav-wordmark {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.nav-user {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  background: var(--gradient-brand);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.nav-login {
   color: #fff;
-  font-weight: 900;
-}
-
-.brand-text {
-  background: var(--gradient-brand);
-  background-clip: text;
-  color: transparent;
-  font-size: 20px;
-  letter-spacing: 0;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-}
-
-.user-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  max-width: 220px;
-  padding: 4px 8px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--color-text);
-  cursor: pointer;
-}
-
-.user-button:hover {
-  background: var(--color-tag-bg);
-}
-
-.nickname {
-  max-width: 160px;
   font-size: 14px;
-}
-
-.login-link {
-  color: var(--color-primary);
   font-weight: 700;
 }
 
+.nav-back,
+.nav-spacer {
+  width: 44px;
+  height: 44px;
+}
+
+.nav-back {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.nav-back span {
+  font-size: 36px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.nav-title {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .app-main {
-  min-height: calc(100vh - 56px);
+  min-height: calc(100vh - var(--mobile-nav-height));
+}
+
+.app-main-no-top {
+  min-height: 100vh;
+}
+
+.app-main-tab {
+  padding-bottom: calc(var(--mobile-tabbar-height) + env(safe-area-inset-bottom));
+}
+
+.mobile-tabbar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 110;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  min-height: calc(var(--mobile-tabbar-height) + env(safe-area-inset-bottom));
+  padding: 7px max(8px, env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  border-top: 1px solid rgba(1, 5, 68, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 -4px 18px rgba(1, 5, 68, 0.08);
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  color: #999;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tab-item.active {
+  color: var(--color-primary);
+}
+
+.tab-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .mobile-nav,
+  .mobile-tabbar {
+    right: calc((100vw - min(100vw, var(--mobile-shell-max))) / 2);
+    left: calc((100vw - min(100vw, var(--mobile-shell-max))) / 2);
+    width: min(100vw, var(--mobile-shell-max));
+    margin: 0 auto;
+  }
+
+  .app-shell {
+    background:
+      linear-gradient(90deg, rgba(1, 5, 68, 0.04) 0, transparent 18%, transparent 82%, rgba(206, 87, 193, 0.05) 100%),
+      var(--color-bg);
+  }
 }
 
 @media (max-width: 600px) {
-  .app-header {
-    padding: 0 14px;
-  }
-
-  .nickname {
-    display: none;
-  }
-
-  .user-button {
-    padding: 4px;
+  .mobile-nav {
+    position: sticky;
   }
 }
 </style>

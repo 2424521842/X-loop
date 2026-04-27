@@ -308,23 +308,23 @@ onBeforeUnmount(() => {
 .chat-page {
   display: flex;
   flex-direction: column;
-  width: min(820px, 100%);
-  min-height: calc(100vh - 56px);
+  width: min(var(--mobile-shell-max), 100%);
+  min-height: 100vh;
   margin: 0 auto;
   background: var(--color-bg);
 }
 
 .chat-topbar {
   position: sticky;
-  top: 56px;
+  top: 0;
   z-index: 20;
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 56px;
+  min-height: var(--mobile-nav-height);
   padding: 10px 16px;
-  background: #fff;
-  box-shadow: 0 2px 12px rgba(1, 5, 68, 0.08);
+  background: var(--gradient-brand);
+  box-shadow: 0 4px 18px rgba(1, 5, 68, 0.12);
 }
 
 .back-button {
@@ -334,9 +334,9 @@ onBeforeUnmount(() => {
   width: 34px;
   height: 34px;
   border: 0;
-  border-radius: 8px;
-  background: var(--color-tag-bg);
-  color: var(--color-dark);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
   font-size: 20px;
   font-weight: 700;
   cursor: pointer;
@@ -350,7 +350,7 @@ onBeforeUnmount(() => {
 }
 
 .peer-name {
-  color: var(--color-dark);
+  color: #fff;
   font-size: 17px;
   font-weight: 700;
 }
@@ -358,7 +358,7 @@ onBeforeUnmount(() => {
 .message-panel {
   flex: 1;
   min-height: 0;
-  max-height: calc(100vh - 56px - 56px - 76px);
+  max-height: calc(100vh - var(--mobile-nav-height) - 76px);
   overflow-y: auto;
   padding: 14px 16px 96px;
 }
@@ -369,6 +369,7 @@ onBeforeUnmount(() => {
   gap: 12px;
   width: 100%;
   margin: 0 0 14px;
+  border-radius: 16px;
   border: 0;
   color: inherit;
   text-align: left;
@@ -437,7 +438,7 @@ onBeforeUnmount(() => {
 .bubble {
   max-width: 62%;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: 14px;
   background: #eee;
   color: var(--color-text);
   font-size: 15px;
@@ -447,7 +448,7 @@ onBeforeUnmount(() => {
 }
 
 .message-row.mine .bubble {
-  background: var(--color-primary);
+  background: var(--gradient-brand);
   color: #fff;
 }
 
@@ -458,14 +459,14 @@ onBeforeUnmount(() => {
 
 .composer-bar {
   position: fixed;
-  right: max(16px, calc((100vw - 820px) / 2));
+  right: max(12px, calc((100vw - var(--mobile-shell-max)) / 2));
   bottom: 0;
-  left: max(16px, calc((100vw - 820px) / 2));
+  left: max(12px, calc((100vw - var(--mobile-shell-max)) / 2));
   z-index: 30;
   display: flex;
   align-items: flex-end;
   gap: 10px;
-  padding: 12px 0 14px;
+  padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
   background: var(--color-bg);
 }
 

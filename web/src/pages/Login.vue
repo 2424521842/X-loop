@@ -1,7 +1,8 @@
 <template>
-  <section class="login-page">
-    <div class="login-card card">
+  <section class="login-page mobile-page">
+    <div class="login-card mobile-card">
       <div class="login-head">
+        <div class="brand-orb">X</div>
         <h1>X-Loop 登录</h1>
         <p>学校邮箱要求 @xjtlu.edu.cn / @student.xjtlu.edu.cn</p>
       </div>
@@ -143,8 +144,9 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 56px);
+  min-height: calc(100vh - var(--mobile-nav-height));
   padding: 32px 16px;
+  background: #F5F3F7;
 }
 
 .login-card {
@@ -156,6 +158,20 @@ onBeforeUnmount(() => {
 .login-head {
   margin-bottom: 24px;
   text-align: center;
+}
+
+.brand-orb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  background: var(--gradient-brand);
+  color: #fff;
+  font-size: 24px;
+  font-weight: 900;
 }
 
 .login-head h1 {

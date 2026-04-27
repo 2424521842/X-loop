@@ -1,30 +1,38 @@
 <template>
-  <section class="orders-page">
-    <div class="page-head">
-      <div>
-        <h1>订单管理</h1>
-        <p>查看买入和卖出的交易进度。</p>
-      </div>
+  <section class="orders-page mobile-page">
+    <div class="role-tabs">
+      <button
+        class="role-tab"
+        :class="{ active: activeRole === 'buyer' }"
+        type="button"
+        @click="activeRole = 'buyer'"
+      >
+        我买的
+      </button>
+      <button
+        class="role-tab"
+        :class="{ active: activeRole === 'seller' }"
+        type="button"
+        @click="activeRole = 'seller'"
+      >
+        我卖的
+      </button>
     </div>
 
-    <div class="orders-panel">
-      <el-tabs v-model="activeRole" class="role-tabs">
-        <el-tab-pane label="我买的" name="buyer" />
-        <el-tab-pane label="我卖的" name="seller" />
-      </el-tabs>
+    <div class="status-tabs">
+      <button
+        v-for="item in statusFilters"
+        :key="item.value"
+        class="status-tab"
+        :class="{ active: activeStatus === item.value }"
+        type="button"
+        @click="activeStatus = item.value"
+      >
+        {{ item.label }}
+      </button>
+    </div>
 
-      <div class="filter-bar">
-        <el-radio-group v-model="activeStatus" size="small">
-          <el-radio-button
-            v-for="item in statusFilters"
-            :key="item.value"
-            :label="item.value"
-          >
-            {{ item.label }}
-          </el-radio-button>
-        </el-radio-group>
-      </div>
-
+    <div class="mobile-content">
       <el-skeleton
         v-if="loading"
         class="orders-skeleton"
@@ -34,7 +42,6 @@
 
       <EmptyState
         v-else-if="orders.length === 0"
-        title="暂无订单"
         text="暂无订单"
       />
 
@@ -44,96 +51,81 @@
           :key="order.id || order._id"
           class="order-card"
         >
-          <button
-            class="product-thumb"
-            type="button"
-            @click="goProduct(order)"
-          >
-            <img
-              v-if="getProductImage(order)"
-              :src="getProductImage(order)"
-              :alt="getProductTitle(order)"
-              loading="lazy"
-            >
-            <span v-else>X</span>
-          </button>
-
-          <div class="order-main">
-            <div class="order-title-row">
-              <button
-                class="product-title"
-                type="button"
-                @click="goProduct(order)"
-              >
-                {{ getProductTitle(order) }}
-              </button>
-              <el-tag :type="getStatusTagType(order.status)" effect="light">
-                {{ statusText(order.status) }}
-              </el-tag>
-            </div>
-
-            <div class="order-meta">
-              <span class="order-price">{{ formatPrice(order.price || order.product?.price) }}</span>
-              <span>{{ activeRole === 'buyer' ? '卖家' : '买家' }}：{{ order.counterpart?.nickName || 'X-Loop 用户' }}</span>
-              <span>{{ formatTime(order.createdAt) }}</span>
-            </div>
+          <div class="order-header">
+            <span class="order-status" :class="`status-${order.status}`">
+              {{ statusText(order.status) }}
+            </span>
+            <span class="order-time">{{ formatTime(order.createdAt) }}</span>
           </div>
 
+          <button class="order-product" type="button" @click="goProduct(order)">
+            <span class="product-thumb">
+              <img
+                v-if="getProductImage(order)"
+                :src="getProductImage(order)"
+                :alt="getProductTitle(order)"
+                loading="lazy"
+              >
+              <span v-else>X</span>
+            </span>
+            <span class="order-product-info">
+              <span class="product-title">{{ getProductTitle(order) }}</span>
+              <span class="order-price">{{ formatPrice(order.price || order.product?.price) }}</span>
+              <span class="order-user">{{ activeRole === 'buyer' ? '卖家' : '买家' }}：{{ order.counterpart?.nickName || 'X-Loop 用户' }}</span>
+            </span>
+          </button>
+
           <div class="order-actions">
-            <el-button
+            <button
               v-if="canCancel(order)"
-              size="small"
-              :loading="actingId === getOrderId(order)"
+              type="button"
               @click="handleStatusAction(order, 'cancelled', '订单已取消')"
             >
               取消订单
-            </el-button>
+            </button>
 
             <template v-if="canSellerHandlePending(order)">
-              <el-button
-                size="small"
-                type="primary"
-                :loading="actingId === getOrderId(order)"
+              <button
+                class="primary"
+                type="button"
                 @click="handleStatusAction(order, 'confirmed', '已确认接单')"
               >
                 确认接单
-              </el-button>
-              <el-button
-                size="small"
-                :loading="actingId === getOrderId(order)"
+              </button>
+              <button
+                type="button"
                 @click="handleStatusAction(order, 'cancelled', '已拒绝订单')"
               >
                 拒绝
-              </el-button>
+              </button>
             </template>
 
-            <el-button
+            <button
               v-if="canComplete(order)"
-              size="small"
-              type="primary"
-              :loading="actingId === getOrderId(order)"
+              class="primary"
+              type="button"
               @click="handleStatusAction(order, 'completed', '订单已完成')"
             >
               确认完成
-            </el-button>
+            </button>
 
-            <el-button
+            <button
               v-if="canReviewBuyerSide(order)"
-              size="small"
-              type="primary"
+              class="primary"
+              type="button"
               @click="goReview(order, order.sellerId)"
             >
               评价卖家
-            </el-button>
+            </button>
 
-            <el-button
+            <button
               v-if="canReviewSellerSide(order)"
-              size="small"
-              type="primary"
+              class="primary"
+              type="button"
               @click="goReview(order, order.buyerId)"
             >
               评价买家
-            </el-button>
+            </button>
           </div>
         </article>
       </div>
@@ -196,16 +188,6 @@ function getProductImage(order) {
 
 function statusText(status) {
   return statusMap[status] || status || '未知状态'
-}
-
-function getStatusTagType(status) {
-  const typeMap = {
-    pending: 'warning',
-    confirmed: 'primary',
-    completed: 'success',
-    cancelled: 'info'
-  }
-  return typeMap[status] || 'info'
 }
 
 function formatPrice(value) {
@@ -301,126 +283,159 @@ onMounted(loadOrders)
 
 <style scoped>
 .orders-page {
-  min-height: calc(100vh - 64px);
-  padding: 28px 0 40px;
+  min-height: calc(100vh - var(--mobile-nav-height));
   background: #F5F3F7;
 }
 
-.page-head,
-.orders-panel {
-  width: min(1040px, calc(100% - 32px));
-  margin: 0 auto;
-}
-
-.page-head {
-  margin-bottom: 18px;
-}
-
-.page-head h1 {
-  margin: 0;
-  color: #010544;
-  font-size: 28px;
-  line-height: 1.2;
-}
-
-.page-head p {
-  margin: 8px 0 0;
-  color: #666;
-  font-size: 14px;
-}
-
-.orders-panel {
-  padding: 20px;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 8px 24px rgba(1, 5, 68, 0.08);
-}
-
-.filter-bar {
+.role-tabs {
   display: flex;
-  justify-content: flex-end;
-  margin: -4px 0 18px;
+  padding: 0 28px;
+  background: #fff;
+}
+
+.role-tab {
+  flex: 1;
+  min-height: 48px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: #fff;
+  color: #666;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.role-tab.active {
+  border-bottom-color: #CE57C1;
+  color: #CE57C1;
+}
+
+.status-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 14px;
+  border-top: 1px solid #f0f0f0;
+  background: #fff;
+  scrollbar-width: none;
+}
+
+.status-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.status-tab {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 15px;
+  background: transparent;
+  color: #999;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-tab.active {
+  background: #F0E6F6;
+  color: #CE57C1;
 }
 
 .order-list {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
 .order-card {
-  display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: center;
   padding: 14px;
-  border: 1px solid #eee8f4;
-  border-radius: 8px;
+  border-radius: 16px;
   background: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.order-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.order-status {
+  color: #CE57C1;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.status-completed {
+  color: #52c41a;
+}
+
+.status-cancelled {
+  color: #999;
+}
+
+.order-time,
+.order-user {
+  color: #999;
+  font-size: 12px;
+}
+
+.order-product {
+  display: flex;
+  width: 100%;
+  padding: 12px 0;
+  border: 0;
+  border-top: 1px solid #f5f5f5;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
 }
 
 .product-thumb {
   display: flex;
-  width: 48px;
-  height: 48px;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
+  width: 80px;
+  height: 80px;
   overflow: hidden;
-  border: 0;
-  border-radius: 6px;
+  margin-right: 12px;
+  border-radius: 12px;
   background: #F0E6F6;
   color: #010544;
-  cursor: pointer;
-  font-weight: 700;
   padding: 0;
+  font-weight: 800;
 }
 
 .product-thumb img {
-  width: 48px;
-  height: 48px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
-.order-main {
-  min-width: 0;
-}
-
-.order-title-row {
+.order-product-info {
   display: flex;
-  gap: 10px;
-  align-items: center;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
   min-width: 0;
 }
 
 .product-title {
-  min-width: 0;
-  border: 0;
-  background: transparent;
-  color: #010544;
-  cursor: pointer;
+  display: block;
+  overflow: hidden;
+  color: #333;
   font-size: 16px;
   font-weight: 700;
-  overflow: hidden;
-  padding: 0;
-  text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.product-title:hover {
-  color: #CE57C1;
-}
-
-.order-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  margin-top: 8px;
-  color: #777;
-  font-size: 13px;
-}
-
 .order-price {
   color: #ff4d4f;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -429,58 +444,34 @@ onMounted(loadOrders)
   flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid #f5f5f5;
+}
+
+.order-actions button {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  background: #fff;
+  color: #666;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.order-actions button.primary {
+  border-color: #CE57C1;
+  background: #CE57C1;
+  color: #fff;
 }
 
 .orders-skeleton {
   padding: 8px 0;
 }
 
-:deep(.el-tabs__active-bar) {
-  background-color: #CE57C1;
-}
-
-:deep(.el-tabs__item.is-active),
-:deep(.el-tabs__item:hover) {
-  color: #010544;
-}
-
-:deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-  border-color: #CE57C1;
-  background: #CE57C1;
-  box-shadow: -1px 0 0 0 #CE57C1;
-}
-
-:deep(.el-button--primary) {
-  border-color: #CE57C1;
-  background: #CE57C1;
-}
-
 @media (max-width: 600px) {
-  .orders-page {
-    padding: 18px 0 28px;
-  }
-
-  .page-head,
-  .orders-panel {
-    width: min(100% - 24px, 1040px);
-  }
-
-  .orders-panel {
-    padding: 14px;
-  }
-
-  .filter-bar {
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 4px;
-  }
-
-  .order-card {
-    grid-template-columns: 48px minmax(0, 1fr);
-  }
-
   .order-actions {
-    grid-column: 1 / -1;
     justify-content: flex-start;
   }
 }

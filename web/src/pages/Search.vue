@@ -1,27 +1,19 @@
 <template>
-  <section class="search-page">
-    <div class="search-panel">
-      <el-input
-        v-model="keyword"
-        class="search-input"
-        placeholder="搜索教材、电子产品、生活用品"
-        clearable
-        @keyup.enter="handleSubmit"
-      >
-        <template #prefix>
-          <el-icon class="search-prefix" aria-hidden="true">
-            <span>⌕</span>
-          </el-icon>
-        </template>
-      </el-input>
-
-      <el-button
-        class="search-button"
-        type="primary"
-        @click="handleSubmit"
-      >
-        搜索
-      </el-button>
+  <section class="search-page mobile-page">
+    <div class="search-bar-sticky">
+      <div class="search-bar-wrap">
+        <label class="search-input-box">
+          <span class="search-prefix" aria-hidden="true">⌕</span>
+          <input
+            v-model="keyword"
+            class="search-input"
+            placeholder="搜索你想要的宝贝"
+            type="search"
+            @keyup.enter="handleSubmit"
+          >
+        </label>
+        <button class="search-button" type="button" @click="handleSubmit">搜索</button>
+      </div>
     </div>
 
     <section
@@ -31,29 +23,29 @@
     >
       <div class="history-header">
         <h2>搜索历史</h2>
-        <el-button
+        <button
           v-if="historyList.length"
           class="clear-history"
-          text
+          type="button"
           @click="clearHistory"
         >
-          清空历史
-        </el-button>
+          清空
+        </button>
       </div>
 
       <div
         v-if="historyList.length"
         class="history-list"
       >
-        <el-tag
+        <button
           v-for="item in historyList"
           :key="item"
           class="history-chip"
-          effect="plain"
+          type="button"
           @click="handleHistorySearch(item)"
         >
           {{ item }}
-        </el-tag>
+        </button>
       </div>
 
       <p
@@ -68,6 +60,21 @@
       v-if="activeQuery"
       class="results-section"
     >
+      <div class="filter-section">
+        <div class="filter-scroll">
+          <button
+            v-for="item in filterTabs"
+            :key="item.value"
+            class="filter-chip"
+            :class="{ active: activeFilter === item.value }"
+            type="button"
+            @click="activeFilter = item.value"
+          >
+            {{ item.label }}
+          </button>
+        </div>
+      </div>
+
       <el-skeleton
         v-if="loading"
         class="search-skeleton"
@@ -77,29 +84,34 @@
 
       <template v-else>
         <EmptyState
-          v-if="!products.length"
-          text="没有找到相关商品"
+          v-if="!displayedProducts.length"
+          text="未找到相关商品"
         />
 
         <template v-else>
-          <div class="result-count">共找到 {{ products.length }} 件商品</div>
-          <div class="product-grid">
+          <div class="result-meta">
+            <span class="result-count">找到 {{ displayedProducts.length }} 个相关宝贝</span>
+            <span class="result-sort">综合排序</span>
+          </div>
+          <div class="result-list">
             <ProductCard
-              v-for="item in products"
+              v-for="item in displayedProducts"
               :key="item.id || item._id"
               :product="item"
+              variant="list"
             />
           </div>
         </template>
       </template>
     </section>
+
   </section>
 </template>
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, ElSkeleton, ElInput, ElButton, ElTag, ElIcon } from 'element-plus'
+import { ElMessage, ElSkeleton } from 'element-plus'
 import { searchProducts } from '../api/products'
 import ProductCard from '../components/ProductCard.vue'
 import EmptyState from '../components/EmptyState.vue'
@@ -115,10 +127,29 @@ const products = ref([])
 const loading = ref(false)
 const historyList = ref([])
 const activeQuery = ref('')
+const activeFilter = ref('all')
 const skipNextRouteSearch = ref(false)
 let searchRequestId = 0
 
+const filterTabs = [
+  { label: '综合', value: 'all' },
+  { label: '100%全新', value: 'new' },
+  { label: '价格最低', value: 'price_asc' },
+  { label: '信用优良', value: 'credit' },
+  { label: '同校区', value: 'campus' }
+]
+
 const hasWindowStorage = computed(() => typeof window !== 'undefined' && window.localStorage)
+const displayedProducts = computed(() => {
+  const items = [...products.value]
+  if (activeFilter.value === 'price_asc') {
+    return items.sort((left, right) => Number(left.price || 0) - Number(right.price || 0))
+  }
+  if (activeFilter.value === 'campus') {
+    return items.filter((item) => item.campus)
+  }
+  return items
+})
 
 function normalizeQuery(value) {
   if (Array.isArray(value)) return String(value[0] || '').trim()
@@ -194,6 +225,7 @@ async function fetchResults(term) {
 
   const requestId = ++searchRequestId
   activeQuery.value = query
+  activeFilter.value = 'all'
   products.value = []
   loading.value = true
   saveHistory(query)
@@ -272,51 +304,68 @@ watch(
 
 <style scoped lang="scss">
 .search-page {
-  width: min(1280px, 100%);
   margin: 0 auto;
-  padding: 20px 16px 40px;
+  padding: 0 0 40px;
   background: #F5F3F7;
 }
 
-.search-panel {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 18px;
-  border-radius: 8px;
+.search-bar-sticky {
+  position: sticky;
+  top: var(--mobile-nav-height);
+  z-index: 80;
+  padding: 12px 14px;
   background: #fff;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.search-input {
+.search-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-input-box {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #f5f3f7;
 }
 
 .search-prefix {
-  color: var(--color-text-secondary);
-  font-size: 16px;
+  color: #777681;
+  font-size: 15px;
+}
+
+.search-input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #1b1b1e;
+  font-size: 14px;
 }
 
 .search-button {
-  min-width: 96px;
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 18px;
   border: 0;
+  border-radius: 999px;
   background: linear-gradient(to right, #010544, #CE57C1);
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
   font-weight: 700;
 }
 
-.search-button:hover,
-.search-button:focus {
-  border: 0;
-  background: linear-gradient(to right, #010544, #CE57C1);
-  opacity: 0.92;
-}
-
 .history-section {
-  margin-top: 18px;
-  padding: 18px;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: var(--shadow-card);
+  padding: 28px 18px;
 }
 
 .history-header {
@@ -329,14 +378,19 @@ watch(
 
 .history-header h2 {
   margin: 0;
-  color: #010544;
-  font-size: 18px;
-  font-weight: 800;
+  color: #1b1b1e;
+  font-size: 16px;
+  font-weight: 700;
   letter-spacing: 0;
 }
 
 .clear-history {
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: #CE57C1;
+  cursor: pointer;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -347,11 +401,16 @@ watch(
 }
 
 .history-chip {
+  min-height: 32px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 16px;
   cursor: pointer;
-  border-color: #F0E6F6;
-  background: #F0E6F6;
-  color: #010544;
-  font-weight: 700;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  color: #464650;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .history-empty {
@@ -362,60 +421,80 @@ watch(
 
 .results-section {
   min-height: 240px;
-  margin-top: 18px;
+}
+
+.filter-section {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0e6f6;
+  background: #fff;
+}
+
+.filter-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 14px;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.filter-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-chip {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 16px;
+  background: #f5f3f7;
+  color: #464650;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.filter-chip.active {
+  background: #F0E6F6;
+  color: #010544;
 }
 
 .search-skeleton {
+  margin: 14px;
   padding: 18px;
-  border-radius: 8px;
+  border-radius: 16px;
   background: #fff;
 }
 
 .result-count {
-  margin-bottom: 14px;
-  color: #010544;
-  font-size: 16px;
-  font-weight: 800;
+  color: #777681;
+  font-size: 12px;
 }
 
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+.result-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 8px;
+}
+
+.result-sort {
+  color: #464650;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 14px 24px;
 }
 
 @media (min-width: 768px) {
-  .product-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .product-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1280px) {
-  .product-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
   .search-page {
-    padding: 14px 12px 32px;
-  }
-
-  .search-panel {
-    align-items: stretch;
-    flex-direction: column;
-    padding: 14px;
-  }
-
-  .search-button {
-    width: 100%;
+    box-shadow: 0 0 0 1px rgba(1, 5, 68, 0.03);
   }
 }
 </style>

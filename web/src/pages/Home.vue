@@ -1,5 +1,5 @@
 <template>
-  <section class="home-page">
+  <section class="home-page mobile-page">
     <header class="hero-section">
       <div class="hero-decoration" aria-hidden="true"></div>
       <div class="hero-content">
@@ -23,6 +23,7 @@
     <section class="category-section" aria-label="商品分类">
       <div class="category-header">
         <span class="category-title">热门分类</span>
+        <button class="category-more" type="button" @click="goSearch">查看全部</button>
       </div>
       <div class="category-scroll">
         <button
@@ -163,9 +164,10 @@ onMounted(() => {
 <style scoped lang="scss">
 .home-page {
   position: relative;
-  width: min(1280px, 100%);
+  width: min(var(--mobile-shell-max), 100%);
   margin: 0 auto;
   padding: 0 0 32px;
+  background: #F5F3F7;
 }
 
 .hero-section {
@@ -245,6 +247,9 @@ onMounted(() => {
 }
 
 .category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0 20px;
   margin-bottom: 12px;
 }
@@ -254,6 +259,16 @@ onMounted(() => {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1px;
+}
+
+.category-more {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #cb55bf;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .category-scroll {
@@ -381,7 +396,7 @@ onMounted(() => {
 
 @media (min-width: 1280px) {
   .product-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 </style>

@@ -1,45 +1,47 @@
 <template>
-  <section class="chat-list-page">
-    <div class="page-head">
-      <h1>消息</h1>
-      <el-button :loading="loading" @click="loadConversations(false)">刷新</el-button>
-    </div>
+  <section class="chat-list-page mobile-page">
+    <div class="mobile-content">
+      <div class="page-head">
+        <span>站内消息</span>
+        <button type="button" :disabled="loading" @click="loadConversations(false)">刷新</button>
+      </div>
 
-    <el-skeleton
-      v-if="loading && !conversations.length"
-      class="list-skeleton"
-      :rows="6"
-      animated
-    />
+      <el-skeleton
+        v-if="loading && !conversations.length"
+        class="list-skeleton"
+        :rows="6"
+        animated
+      />
 
-    <EmptyState
-      v-else-if="!conversations.length"
-      text="暂无聊天消息"
-    />
+      <EmptyState
+        v-else-if="!conversations.length"
+        text="暂无聊天消息"
+      />
 
-    <div v-else class="conversation-list">
-      <button
-        v-for="item in conversations"
-        :key="item.conversationId || item.otherUser?.id"
-        class="conversation-card card"
-        type="button"
-        @click="goChat(item)"
-      >
-        <el-avatar :size="48" :src="item.otherUser?.avatarUrl">
-          {{ avatarText(item.otherUser) }}
-        </el-avatar>
+      <div v-else class="conversation-list">
+        <button
+          v-for="item in conversations"
+          :key="item.conversationId || item.otherUser?.id"
+          class="conversation-card"
+          type="button"
+          @click="goChat(item)"
+        >
+          <el-avatar :size="48" :src="item.otherUser?.avatarUrl">
+            {{ avatarText(item.otherUser) }}
+          </el-avatar>
 
-        <div class="conversation-main">
-          <div class="conversation-top">
-            <span class="nickname text-ellipsis">{{ item.otherUser?.nickName || 'X-Loop 用户' }}</span>
-            <span class="time">{{ formatTime(item.lastMessage?.createdAt) }}</span>
+          <div class="conversation-main">
+            <div class="conversation-top">
+              <span class="nickname text-ellipsis">{{ item.otherUser?.nickName || 'X-Loop 用户' }}</span>
+              <span class="time">{{ formatTime(item.lastMessage?.createdAt) }}</span>
+            </div>
+            <div class="conversation-bottom">
+              <span class="preview text-ellipsis">{{ previewText(item.lastMessage) }}</span>
+              <span v-if="item.unread" class="unread">{{ formatUnread(item.unread) }}</span>
+            </div>
           </div>
-          <div class="conversation-bottom">
-            <span class="preview text-ellipsis">{{ previewText(item.lastMessage) }}</span>
-            <span v-if="item.unread" class="unread">{{ formatUnread(item.unread) }}</span>
-          </div>
-        </div>
-      </button>
+        </button>
+      </div>
     </div>
   </section>
 </template>
@@ -115,9 +117,8 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 .chat-list-page {
-  width: min(760px, 100%);
   margin: 0 auto;
-  padding: 24px 16px 40px;
+  background: #F5F3F7;
 }
 
 .page-head {
@@ -125,19 +126,30 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
-h1 {
-  margin: 0;
+.page-head span {
   color: var(--color-dark);
-  font-size: 24px;
-  letter-spacing: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.page-head button {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 16px;
+  background: #F0E6F6;
+  color: #CE57C1;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .list-skeleton {
   padding: 18px;
-  border-radius: 8px;
+  border-radius: 16px;
   background: #fff;
 }
 
@@ -152,9 +164,12 @@ h1 {
   align-items: center;
   gap: 12px;
   width: 100%;
-  margin: 0;
   border: 0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--shadow-card);
   color: inherit;
+  padding: 14px;
   text-align: left;
   cursor: pointer;
 }
@@ -216,13 +231,4 @@ h1 {
   line-height: 20px;
 }
 
-@media (max-width: 600px) {
-  .chat-list-page {
-    padding: 16px 12px 32px;
-  }
-
-  h1 {
-    font-size: 22px;
-  }
-}
 </style>

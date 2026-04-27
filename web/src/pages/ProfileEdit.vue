@@ -1,6 +1,6 @@
 <template>
-  <section class="profile-edit-page">
-    <div class="profile-card card">
+  <section class="profile-edit-page mobile-page">
+    <div class="profile-card mobile-card">
       <el-alert
         v-if="isForce"
         class="force-alert"
@@ -14,42 +14,42 @@
         <p>昵称、头像和校区会用于交易沟通与公开资料展示。</p>
       </div>
 
-      <el-form
-        ref="formRef"
-        :model="form"
-        :rules="rules"
-        label-position="top"
-        @submit.prevent
-      >
-        <el-form-item label="昵称" prop="nickName">
-          <el-input v-model.trim="form.nickName" placeholder="请输入昵称" size="large" />
-        </el-form-item>
+      <div class="form-stack">
+        <label class="form-field">
+          <span>昵称</span>
+          <input v-model.trim="form.nickName" placeholder="请输入昵称">
+        </label>
 
-        <el-form-item label="头像 URL" prop="avatarUrl">
-          <el-input v-model.trim="form.avatarUrl" placeholder="Phase 4 接入 Cloudinary 上传" size="large" />
-        </el-form-item>
+        <label class="form-field">
+          <span>头像 URL</span>
+          <input v-model.trim="form.avatarUrl" placeholder="Phase 4 接入 Cloudinary 上传">
+        </label>
 
-        <el-form-item label="校区" prop="campus">
-          <el-select v-model="form.campus" class="full-width" placeholder="请选择校区" size="large">
-            <el-option
+        <div class="form-field">
+          <span>校区</span>
+          <div class="campus-list">
+            <button
               v-for="campus in CAMPUS_OPTIONS"
               :key="campus.value"
-              :label="campus.label"
-              :value="campus.value"
-            />
-          </el-select>
-        </el-form-item>
+              class="campus-chip"
+              :class="{ active: form.campus === campus.value }"
+              type="button"
+              @click="form.campus = campus.value"
+            >
+              {{ campus.label }}
+            </button>
+          </div>
+        </div>
 
-        <el-button
-          class="full-width"
-          type="primary"
-          size="large"
-          :loading="saving"
+        <button
+          class="mobile-primary-btn full-width"
+          type="button"
+          :disabled="saving"
           @click="handleSave"
         >
-          保存
-        </el-button>
-      </el-form>
+          {{ saving ? '保存中...' : '保存' }}
+        </button>
+      </div>
     </div>
   </section>
 </template>
@@ -66,18 +66,12 @@ const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
-const formRef = ref(null)
 const saving = ref(false)
 const form = reactive({
   nickName: '',
   avatarUrl: '',
   campus: ''
 })
-
-const rules = {
-  nickName: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
-  campus: [{ required: true, message: '请选择校区', trigger: 'change' }]
-}
 
 const isForce = computed(() => route.query.force === '1')
 
@@ -93,7 +87,14 @@ watch(
 )
 
 async function handleSave() {
-  await formRef.value.validate()
+  if (!form.nickName.trim()) {
+    ElMessage.error('请输入昵称')
+    return
+  }
+  if (!form.campus) {
+    ElMessage.error('请选择校区')
+    return
+  }
 
   saving.value = true
   try {
@@ -118,13 +119,14 @@ async function handleSave() {
 .profile-edit-page {
   display: flex;
   justify-content: center;
-  padding: 40px 16px;
+  padding: 16px;
+  background: #F5F3F7;
 }
 
 .profile-card {
   width: min(520px, 100%);
   margin: 0;
-  padding: 28px;
+  padding: 20px;
 }
 
 .force-alert {
@@ -149,5 +151,53 @@ async function handleSave() {
 
 .full-width {
   width: 100%;
+}
+
+.form-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.form-field {
+  display: grid;
+  gap: 9px;
+}
+
+.form-field > span {
+  color: #1b1b1e;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.form-field input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #eeedf0;
+  border-radius: 14px;
+  outline: none;
+  background: #fff;
+  color: #1b1b1e;
+}
+
+.campus-list {
+  display: grid;
+  gap: 10px;
+}
+
+.campus-chip {
+  min-height: 44px;
+  border: 1px solid #eeedf0;
+  border-radius: 14px;
+  background: #fff;
+  color: #464650;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.campus-chip.active {
+  border-color: #CE57C1;
+  background: #F0E6F6;
+  color: #010544;
 }
 </style>

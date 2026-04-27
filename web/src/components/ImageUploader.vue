@@ -144,14 +144,14 @@ onMounted(loadUploadSign)
 .thumb-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .thumb-item,
 .upload-card {
-  width: 96px;
-  height: 96px;
-  border-radius: 8px;
+  width: clamp(88px, 28vw, 110px);
+  height: clamp(88px, 28vw, 110px);
+  border-radius: 12px;
 }
 
 .thumb-item {
@@ -185,8 +185,8 @@ onMounted(loadUploadSign)
 }
 
 .upload-card :deep(.el-upload) {
-  width: 96px;
-  height: 96px;
+  width: clamp(88px, 28vw, 110px);
+  height: clamp(88px, 28vw, 110px);
 }
 
 .upload-inner {
@@ -194,11 +194,11 @@ onMounted(loadUploadSign)
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 96px;
-  height: 96px;
+  width: clamp(88px, 28vw, 110px);
+  height: clamp(88px, 28vw, 110px);
   border: 1px dashed var(--color-primary);
-  border-radius: 8px;
-  background: #fff;
+  border-radius: 12px;
+  background: #F0E6F6;
   color: var(--color-primary);
   cursor: pointer;
   gap: 6px;

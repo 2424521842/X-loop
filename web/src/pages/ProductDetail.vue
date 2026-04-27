@@ -51,7 +51,6 @@
         </div>
 
         <div class="price-row">
-          <span class="price-symbol">¥</span>
           <span class="price-value">{{ formatPrice(product.price) }}</span>
         </div>
 
@@ -363,13 +362,6 @@ onMounted(loadProduct)
   margin-bottom: 18px;
 }
 
-.price-symbol {
-  margin-right: 2px;
-  color: #FF4D4F;
-  font-size: 15px;
-  font-weight: 700;
-}
-
 .price-value {
   color: #FF4D4F;
   font-size: 26px;
@@ -505,9 +497,9 @@ onMounted(loadProduct)
 
 .bottom-action-bar {
   position: fixed;
-  right: 0;
+  right: max(0px, calc((100vw - 720px) / 2));
   bottom: 0;
-  left: 0;
+  left: max(0px, calc((100vw - 720px) / 2));
   z-index: 40;
   display: flex;
   gap: 8px;

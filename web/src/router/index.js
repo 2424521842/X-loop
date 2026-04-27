@@ -74,7 +74,7 @@ const routes = [
     path: '/chat/:userId',
     name: 'chat',
     component: () => import('../pages/Chat.vue'),
-    meta: { requiresAuth: true, title: '聊天' }
+    meta: { requiresAuth: true, title: '聊天', hideShellTopbar: true }
   },
   {
     path: '/admin/:pathMatch(.*)*',

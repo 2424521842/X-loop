@@ -1,84 +1,79 @@
 <template>
-  <section class="my-products-page">
-    <div class="page-head">
-      <div>
-        <h1>我的发布</h1>
+  <section class="my-products-page mobile-page">
+    <div class="mobile-content">
+      <div class="page-actions">
         <p>管理已发布商品的状态和详情。</p>
+        <button class="publish-shortcut" type="button" @click="router.push('/publish')">发布新商品</button>
       </div>
-      <el-button type="primary" @click="router.push('/publish')">发布新商品</el-button>
-    </div>
 
-    <el-tabs v-model="activeStatus" class="status-tabs">
-      <el-tab-pane
-        v-for="tab in statusTabs"
-        :key="tab.value"
-        :label="tab.label"
-        :name="tab.value"
-      />
-    </el-tabs>
-
-    <el-skeleton
-      v-if="loading"
-      class="list-skeleton"
-      :rows="6"
-      animated
-    />
-
-    <EmptyState
-      v-else-if="filteredProducts.length === 0"
-      text="暂无商品"
-    />
-
-    <div v-else class="product-list">
-      <div
-        v-for="item in filteredProducts"
-        :key="getProductId(item)"
-        class="product-row"
-      >
-        <div class="row-thumb">
-          <img
-            v-if="getCoverImage(item)"
-            :src="getCoverImage(item)"
-            :alt="item.title || '商品图片'"
-            loading="lazy"
-          >
-          <span v-else>X</span>
-        </div>
-
-        <div class="row-main">
-          <h2>{{ item.title || '未命名商品' }}</h2>
-          <div class="row-meta">
-            <span class="price">{{ formatPrice(item.price) }}</span>
-            <el-tag :type="getStatusTagType(item.status)" effect="light">
-              {{ PRODUCT_STATUS_MAP[item.status] || item.status }}
-            </el-tag>
-            <span>{{ formatTime(item.createdAt || item.createTime) }}</span>
-          </div>
-        </div>
-
-        <el-dropdown
-          trigger="click"
-          @command="(command) => handleRowCommand(command, item)"
+      <div class="status-tabs">
+        <button
+          v-for="tab in statusTabs"
+          :key="tab.value"
+          class="status-chip"
+          :class="{ active: activeStatus === tab.value }"
+          type="button"
+          @click="activeStatus = tab.value"
         >
-          <el-button>操作</el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="edit">编辑</el-dropdown-item>
-              <el-dropdown-item
-                v-if="item.status === 'off_shelf'"
-                command="on_sale"
-              >
-                上架
-              </el-dropdown-item>
-              <el-dropdown-item
-                v-if="item.status === 'on_sale'"
-                command="off_shelf"
-              >
-                下架
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+          {{ tab.label }}
+        </button>
+      </div>
+
+      <el-skeleton
+        v-if="loading"
+        class="list-skeleton"
+        :rows="6"
+        animated
+      />
+
+      <EmptyState
+        v-else-if="filteredProducts.length === 0"
+        text="暂无商品"
+      />
+
+      <div v-else class="product-list">
+        <article
+          v-for="item in filteredProducts"
+          :key="getProductId(item)"
+          class="product-row"
+        >
+          <button class="row-thumb" type="button" @click="router.push(`/product/${getProductId(item)}`)">
+            <img
+              v-if="getCoverImage(item)"
+              :src="getCoverImage(item)"
+              :alt="item.title || '商品图片'"
+              loading="lazy"
+            >
+            <span v-else>X</span>
+          </button>
+
+          <div class="row-main">
+            <h2>{{ item.title || '未命名商品' }}</h2>
+            <div class="row-meta">
+              <span class="price">{{ formatPrice(item.price) }}</span>
+              <span class="status-pill">{{ PRODUCT_STATUS_MAP[item.status] || item.status }}</span>
+              <span>{{ formatTime(item.createdAt || item.createTime) }}</span>
+            </div>
+          </div>
+
+          <div class="row-actions">
+            <button type="button" @click="openEdit(item)">编辑</button>
+            <button
+              v-if="item.status === 'off_shelf'"
+              type="button"
+              @click="updateStatus(item, 'on_sale')"
+            >
+              上架
+            </button>
+            <button
+              v-if="item.status === 'on_sale'"
+              type="button"
+              @click="updateStatus(item, 'off_shelf')"
+            >
+              下架
+            </button>
+          </div>
+        </article>
       </div>
     </div>
 
@@ -224,12 +219,6 @@ function getCoverImage(product) {
   return Array.isArray(product?.images) ? product.images[0] || '' : ''
 }
 
-function getStatusTagType(status) {
-  if (status === 'on_sale') return 'success'
-  if (status === 'reserved') return 'warning'
-  return 'info'
-}
-
 function replaceProduct(id, updatedProduct) {
   products.value = products.value.map((item) => {
     return getProductId(item) === id ? { ...item, ...updatedProduct } : item
@@ -245,16 +234,6 @@ async function loadProducts() {
     products.value = []
   } finally {
     loading.value = false
-  }
-}
-
-async function handleRowCommand(command, item) {
-  if (command === 'edit') {
-    openEdit(item)
-    return
-  }
-  if (command === 'on_sale' || command === 'off_shelf') {
-    await updateStatus(item, command)
   }
 }
 
@@ -306,37 +285,72 @@ onMounted(loadProducts)
 
 <style scoped lang="scss">
 .my-products-page {
-  width: min(980px, 100%);
   margin: 0 auto;
-  padding: 28px 16px 48px;
+  background: #F5F3F7;
 }
 
-.page-head {
+.page-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
-.page-head h1 {
-  margin: 0 0 8px;
-  color: var(--color-dark);
-  font-size: 26px;
-}
-
-.page-head p {
+.page-actions p {
   margin: 0;
-  color: var(--color-text-secondary);
+  color: #777681;
+  font-size: 13px;
+}
+
+.publish-shortcut {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 17px;
+  background: var(--gradient-brand);
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .status-tabs {
-  margin-bottom: 12px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin: 0 -14px 14px;
+  padding: 0 14px 2px;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.status-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.status-chip {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 16px;
+  background: #fff;
+  color: #777681;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-chip.active {
+  background: #F0E6F6;
+  color: #CE57C1;
 }
 
 .list-skeleton {
   padding: 18px;
-  border-radius: 8px;
+  border-radius: 16px;
   background: #fff;
 }
 
@@ -348,11 +362,11 @@ onMounted(loadProducts)
 
 .product-row {
   display: grid;
-  grid-template-columns: 60px minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: center;
-  padding: 14px;
-  border-radius: 8px;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 12px;
+  border-radius: 16px;
   background: #fff;
   box-shadow: var(--shadow-card);
 }
@@ -361,13 +375,16 @@ onMounted(loadProducts)
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 72px;
+  height: 72px;
   overflow: hidden;
-  border-radius: 8px;
+  border: 0;
+  border-radius: 12px;
   background: var(--color-tag-bg);
   color: var(--color-primary);
+  cursor: pointer;
   font-weight: 800;
+  padding: 0;
 }
 
 .row-thumb img {
@@ -398,27 +415,42 @@ onMounted(loadProducts)
   font-size: 13px;
 }
 
+.status-pill {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #F0E6F6;
+  color: #CE57C1;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.row-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.row-actions button {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  background: #fff;
+  color: #464650;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .full-width {
   width: 100%;
 }
 
 @media (max-width: 640px) {
-  .my-products-page {
-    padding: 20px 12px 36px;
-  }
-
-  .page-head {
+  .page-actions {
     align-items: stretch;
     flex-direction: column;
-  }
-
-  .product-row {
-    grid-template-columns: 60px minmax(0, 1fr);
-  }
-
-  .product-row :deep(.el-dropdown) {
-    grid-column: 1 / -1;
-    justify-self: end;
   }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <article
     class="product-card"
-    :class="{ clickable: link && productId }"
+    :class="[`product-card-${variant}`, { clickable: link && productId }]"
     :tabindex="link && productId ? 0 : undefined"
     @click="handleOpen"
     @keyup.enter="handleOpen"
@@ -20,7 +20,7 @@
       <h3 class="card-title">{{ product.title || '未命名商品' }}</h3>
       <span class="card-meta">{{ subMeta }}</span>
       <div class="card-footer">
-        <span class="card-price">¥{{ formatPrice(product.price) }}</span>
+        <span class="card-price">{{ formatPrice(product.price) }}</span>
       </div>
     </div>
   </article>
@@ -39,6 +39,11 @@ const props = defineProps({
   link: {
     type: Boolean,
     default: true
+  },
+  variant: {
+    type: String,
+    default: 'grid',
+    validator: (value) => ['grid', 'list'].includes(value)
   }
 })
 
@@ -74,9 +79,9 @@ function handleOpen() {
 .product-card {
   overflow: hidden;
   width: 100%;
-  border-radius: 12px;
+  border-radius: 16px;
   background: #fff;
-  box-shadow: 0 4px 20px rgba(1, 5, 68, 0.03);
+  box-shadow: 0 4px 20px rgba(1, 5, 68, 0.04);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
@@ -116,7 +121,7 @@ function handleOpen() {
 }
 
 .card-body {
-  padding: 10px 12px 12px;
+  padding: 10px 12px 13px;
 }
 
 .card-title {
@@ -146,9 +151,47 @@ function handleOpen() {
 
 .card-price {
   color: #ff4d4f;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 800;
-  letter-spacing: -0.5px;
+  letter-spacing: 0;
+}
+
+.product-card-list {
+  display: flex;
+  min-height: 128px;
+  border-radius: 16px;
+}
+
+.product-card-list .image-wrap {
+  flex: 0 0 128px;
+  width: 128px;
+  aspect-ratio: auto;
+}
+
+.product-card-list .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 14px;
+}
+
+.product-card-list .card-title {
+  display: -webkit-box;
+  margin-bottom: 8px;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.product-card-list .card-meta {
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #F0E6F6;
+  color: #CE57C1;
+  font-size: 11px;
 }
 
 @media (min-width: 768px) {
@@ -158,6 +201,10 @@ function handleOpen() {
 
   .card-price {
     font-size: 19px;
+  }
+
+  .product-card-grid {
+    border-radius: 18px;
   }
 }
 </style>
