@@ -91,7 +91,7 @@
         <template v-else>
           <div class="result-meta">
             <span class="result-count">找到 {{ displayedProducts.length }} 个相关宝贝</span>
-            <span class="result-sort">综合排序</span>
+            <span class="result-sort">{{ resultSortText }}</span>
           </div>
           <div class="result-list">
             <ProductCard
@@ -115,12 +115,14 @@ import { ElMessage, ElSkeleton } from 'element-plus'
 import { searchProducts } from '../api/products'
 import ProductCard from '../components/ProductCard.vue'
 import EmptyState from '../components/EmptyState.vue'
+import { useUserStore } from '../store/user'
 
 const HISTORY_KEY = 'xloop:searchHistory'
 const HISTORY_LIMIT = 10
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 
 const keyword = ref('')
 const products = ref([])
@@ -131,22 +133,29 @@ const activeFilter = ref('all')
 const skipNextRouteSearch = ref(false)
 let searchRequestId = 0
 
-const filterTabs = [
-  { label: '综合', value: 'all' },
-  { label: '100%全新', value: 'new' },
-  { label: '价格最低', value: 'price_asc' },
-  { label: '信用优良', value: 'credit' },
-  { label: '同校区', value: 'campus' }
-]
-
 const hasWindowStorage = computed(() => typeof window !== 'undefined' && window.localStorage)
+const userCampus = computed(() => userStore.user?.campus || '')
+const filterTabs = computed(() => {
+  const tabs = [
+    { label: '综合', value: 'all' },
+    { label: '价格最低', value: 'price_asc' }
+  ]
+  if (userCampus.value) {
+    tabs.push({ label: '同校区', value: 'campus' })
+  }
+  return tabs
+})
+const resultSortText = computed(() => {
+  const match = filterTabs.value.find((item) => item.value === activeFilter.value)
+  return match ? `${match.label}排序` : '综合排序'
+})
 const displayedProducts = computed(() => {
   const items = [...products.value]
   if (activeFilter.value === 'price_asc') {
     return items.sort((left, right) => Number(left.price || 0) - Number(right.price || 0))
   }
   if (activeFilter.value === 'campus') {
-    return items.filter((item) => item.campus)
+    return items.filter((item) => item.campus === userCampus.value)
   }
   return items
 })
@@ -300,6 +309,12 @@ watch(
     }
   }
 )
+
+watch(filterTabs, (tabs) => {
+  if (!tabs.some((item) => item.value === activeFilter.value)) {
+    activeFilter.value = 'all'
+  }
+})
 </script>
 
 <style scoped lang="scss">

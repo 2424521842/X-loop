@@ -207,6 +207,7 @@ function createDoc(modelName, data, stores) {
       images: data.images || [],
       price: data.price,
       category: data.category,
+      campus: data.campus || '',
       status: data.status || 'on_sale',
       reservedOrderId: data.reservedOrderId || null,
       viewCount: data.viewCount || 0

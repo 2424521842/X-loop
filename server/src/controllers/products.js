@@ -3,11 +3,13 @@
  */
 const mongoose = require('mongoose')
 const Product = require('../models/Product')
+const User = require('../models/User')
 const { success, fail } = require('../utils/response')
 const { sanitizeUserPublic } = require('../utils/sanitize')
 const { containsBlockedKeyword } = require('../utils/content-filter')
 
 const PRODUCT_STATUSES = ['on_sale', 'reserved', 'sold', 'off_shelf']
+const PRODUCT_CAMPUSES = ['', 'sip', 'tc']
 
 function parsePagination(query) {
   const page = Math.max(parseInt(query.page, 10) || 0, 0)
@@ -27,6 +29,7 @@ function serializeProduct(product) {
     images: item.images || [],
     price: item.price,
     category: item.category || '',
+    campus: item.campus || '',
     status: item.status || 'on_sale',
     viewCount: item.viewCount || 0,
     createdAt: item.createdAt || null,
@@ -159,6 +162,7 @@ async function createProduct(req, res, next) {
     const title = String(req.body.title || '').trim()
     const description = String(req.body.description || '').trim()
     const category = String(req.body.category || '').trim()
+    const campus = String(req.body.campus || '').trim()
     const price = Number(req.body.price)
     const images = Array.isArray(req.body.images) ? req.body.images.map(String) : []
 
@@ -166,8 +170,18 @@ async function createProduct(req, res, next) {
       return res.status(400).json(fail('请填写完整的商品信息'))
     }
 
+    if (!PRODUCT_CAMPUSES.includes(campus)) {
+      return res.status(400).json(fail('campus 仅允许填写 sip 或 tc'))
+    }
+
     if (containsBlockedKeyword(`${title} ${description}`)) {
       return res.status(400).json(fail('内容包含违规词'))
+    }
+
+    let productCampus = campus
+    if (!productCampus) {
+      const currentUser = await User.findById(req.user.id)
+      productCampus = currentUser?.campus || ''
     }
 
     const product = await Product.create({
@@ -177,6 +191,7 @@ async function createProduct(req, res, next) {
       images,
       price,
       category,
+      campus: productCampus,
       status: 'on_sale'
     })
 
@@ -206,7 +221,7 @@ async function updateProduct(req, res, next) {
       return res.status(403).json(fail('无权修改该商品'))
     }
 
-    const allowedFields = ['title', 'description', 'images', 'price', 'category', 'status']
+    const allowedFields = ['title', 'description', 'images', 'price', 'category', 'campus', 'status']
     let changed = false
     for (const field of allowedFields) {
       if (req.body[field] === undefined) continue
@@ -224,6 +239,12 @@ async function updateProduct(req, res, next) {
           return res.status(400).json(fail('无效的商品状态'))
         }
         product.status = req.body.status
+      } else if (field === 'campus') {
+        const campus = String(req.body.campus || '').trim()
+        if (!PRODUCT_CAMPUSES.includes(campus)) {
+          return res.status(400).json(fail('campus 仅允许填写 sip 或 tc'))
+        }
+        product.campus = campus
       } else {
         product[field] = String(req.body[field]).trim()
       }

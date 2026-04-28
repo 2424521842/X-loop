@@ -32,7 +32,7 @@ const routes = [
     path: '/reviews/:userId',
     name: 'reviews',
     component: () => import('../pages/Reviews.vue'),
-    meta: { requiresAuth: true, title: '评价' }
+    meta: { public: true, title: '评价' }
   },
   {
     path: '/publish',
@@ -105,7 +105,8 @@ router.beforeEach(async (to) => {
   }
 
   const hasToken = Boolean(userStore.token)
-  if (to.meta.requiresAuth && !hasToken) {
+  const isReviewWriteMode = to.name === 'reviews' && Boolean(to.query.orderId)
+  if ((to.meta.requiresAuth || isReviewWriteMode) && !hasToken) {
     return {
       path: '/login',
       query: { redirect: to.fullPath }
@@ -118,6 +119,7 @@ router.beforeEach(async (to) => {
     && !userStore.user.campus
     && to.path !== '/profile/edit'
     && to.path !== '/login'
+    && !(to.name === 'reviews' && !to.query.orderId)
   ) {
     return {
       path: '/profile/edit',

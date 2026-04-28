@@ -43,6 +43,64 @@ describe('products API', () => {
     expect(res.body.data.sellerId).toBe(String(seller._id))
   })
 
+  it('POST /api/products stores explicit campus and exposes it in read APIs', async () => {
+    const seller = await createUser({ email: 'campus-seller@student.xjtlu.edu.cn', campus: 'tc' })
+    const createRes = await ctx.request
+      .post('/api/products')
+      .set('Authorization', `Bearer ${ctx.tokenFor(seller)}`)
+      .send({
+        title: '太仓台灯',
+        description: '适合宿舍',
+        images: ['https://example.com/tc-lamp.jpg'],
+        price: 45,
+        category: '生活用品',
+        campus: 'sip'
+      })
+
+    expect(createRes.status).toBe(200)
+    expect(createRes.body.data.campus).toBe('sip')
+
+    const listRes = await ctx.request.get('/api/products?category=%E7%94%9F%E6%B4%BB%E7%94%A8%E5%93%81')
+    expect(listRes.body.data.items[0].campus).toBe('sip')
+
+    const searchRes = await ctx.request.get('/api/products/search?q=%E5%8F%B0%E7%81%AF')
+    expect(searchRes.body.data.items[0].campus).toBe('sip')
+
+    const detailRes = await ctx.request.get(`/api/products/${createRes.body.data.id}`)
+    expect(detailRes.body.data.campus).toBe('sip')
+  })
+
+  it('POST /api/products falls back to user campus when campus is omitted', async () => {
+    const seller = await createUser({ email: 'fallback-campus@student.xjtlu.edu.cn', campus: 'tc' })
+    const res = await ctx.request
+      .post('/api/products')
+      .set('Authorization', `Bearer ${ctx.tokenFor(seller)}`)
+      .send({
+        title: '太仓教材',
+        price: 20,
+        category: '教材书籍'
+      })
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.campus).toBe('tc')
+  })
+
+  it('POST /api/products rejects invalid campus', async () => {
+    const seller = await createUser()
+    const res = await ctx.request
+      .post('/api/products')
+      .set('Authorization', `Bearer ${ctx.tokenFor(seller)}`)
+      .send({
+        title: '错误校区商品',
+        price: 20,
+        category: '教材书籍',
+        campus: 'beijing'
+      })
+
+    expect(res.status).toBe(400)
+    expect(res.body.code).toBe(-1)
+  })
+
   it('GET /api/products lists on_sale products', async () => {
     const seller = await createUser()
     await Product.create({ sellerId: seller._id, title: '在售商品', price: 10, category: '图书', status: 'on_sale' })
@@ -91,6 +149,27 @@ describe('products API', () => {
 
     expect(res.status).toBe(403)
     expect(res.body.code).toBe(-1)
+  })
+
+  it('PATCH /api/products/:id updates campus for owner and rejects invalid campus', async () => {
+    const seller = await createUser({ email: 'update-campus@student.xjtlu.edu.cn' })
+    const product = await Product.create({ sellerId: seller._id, title: '校区商品', price: 100, category: '生活用品' })
+
+    const invalidRes = await ctx.request
+      .patch(`/api/products/${product._id}`)
+      .set('Authorization', `Bearer ${ctx.tokenFor(seller)}`)
+      .send({ campus: 'beijing' })
+
+    expect(invalidRes.status).toBe(400)
+    expect(invalidRes.body.code).toBe(-1)
+
+    const res = await ctx.request
+      .patch(`/api/products/${product._id}`)
+      .set('Authorization', `Bearer ${ctx.tokenFor(seller)}`)
+      .send({ campus: 'sip' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.campus).toBe('sip')
   })
 
   it('POST /api/products blocked by content filter', async () => {

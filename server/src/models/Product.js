@@ -37,6 +37,13 @@ const productSchema = new mongoose.Schema({
     index: true,
     trim: true
   },
+  // 发布校区：空字符串=未指定，sip=独墅湖校区（苏州），tc=太仓校区
+  campus: {
+    type: String,
+    enum: ['', 'sip', 'tc'],
+    default: '',
+    index: true
+  },
   status: {
     type: String,
     enum: ['on_sale', 'reserved', 'sold', 'off_shelf'],
