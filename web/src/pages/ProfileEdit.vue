@@ -20,10 +20,10 @@
           <input v-model.trim="form.nickName" :placeholder="t('profileEdit.nickNamePlaceholder')">
         </label>
 
-        <label class="form-field">
-          <span>{{ t('profileEdit.avatarUrl') }}</span>
-          <input v-model.trim="form.avatarUrl" :placeholder="t('profileEdit.avatarPlaceholder')">
-        </label>
+        <div class="form-field">
+          <span>{{ t('profileEdit.avatar') }}</span>
+          <AvatarUploader v-model="form.avatarUrl" @uploading-change="avatarUploading = $event" />
+        </div>
 
         <div class="form-field">
           <span>{{ t('profileEdit.campus') }}</span>
@@ -44,10 +44,10 @@
         <button
           class="mobile-primary-btn full-width"
           type="button"
-          :disabled="saving"
+          :disabled="saving || avatarUploading"
           @click="handleSave"
         >
-          {{ saving ? t('common.saving') : t('common.save') }}
+          {{ saving ? t('common.saving') : avatarUploading ? t('imageUploader.uploading') : t('common.save') }}
         </button>
       </div>
     </div>
@@ -59,6 +59,7 @@ import { computed, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { updateMe } from '../api/users'
+import AvatarUploader from '../components/AvatarUploader.vue'
 import { useUserStore } from '../store/user'
 import { getLocalizedCampusOptions } from '../utils/format'
 import { useI18n } from '../utils/i18n'
@@ -69,6 +70,7 @@ const userStore = useUserStore()
 const { t } = useI18n()
 
 const saving = ref(false)
+const avatarUploading = ref(false)
 const form = reactive({
   nickName: '',
   avatarUrl: '',
