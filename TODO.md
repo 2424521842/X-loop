@@ -1,6 +1,6 @@
 # X-Loop Development Task Checklist
 
-> Last updated: 2026-04-27 (web pivot in progress — see Web Pivot section below)
+> Last updated: 2026-04-28 (web pivot in progress — see Web Pivot section below)
 > Status: ✅ Done | 🔄 In Progress | ⬜ To Do
 
 ---
@@ -17,6 +17,7 @@
 - ✅ Phase 4b-1: Orders (买/卖 tabs + 状态流转) + Reviews (评分 + 列表 + 平均分)
 - ✅ Phase 4b-2: ChatList (5s 轮询) + Chat (3s 增量轮询 + 乐观 UI)
 - ✅ Phase 4b-3: Search 页（URL 驱动 + localStorage 历史 + 竞态保护）
+- ✅ Phase 4b-4: Chat-based reservation handshake（买家发起预定邀请 → 卖家同意后锁定商品）
 - ✅ Phase 5: admin-web 迁移到新栈 + 部署（Vercel + Render + Atlas + Cloudinary）
 - 🔄 Phase 6: 端到端验收（部署完成，待人工逐项测试）
 

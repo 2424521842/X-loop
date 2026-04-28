@@ -3,6 +3,8 @@
  */
 const mongoose = require('mongoose')
 const User = require('../models/User')
+const Product = require('../models/Product')
+const Order = require('../models/Order')
 const Message = require('../models/Message')
 const { success, fail } = require('../utils/response')
 const { containsBlockedKeyword } = require('../utils/content-filter')
@@ -15,22 +17,50 @@ function invalidObjectId(res) {
   return res.status(400).json(fail('无效的 id'))
 }
 
-function serializeMessage(message) {
+function serializeProduct(product) {
+  if (!product) return null
+  return {
+    id: String(product._id),
+    title: product.title || '',
+    image: Array.isArray(product.images) ? product.images[0] || '' : '',
+    price: product.price,
+    status: product.status || ''
+  }
+}
+
+async function serializeMessage(message) {
   const item = message && typeof message.toObject === 'function' ? message.toObject() : message
   if (!item) return null
 
-  return {
+  const result = {
     id: String(item._id),
     conversationId: item.conversationId,
     fromUserId: String(item.fromUserId || ''),
     toUserId: String(item.toUserId || ''),
     productId: item.productId ? String(item.productId) : null,
+    orderId: item.orderId ? String(item.orderId) : null,
     content: item.content || '',
     type: item.type || 'text',
     read: !!item.read,
     createdAt: item.createdAt || null,
     updatedAt: item.updatedAt || null
   }
+
+  if (result.type === 'reservation' && result.orderId) {
+    const order = await Order.findById(result.orderId)
+    const productId = item.productId || order?.productId
+    const product = productId ? await Product.findById(productId) : null
+    result.reservation = {
+      orderId: result.orderId,
+      status: order?.status || 'cancelled',
+      cancelReason: order?.cancelReason || '',
+      buyerId: order?.buyerId ? String(order.buyerId) : '',
+      sellerId: order?.sellerId ? String(order.sellerId) : '',
+      product: serializeProduct(product)
+    }
+  }
+
+  return result
 }
 
 /**
@@ -71,7 +101,7 @@ async function createMessage(req, res, next) {
       type
     })
 
-    return res.json(success(serializeMessage(message)))
+    return res.json(success(await serializeMessage(message)))
   } catch (err) {
     next(err)
   }
@@ -212,7 +242,7 @@ async function listMessagesWithUser(req, res, next) {
       messages = messages.reverse()
     }
 
-    return res.json(success({ items: messages.map(serializeMessage) }))
+    return res.json(success({ items: await Promise.all(messages.map(serializeMessage)) }))
   } catch (err) {
     next(err)
   }

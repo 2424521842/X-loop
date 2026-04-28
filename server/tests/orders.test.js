@@ -5,6 +5,7 @@ let ctx
 let User
 let Product
 let Order
+let Message
 
 async function createUser(attrs = {}) {
   return User.create({
@@ -32,11 +33,12 @@ describe('orders API', () => {
     User = ctx.models.User
     Product = ctx.models.Product
     Order = ctx.models.Order
+    Message = ctx.models.Message
   })
 
   beforeEach(() => ctx.clear())
 
-  it('POST /api/orders succeeds, product.status becomes reserved', async () => {
+  it('POST /api/orders creates pending reservation invite without reserving product', async () => {
     const seller = await createUser({ email: 'seller@student.xjtlu.edu.cn' })
     const buyer = await createUser({ email: 'buyer@student.xjtlu.edu.cn' })
     const product = await createProductFor(seller, { price: 88 })
@@ -48,7 +50,10 @@ describe('orders API', () => {
 
     expect(res.status).toBe(200)
     expect(res.body.data.price).toBe(88)
-    expect(product.status).toBe('reserved')
+    expect(res.body.data.status).toBe('pending')
+    expect(product.status).toBe('on_sale')
+    const invite = await Message.findOne({ orderId: res.body.data.id, type: 'reservation' })
+    expect(invite.content).toBe('发起了预定邀请')
   })
 
   it('Cannot buy own product', async () => {
@@ -82,6 +87,8 @@ describe('orders API', () => {
 
     expect(confirmRes.status).toBe(200)
     expect(confirmRes.body.data.status).toBe('confirmed')
+    expect(product.status).toBe('reserved')
+    expect(String(product.reservedOrderId)).toBe(orderId)
 
     const completeRes = await ctx.request
       .patch(`/api/orders/${orderId}`)
@@ -91,29 +98,54 @@ describe('orders API', () => {
     expect(completeRes.status).toBe(200)
     expect(completeRes.body.data.status).toBe('completed')
     expect(product.status).toBe('sold')
+    expect(product.reservedOrderId).toBe(null)
   })
 
-  it('pending→cancelled → product returns to on_sale', async () => {
+  it('seller rejects pending reservation invite without changing product status', async () => {
     const seller = await createUser({ email: 'seller@student.xjtlu.edu.cn' })
     const buyer = await createUser({ email: 'buyer@student.xjtlu.edu.cn' })
     const product = await createProductFor(seller)
-    const order = await Order.create({
-      productId: product._id,
-      buyerId: buyer._id,
-      sellerId: seller._id,
-      price: product.price,
-      status: 'pending'
-    })
-    product.status = 'reserved'
+    const orderRes = await ctx.request
+      .post('/api/orders')
+      .set('Authorization', `Bearer ${ctx.tokenFor(buyer)}`)
+      .send({ productId: String(product._id) })
+    const orderId = orderRes.body.data.id
 
     const res = await ctx.request
-      .patch(`/api/orders/${order._id}`)
-      .set('Authorization', `Bearer ${ctx.tokenFor(buyer)}`)
+      .patch(`/api/orders/${orderId}`)
+      .set('Authorization', `Bearer ${ctx.tokenFor(seller)}`)
       .send({ status: 'cancelled' })
 
     expect(res.status).toBe(200)
     expect(res.body.data.status).toBe('cancelled')
+    expect(res.body.data.cancelReason).toBe('seller_rejected')
     expect(product.status).toBe('on_sale')
+  })
+
+  it('accepting one reservation invalidates other pending invites', async () => {
+    const seller = await createUser({ email: 'seller@student.xjtlu.edu.cn' })
+    const buyerA = await createUser({ email: 'buyer-a@student.xjtlu.edu.cn' })
+    const buyerB = await createUser({ email: 'buyer-b@student.xjtlu.edu.cn' })
+    const product = await createProductFor(seller)
+
+    const inviteA = await ctx.request
+      .post('/api/orders')
+      .set('Authorization', `Bearer ${ctx.tokenFor(buyerA)}`)
+      .send({ productId: String(product._id) })
+    const inviteB = await ctx.request
+      .post('/api/orders')
+      .set('Authorization', `Bearer ${ctx.tokenFor(buyerB)}`)
+      .send({ productId: String(product._id) })
+
+    const confirmRes = await ctx.request
+      .patch(`/api/orders/${inviteA.body.data.id}`)
+      .set('Authorization', `Bearer ${ctx.tokenFor(seller)}`)
+      .send({ status: 'confirmed' })
+
+    expect(confirmRes.status).toBe(200)
+    const otherOrder = await Order.findById(inviteB.body.data.id)
+    expect(otherOrder.status).toBe('cancelled')
+    expect(otherOrder.cancelReason).toBe('product_reserved_elsewhere')
   })
 
   it('Non-participant PATCH rejected (403)', async () => {

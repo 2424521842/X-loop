@@ -11,25 +11,38 @@
     </header>
 
     <main ref="messagePanel" class="message-panel">
-      <button
+      <div
         v-if="product"
         class="product-ref card"
-        type="button"
-        @click="goProduct"
       >
-        <img
-          v-if="productImage"
-          class="product-image"
-          :src="productImage"
-          :alt="product.title || '商品图片'"
-          loading="lazy"
+        <button
+          class="product-link"
+          type="button"
+          @click="goProduct"
         >
-        <div v-else class="product-placeholder">X</div>
-        <div class="product-info">
-          <div class="product-title text-ellipsis">{{ product.title || '未命名商品' }}</div>
-          <div class="price">{{ formatPrice(product.price) }}</div>
-        </div>
-      </button>
+          <img
+            v-if="productImage"
+            class="product-image"
+            :src="productImage"
+            :alt="product.title || '商品图片'"
+            loading="lazy"
+          >
+          <div v-else class="product-placeholder">X</div>
+          <div class="product-info">
+            <div class="product-title text-ellipsis">{{ product.title || '未命名商品' }}</div>
+            <div class="price">{{ formatPrice(product.price) }}</div>
+          </div>
+        </button>
+        <button
+          v-if="showReservationAction"
+          class="reservation-trigger"
+          type="button"
+          :disabled="reservationActionDisabled"
+          @click="handleStartReservation"
+        >
+          {{ reservationButtonText }}
+        </button>
+      </div>
 
       <el-skeleton
         v-if="loading"
@@ -59,9 +72,49 @@
             >
               {{ peerName.slice(0, 1).toUpperCase() }}
             </el-avatar>
-            <div class="bubble">
+            <div
+              class="bubble"
+              :class="{ 'reservation-bubble': message.type === 'reservation' }"
+            >
+              <template v-if="message.type === 'reservation'">
+                <div class="reservation-card">
+                  <div class="reservation-card-head">
+                    <span class="reservation-title">预定邀请</span>
+                    <span class="reservation-status" :class="reservationStatusClass(message)">
+                      {{ reservationStatusText(message) }}
+                    </span>
+                  </div>
+                  <div class="reservation-product">
+                    <span class="reservation-product-title text-ellipsis">
+                      {{ reservationProduct(message).title || product?.title || '未命名商品' }}
+                    </span>
+                    <span class="reservation-product-price">
+                      {{ formatPrice(reservationProduct(message).price ?? product?.price) }}
+                    </span>
+                  </div>
+                  <p class="reservation-copy">{{ message.content }}</p>
+                  <div v-if="canHandleReservation(message)" class="reservation-actions">
+                    <button
+                      class="reservation-action primary"
+                      type="button"
+                      :disabled="actingReservationId === message.orderId"
+                      @click="handleReservationAction(message, 'confirmed')"
+                    >
+                      同意
+                    </button>
+                    <button
+                      class="reservation-action"
+                      type="button"
+                      :disabled="actingReservationId === message.orderId"
+                      @click="handleReservationAction(message, 'cancelled')"
+                    >
+                      拒绝
+                    </button>
+                  </div>
+                </div>
+              </template>
               <img
-                v-if="message.type === 'image'"
+                v-else-if="message.type === 'image'"
                 class="message-image"
                 :src="message.content"
                 alt="聊天图片"
@@ -105,10 +158,11 @@ import {
   getMessages as listMessagesWithUser,
   sendMessage
 } from '../api/messages'
+import { createOrder, updateOrder } from '../api/orders'
 import { getProductById } from '../api/products'
 import { getUserById } from '../api/users'
 import { useUserStore } from '../store/user'
-import { formatPrice } from '../utils/format'
+import { PRODUCT_STATUS_MAP, formatPrice } from '../utils/format'
 
 const route = useRoute()
 const router = useRouter()
@@ -120,15 +174,45 @@ const messages = ref([])
 const loading = ref(false)
 const draft = ref('')
 const messagePanel = ref(null)
+const sendingReservation = ref(false)
+const actingReservationId = ref('')
 let pollingTimer = null
 
 const peerId = computed(() => String(route.params.userId || ''))
 const productId = computed(() => String(route.query.productId || ''))
 const currentUserId = computed(() => userStore.user?.id || userStore.user?._id || '')
 const peerName = computed(() => peerUser.value?.nickName || 'X-Loop 用户')
+const productSellerId = computed(() => product.value?.seller?.id || product.value?.sellerId || '')
+const isProductSeller = computed(() => Boolean(currentUserId.value && productSellerId.value && currentUserId.value === productSellerId.value))
 const productImage = computed(() => {
   const images = product.value?.images
   return Array.isArray(images) && images.length ? images[0] : ''
+})
+const myActiveReservation = computed(() => {
+  return messages.value.find((message) => {
+    const reservation = message.reservation
+    return message.type === 'reservation'
+      && reservation
+      && (reservation.product?.id || message.productId) === productId.value
+      && reservation.buyerId === currentUserId.value
+      && ['pending', 'confirmed'].includes(reservation.status)
+  })
+})
+const showReservationAction = computed(() => Boolean(product.value && !isProductSeller.value))
+const reservationActionDisabled = computed(() => {
+  return sendingReservation.value
+    || product.value?.status !== 'on_sale'
+    || Boolean(myActiveReservation.value)
+})
+const reservationButtonText = computed(() => {
+  const activeReservation = myActiveReservation.value?.reservation
+  if (sendingReservation.value) return '发送中...'
+  if (activeReservation?.status === 'pending') return '等待卖家处理'
+  if (activeReservation?.status === 'confirmed') return '卖家已同意'
+  if (product.value?.status !== 'on_sale') {
+    return PRODUCT_STATUS_MAP[product.value?.status] || '暂不可预定'
+  }
+  return '发起预定'
 })
 const lastMessageId = computed(() => {
   return messages.value.length ? messages.value[messages.value.length - 1].id : ''
@@ -148,6 +232,14 @@ function mergeMessages(items) {
   if (!items.length) return false
   const existed = new Set(messages.value.map((item) => item.id))
   const nextItems = items.filter((item) => item.id && !existed.has(item.id))
+  const reservationUpdates = nextItems.filter((item) => item.type === 'reservation' && item.orderId && item.reservation)
+  if (reservationUpdates.length) {
+    messages.value = messages.value.map((message) => {
+      const update = reservationUpdates.find((item) => item.orderId === message.orderId)
+      if (!update || message.type !== 'reservation') return message
+      return { ...message, reservation: update.reservation }
+    })
+  }
   if (!nextItems.length) return false
   messages.value = sortMessages([...messages.value, ...nextItems])
   return true
@@ -200,6 +292,37 @@ async function pollMessages() {
 
 function isMine(message) {
   return Boolean(currentUserId.value && message.fromUserId === currentUserId.value)
+}
+
+function reservationProduct(message) {
+  return message.reservation?.product || {}
+}
+
+function reservationStatusText(message) {
+  const reservation = message.reservation || {}
+  if (reservation.status === 'pending') return '等待卖家处理'
+  if (reservation.status === 'confirmed') return '已同意'
+  if (reservation.cancelReason === 'seller_rejected') return '已拒绝'
+  if (reservation.cancelReason === 'buyer_cancelled') return '已取消'
+  if (reservation.cancelReason === 'product_reserved_elsewhere') return '已失效'
+  if (reservation.status === 'cancelled') return '已取消'
+  return '预定邀请'
+}
+
+function reservationStatusClass(message) {
+  const reservation = message.reservation || {}
+  return {
+    'status-pending': reservation.status === 'pending',
+    'status-confirmed': reservation.status === 'confirmed',
+    'status-cancelled': reservation.status === 'cancelled'
+  }
+}
+
+function canHandleReservation(message) {
+  const reservation = message.reservation || {}
+  return reservation.status === 'pending'
+    && reservation.sellerId === currentUserId.value
+    && !isMine(message)
 }
 
 function shouldShowTime(index) {
@@ -266,6 +389,38 @@ async function handleSend() {
     messages.value = messages.value.filter((item) => item.id !== tempId)
     draft.value = content
     ElMessage.error('消息发送失败，请稍后重试')
+  }
+}
+
+async function handleStartReservation() {
+  if (!productId.value || reservationActionDisabled.value) return
+
+  sendingReservation.value = true
+  try {
+    await createOrder({ productId: productId.value })
+    ElMessage.success('预定邀请已发送')
+    await Promise.all([loadMessages(), loadProduct()])
+    await scrollToBottom()
+  } catch (error) {
+    ElMessage.error(error?.message || '预定邀请发送失败')
+  } finally {
+    sendingReservation.value = false
+  }
+}
+
+async function handleReservationAction(message, status) {
+  if (!message.orderId || actingReservationId.value) return
+
+  actingReservationId.value = message.orderId
+  try {
+    await updateOrder(message.orderId, { status })
+    ElMessage.success(status === 'confirmed' ? '已同意预定' : '已拒绝预定')
+    await Promise.all([loadMessages(), loadProduct()])
+    await scrollToBottom()
+  } catch (error) {
+    ElMessage.error(error?.message || '操作失败')
+  } finally {
+    actingReservationId.value = ''
   }
 }
 
@@ -376,6 +531,20 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
+.product-link {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 12px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
 .product-image,
 .product-placeholder {
   flex: 0 0 auto;
@@ -395,6 +564,7 @@ onBeforeUnmount(() => {
 }
 
 .product-info {
+  flex: 1;
   min-width: 0;
 }
 
@@ -402,6 +572,26 @@ onBeforeUnmount(() => {
   margin-bottom: 6px;
   color: var(--color-dark);
   font-weight: 700;
+}
+
+.reservation-trigger {
+  flex: 0 0 auto;
+  min-width: 92px;
+  height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 17px;
+  background: var(--gradient-brand);
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.reservation-trigger:disabled {
+  background: #eeedf0;
+  color: #777681;
+  cursor: not-allowed;
 }
 
 .message-skeleton {
@@ -452,6 +642,123 @@ onBeforeUnmount(() => {
   color: #fff;
 }
 
+.reservation-bubble {
+  width: min(300px, 72vw);
+  max-width: min(300px, 72vw);
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+  color: var(--color-text);
+  white-space: normal;
+}
+
+.message-row.mine .reservation-bubble {
+  background: #fff;
+  color: var(--color-text);
+}
+
+.reservation-card {
+  padding: 12px;
+}
+
+.reservation-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.reservation-title {
+  color: var(--color-dark);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.reservation-status {
+  flex: 0 0 auto;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #eeedf0;
+  color: #777681;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.reservation-status.status-pending {
+  background: #fff0d7;
+  color: #b76a00;
+}
+
+.reservation-status.status-confirmed {
+  background: #d7ffe0;
+  color: #12823a;
+}
+
+.reservation-status.status-cancelled {
+  background: #ffdad7;
+  color: #b42318;
+}
+
+.reservation-product {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: #F5F3F7;
+}
+
+.reservation-product-title {
+  min-width: 0;
+  color: var(--color-dark);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.reservation-product-price {
+  flex: 0 0 auto;
+  color: var(--color-price);
+  font-weight: 800;
+}
+
+.reservation-copy {
+  margin: 10px 0 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.reservation-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.reservation-action {
+  height: 30px;
+  padding: 0 14px;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  background: #fff;
+  color: #464650;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.reservation-action.primary {
+  border-color: transparent;
+  background: var(--gradient-brand);
+  color: #fff;
+}
+
+.reservation-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .message-image {
   max-width: min(240px, 100%);
   border-radius: 8px;
@@ -489,6 +796,15 @@ onBeforeUnmount(() => {
 
   .bubble {
     max-width: 75%;
+  }
+
+  .product-ref {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .reservation-trigger {
+    width: 100%;
   }
 
   .composer-bar {

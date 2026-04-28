@@ -208,6 +208,7 @@ function createDoc(modelName, data, stores) {
       price: data.price,
       category: data.category,
       status: data.status || 'on_sale',
+      reservedOrderId: data.reservedOrderId || null,
       viewCount: data.viewCount || 0
     }, stores, modelName)
   }
@@ -219,6 +220,9 @@ function createDoc(modelName, data, stores) {
       buyerId: data.buyerId,
       sellerId: data.sellerId,
       status: data.status || 'pending',
+      cancelReason: data.cancelReason || '',
+      buyerReviewed: !!data.buyerReviewed,
+      sellerReviewed: !!data.sellerReviewed,
       price: data.price
     }, stores, modelName)
   }
@@ -241,6 +245,7 @@ function createDoc(modelName, data, stores) {
       fromUserId: data.fromUserId,
       toUserId: data.toUserId,
       productId: data.productId || null,
+      orderId: data.orderId || null,
       content: data.content,
       type: data.type || 'text',
       read: data.read === undefined ? false : data.read
@@ -285,6 +290,12 @@ function matchesQuery(doc, query = {}) {
       if (expected.$gte !== undefined) {
         return actual >= expected.$gte
       }
+      if (expected.$in !== undefined) {
+        return expected.$in.some(item => sameId(actual, item))
+      }
+      if (expected.$ne !== undefined) {
+        return !sameId(actual, expected.$ne)
+      }
     }
     return sameId(actual, expected)
   })
@@ -305,6 +316,9 @@ function applyUpdate(doc, update) {
       setByPath(doc, key, (getByPath(doc, key) || 0) + value)
     })
   }
+  if (update.$unset) {
+    Object.keys(update.$unset).forEach((key) => setByPath(doc, key, null))
+  }
   doc.updatedAt = now()
 }
 
@@ -317,7 +331,7 @@ class LocalQuery {
     this.sortSpec = null
     this.skipCount = 0
     this.limitCount = null
-    this.populateSpec = null
+    this.populateSpec = []
   }
 
   sort(spec) {
@@ -336,7 +350,7 @@ class LocalQuery {
   }
 
   populate(spec) {
-    this.populateSpec = spec
+    this.populateSpec.push(spec)
     return this
   }
 
@@ -361,8 +375,10 @@ class LocalQuery {
       result = result.slice(0, this.limitCount)
     }
 
-    if (this.populateSpec) {
-      result = result.map(item => populateDoc(item, this.populateSpec, this.stores, this.modelName))
+    if (this.populateSpec.length) {
+      result = result.map(item => this.populateSpec.reduce((doc, spec) => {
+        return populateDoc(doc, spec, this.stores, this.modelName)
+      }, item))
     }
 
     return result
@@ -389,6 +405,18 @@ function populateDoc(doc, spec, stores, modelName) {
     const user = stores.users.find(item => sameId(item._id, doc.fromUserId))
     if (user) copy.fromUserId = clonePlain(user)
   }
+  if (path === 'buyerId') {
+    const user = stores.users.find(item => sameId(item._id, doc.buyerId))
+    if (user) copy.buyerId = clonePlain(user)
+  }
+  if (path === 'sellerId') {
+    const user = stores.users.find(item => sameId(item._id, doc.sellerId))
+    if (user) copy.sellerId = clonePlain(user)
+  }
+  if (path === 'orderId') {
+    const order = stores.orders.find(item => sameId(item._id, doc.orderId))
+    if (order) copy.orderId = clonePlain(order)
+  }
 
   return copy
 }
@@ -402,6 +430,11 @@ function installModel(Model, records, stores, modelName) {
   Model.find = (query = {}) => new LocalQuery(records, query, stores, modelName)
   Model.findOne = async (query = {}) => records.find(item => matchesQuery(item, query)) || null
   Model.findById = async (id) => records.find(item => sameId(item._id, id)) || null
+  Model.findOneAndUpdate = async (query, update) => {
+    const doc = records.find(item => matchesQuery(item, query))
+    applyUpdate(doc, update)
+    return doc || null
+  }
   Model.findByIdAndUpdate = async (id, update) => {
     const doc = records.find(item => sameId(item._id, id))
     applyUpdate(doc, update)
@@ -444,18 +477,23 @@ function installMessageAggregate(Message, stores) {
         const otherUser = stores.users.find(item => sameId(item._id, otherUserId))
         return {
           conversationId,
-          latestMessageId: String(group.latest._id),
-          otherUserId: String(otherUserId),
-          otherUserNick: otherUser ? otherUser.nickName : '',
-          otherUserAvatar: otherUser ? otherUser.avatarUrl : '',
-          lastContent: group.latest.content,
-          lastTime: group.latest.createdAt,
-          type: group.latest.type,
+          otherUser: {
+            id: String(otherUserId),
+            nickName: otherUser ? otherUser.nickName : '',
+            avatarUrl: otherUser ? otherUser.avatarUrl : ''
+          },
+          lastMessage: {
+            id: String(group.latest._id),
+            content: group.latest.content,
+            type: group.latest.type,
+            createdAt: group.latest.createdAt,
+            fromUserId: String(group.latest.fromUserId)
+          },
           productId: group.latest.productId ? String(group.latest.productId) : null,
           unread: group.unread
         }
       })
-      .sort((a, b) => b.lastTime - a.lastTime)
+      .sort((a, b) => b.lastMessage.createdAt - a.lastMessage.createdAt)
   }
 }
 

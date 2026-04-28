@@ -26,6 +26,12 @@ const messageSchema = new mongoose.Schema({
     ref: 'Product',
     default: null
   },
+  orderId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Order',
+    default: null,
+    index: true
+  },
   content: {
     type: String,
     required: true,
@@ -34,7 +40,7 @@ const messageSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['text', 'image'],
+    enum: ['text', 'image', 'reservation'],
     default: 'text'
   },
   read: {

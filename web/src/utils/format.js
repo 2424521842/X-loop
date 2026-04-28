@@ -22,7 +22,7 @@ export const PRODUCT_STATUS_MAP = {
 }
 
 export const ORDER_STATUS_MAP = {
-  pending: '待确认',
+  pending: '待同意',
   confirmed: '已确认',
   completed: '已完成',
   cancelled: '已取消'

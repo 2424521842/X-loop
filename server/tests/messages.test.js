@@ -56,9 +56,9 @@ describe('messages API', () => {
       .set('Authorization', `Bearer ${ctx.tokenFor(me)}`)
 
     expect(res.status).toBe(200)
-    const item = res.body.data.items.find(entry => entry.otherUserId === String(other._id))
+    const item = res.body.data.items.find(entry => entry.otherUser?.id === String(other._id))
     expect(item.unread).toBe(2)
-    expect(item.otherUserNick).toBe('Other')
+    expect(item.otherUser.nickName).toBe('Other')
   })
 
   it('GET /:userId returns messages, since cursor works', async () => {
@@ -73,7 +73,7 @@ describe('messages API', () => {
       .set('Authorization', `Bearer ${ctx.tokenFor(me)}`)
 
     expect(allRes.status).toBe(200)
-    expect(allRes.body.data.messages.map(item => item.content)).toEqual(['first', 'second'])
+    expect(allRes.body.data.items.map(item => item.content)).toEqual(['first', 'second'])
 
     const third = await Message.create({ conversationId: cid, fromUserId: other._id, toUserId: me._id, content: 'third' })
     const sinceRes = await ctx.request
@@ -83,7 +83,7 @@ describe('messages API', () => {
     expect(first).toBeTruthy()
     expect(third).toBeTruthy()
     expect(sinceRes.status).toBe(200)
-    expect(sinceRes.body.data.messages.map(item => item.content)).toEqual(['third'])
+    expect(sinceRes.body.data.items.map(item => item.content)).toEqual(['third'])
   })
 
   it("Other party's messages to me are marked read after fetch", async () => {
@@ -117,8 +117,8 @@ describe('messages API', () => {
       .set('Authorization', `Bearer ${ctx.tokenFor(me)}`)
 
     expect(res.status).toBe(200)
-    expect(res.body.data.messages).toHaveLength(1)
-    expect(res.body.data.messages[0].content).toBe('only other')
+    expect(res.body.data.items).toHaveLength(1)
+    expect(res.body.data.items[0].content).toBe('only other')
   })
 
   it('Content filter blocks message', async () => {

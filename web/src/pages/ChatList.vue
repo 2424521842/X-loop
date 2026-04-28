@@ -87,6 +87,7 @@ function avatarText(user) {
 function previewText(message) {
   if (!message) return '暂无消息'
   if (message.type === 'image') return '[图片]'
+  if (message.type === 'reservation') return message.content || '[预定邀请]'
   return message.content || ''
 }
 

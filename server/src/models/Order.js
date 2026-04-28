@@ -28,6 +28,11 @@ const orderSchema = new mongoose.Schema({
     default: 'pending',
     index: true
   },
+  cancelReason: {
+    type: String,
+    enum: ['', 'seller_rejected', 'buyer_cancelled', 'product_reserved_elsewhere'],
+    default: ''
+  },
   // 下单时的商品价格快照
   price: {
     type: Number,
@@ -41,6 +46,28 @@ const orderSchema = new mongoose.Schema({
   sellerReviewed: {
     type: Boolean,
     default: false
+  },
+  // 管理端是否已介入纠纷
+  intervened: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+  interventionReason: {
+    type: String,
+    default: ''
+  },
+  interventionTime: {
+    type: Date,
+    default: null
+  },
+  resolvedBy: {
+    type: String,
+    default: ''
+  },
+  resolvedTime: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true

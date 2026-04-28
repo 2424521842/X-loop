@@ -31,6 +31,7 @@ function serializeOrder(order, extra = {}) {
     buyerId: o.buyerId && o.buyerId._id ? String(o.buyerId._id) : String(o.buyerId || ''),
     sellerId: o.sellerId && o.sellerId._id ? String(o.sellerId._id) : String(o.sellerId || ''),
     status: o.status || 'pending',
+    cancelReason: o.cancelReason || '',
     price: o.price,
     intervened: !!o.intervened,
     interventionReason: o.interventionReason || '',
@@ -156,8 +157,18 @@ async function resolveOrder(req, res, next) {
     const order = await Order.findByIdAndUpdate(id, { $set: update }, { new: true })
     if (!order) return res.status(404).json(fail('订单不存在'))
 
-    if (resolution === 'force_refund') await Product.findByIdAndUpdate(order.productId, { $set: { status: 'on_sale' } })
-    if (resolution === 'force_complete') await Product.findByIdAndUpdate(order.productId, { $set: { status: 'sold' } })
+    if (resolution === 'force_refund') {
+      await Product.findByIdAndUpdate(order.productId, {
+        $set: { status: 'on_sale' },
+        $unset: { reservedOrderId: '' }
+      })
+    }
+    if (resolution === 'force_complete') {
+      await Product.findByIdAndUpdate(order.productId, {
+        $set: { status: 'sold' },
+        $unset: { reservedOrderId: '' }
+      })
+    }
 
     await logAction(req, 'resolve_dispute', 'order', id, { resolution, note })
     return res.json(success(null))

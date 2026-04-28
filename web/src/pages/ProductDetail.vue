@@ -125,10 +125,6 @@
           </button>
         </template>
 
-        <template v-else-if="product.status !== 'on_sale'">
-          <span class="status-hint">{{ statusText }}，暂不可交易</span>
-        </template>
-
         <template v-else>
           <button
             class="btn-chat"
@@ -136,14 +132,6 @@
             @click="handleContact"
           >
             聊一聊
-          </button>
-          <button
-            class="btn-want"
-            type="button"
-            :disabled="ordering"
-            @click="handleBuy"
-          >
-            {{ ordering ? '下单中...' : '我想要' }}
           </button>
         </template>
       </div>
@@ -153,10 +141,9 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { ElImageViewer, ElMessage } from 'element-plus'
+import { ElImageViewer } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import EmptyState from '../components/EmptyState.vue'
-import { createOrder } from '../api/orders'
 import { getProductById as getProduct } from '../api/products'
 import { useUserStore } from '../store/user'
 import { CATEGORIES, PRODUCT_STATUS_MAP, formatPrice, formatTime } from '../utils/format'
@@ -167,7 +154,6 @@ const userStore = useUserStore()
 
 const product = ref(null)
 const loading = ref(true)
-const ordering = ref(false)
 const viewerVisible = ref(false)
 const viewerIndex = ref(0)
 const currentImageIndex = ref(0)
@@ -233,22 +219,6 @@ function handleContact() {
     path: `/chat/${sellerId.value}`,
     query: { productId: product.value?.id || productId.value }
   })
-}
-
-async function handleBuy() {
-  if (!userStore.isLoggedIn) {
-    goLogin()
-    return
-  }
-
-  ordering.value = true
-  try {
-    await createOrder({ productId: productId.value })
-    ElMessage.success('下单成功')
-    router.push('/orders')
-  } finally {
-    ordering.value = false
-  }
 }
 
 function goReviews() {
@@ -520,8 +490,8 @@ onMounted(loadProduct)
 }
 
 .btn-chat {
-  background: #f0eef2;
-  color: #464650;
+  background: linear-gradient(to right, #010544, #CE57C1);
+  color: #fff;
 }
 
 .btn-want {

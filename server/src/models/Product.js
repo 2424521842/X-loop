@@ -43,9 +43,20 @@ const productSchema = new mongoose.Schema({
     default: 'on_sale',
     index: true
   },
+  reservedOrderId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Order',
+    default: null,
+    index: true
+  },
   viewCount: {
     type: Number,
     default: 0
+  },
+  // 管理端下架/恢复备注
+  adminNote: {
+    type: String,
+    default: ''
   }
 }, {
   timestamps: true

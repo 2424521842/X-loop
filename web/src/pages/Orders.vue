@@ -53,7 +53,7 @@
         >
           <div class="order-header">
             <span class="order-status" :class="`status-${order.status}`">
-              {{ statusText(order.status) }}
+              {{ statusText(order) }}
             </span>
             <span class="order-time">{{ formatTime(order.createdAt) }}</span>
           </div>
@@ -79,22 +79,22 @@
             <button
               v-if="canCancel(order)"
               type="button"
-              @click="handleStatusAction(order, 'cancelled', '订单已取消')"
+              @click="handleStatusAction(order, 'cancelled', '预定邀请已取消')"
             >
-              取消订单
+              取消邀请
             </button>
 
             <template v-if="canSellerHandlePending(order)">
               <button
                 class="primary"
                 type="button"
-                @click="handleStatusAction(order, 'confirmed', '已确认接单')"
+                @click="handleStatusAction(order, 'confirmed', '已同意预定')"
               >
-                确认接单
+                同意预定
               </button>
               <button
                 type="button"
-                @click="handleStatusAction(order, 'cancelled', '已拒绝订单')"
+                @click="handleStatusAction(order, 'cancelled', '已拒绝预定')"
               >
                 拒绝
               </button>
@@ -153,14 +153,14 @@ const pageSize = 50
 
 const statusFilters = [
   { label: '全部', value: 'all' },
-  { label: '待确认', value: 'pending' },
+  { label: '待同意', value: 'pending' },
   { label: '已确认', value: 'confirmed' },
   { label: '已完成', value: 'completed' },
   { label: '已取消', value: 'cancelled' }
 ]
 
 const statusMap = {
-  pending: '待确认',
+  pending: '待同意',
   confirmed: '已确认',
   completed: '已完成',
   cancelled: '已取消'
@@ -186,8 +186,12 @@ function getProductImage(order) {
   return getProduct(order).image || order?.snapshot?.image || ''
 }
 
-function statusText(status) {
-  return statusMap[status] || status || '未知状态'
+function statusText(order) {
+  if (order?.status === 'cancelled') {
+    if (order.cancelReason === 'seller_rejected') return '已拒绝'
+    if (order.cancelReason === 'product_reserved_elsewhere') return '已失效'
+  }
+  return statusMap[order?.status] || order?.status || '未知状态'
 }
 
 function formatPrice(value) {
