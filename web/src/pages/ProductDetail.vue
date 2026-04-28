@@ -9,7 +9,7 @@
 
     <EmptyState
       v-else-if="!product"
-      text="商品不存在"
+      :text="t('productDetail.notFound')"
     />
 
     <template v-else>
@@ -30,7 +30,7 @@
             <img
               class="detail-image"
               :src="image"
-              :alt="`${product.title || '商品图片'} ${index + 1}`"
+              :alt="`${product.title || t('common.productImage')} ${index + 1}`"
               loading="lazy"
               @click="openViewer(index)"
             >
@@ -43,7 +43,7 @@
       </div>
 
       <div class="product-info-card">
-        <h1 class="product-title">{{ product.title || '未命名商品' }}</h1>
+        <h1 class="product-title">{{ product.title || t('common.unnamedProduct') }}</h1>
 
         <div class="product-tags">
           <span class="tag-pill">{{ categoryLabel }}</span>
@@ -55,22 +55,22 @@
         </div>
 
         <div class="desc-section">
-          <span class="desc-label">商品描述</span>
-          <p class="desc-text">{{ product.description || '卖家暂未填写商品描述。' }}</p>
+          <span class="desc-label">{{ t('productDetail.description') }}</span>
+          <p class="desc-text">{{ product.description || t('productDetail.noDescription') }}</p>
         </div>
 
         <div class="info-grid">
           <div class="info-grid-item">
-            <span class="info-grid-label">交易方式</span>
-            <span class="info-grid-value">当面交易</span>
+            <span class="info-grid-label">{{ t('productDetail.tradeMethod') }}</span>
+            <span class="info-grid-value">{{ t('productDetail.offlineTrade') }}</span>
           </div>
           <div class="info-grid-item">
-            <span class="info-grid-label">发布位置</span>
+            <span class="info-grid-label">{{ t('productDetail.location') }}</span>
             <span class="info-grid-value">{{ campusLabel }}</span>
           </div>
           <div class="info-grid-item">
-            <span class="info-grid-label">发布时间</span>
-            <span class="info-grid-value">{{ formatTime(product.createdAt || product.createTime) }}</span>
+            <span class="info-grid-label">{{ t('productDetail.publishTime') }}</span>
+            <span class="info-grid-value">{{ formatTime(product.createdAt || product.createTime, t) }}</span>
           </div>
         </div>
       </div>
@@ -87,22 +87,22 @@
           </el-avatar>
           <div class="seller-info">
             <span class="seller-name">{{ sellerName }}</span>
-            <span class="seller-school">西交利物浦大学</span>
+            <span class="seller-school">{{ t('productDetail.sellerSchool') }}</span>
           </div>
-          <span class="seller-link">查看评价 ›</span>
+          <span class="seller-link">{{ t('productDetail.viewReviews') }}</span>
         </div>
         <div class="seller-stats">
           <div class="stat-item">
             <span class="stat-num">{{ seller.credit ?? 100 }}</span>
-            <span class="stat-label">信誉</span>
+            <span class="stat-label">{{ t('productDetail.credit') }}</span>
           </div>
           <div class="stat-item">
             <span class="stat-num">{{ campusLabel }}</span>
-            <span class="stat-label">校区</span>
+            <span class="stat-label">{{ t('productDetail.campus') }}</span>
           </div>
           <div class="stat-item">
             <span class="stat-num">{{ statusText }}</span>
-            <span class="stat-label">状态</span>
+            <span class="stat-label">{{ t('productDetail.status') }}</span>
           </div>
         </div>
       </button>
@@ -121,7 +121,7 @@
             type="button"
             @click="router.push('/my-products')"
           >
-            管理我的商品
+            {{ t('productDetail.manageMine') }}
           </button>
         </template>
 
@@ -131,7 +131,7 @@
             type="button"
             @click="handleContact"
           >
-            聊一聊
+            {{ t('productDetail.chat') }}
           </button>
         </template>
       </div>
@@ -146,11 +146,13 @@ import { useRoute, useRouter } from 'vue-router'
 import EmptyState from '../components/EmptyState.vue'
 import { getProductById as getProduct } from '../api/products'
 import { useUserStore } from '../store/user'
-import { CATEGORIES, PRODUCT_STATUS_MAP, formatPrice, formatTime } from '../utils/format'
+import { formatPrice, formatTime, getCampusLabel, getCategoryName, getProductStatusText } from '../utils/format'
+import { useI18n } from '../utils/i18n'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const { t } = useI18n()
 
 const product = ref(null)
 const loading = ref(true)
@@ -164,23 +166,18 @@ const imageList = computed(() => {
 })
 const seller = computed(() => product.value?.seller || {})
 const sellerId = computed(() => seller.value.id || product.value?.sellerId || '')
-const sellerName = computed(() => seller.value.nickName || 'X-Loop 用户')
+const sellerName = computed(() => seller.value.nickName || t('common.userFallback'))
 const currentUserId = computed(() => userStore.user?.id || userStore.user?._id || '')
 const isSeller = computed(() => {
   return Boolean(userStore.isLoggedIn && currentUserId.value && sellerId.value && currentUserId.value === sellerId.value)
 })
 const categoryLabel = computed(() => {
-  const category = product.value?.category || '其他'
-  const match = CATEGORIES.find((item) => item.id === category || item.name === category)
-  return match?.name || category
+  return getCategoryName(product.value?.category || '', t)
 })
 const campusLabel = computed(() => {
-  const campus = product.value?.campus
-  if (campus === 'sip') return 'SIP 校区'
-  if (campus === 'tc') return 'TC 校区'
-  return '未指定'
+  return getCampusLabel(product.value?.campus, t)
 })
-const statusText = computed(() => PRODUCT_STATUS_MAP[product.value?.status] || '不可交易')
+const statusText = computed(() => getProductStatusText(product.value?.status, t) || t('status.product.unavailable'))
 
 async function loadProduct() {
   loading.value = true

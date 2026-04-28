@@ -7,29 +7,29 @@
           <input
             v-model="keyword"
             class="search-input"
-            placeholder="搜索你想要的宝贝"
+            :placeholder="t('search.placeholder')"
             type="search"
             @keyup.enter="handleSubmit"
           >
         </label>
-        <button class="search-button" type="button" @click="handleSubmit">搜索</button>
+        <button class="search-button" type="button" @click="handleSubmit">{{ t('search.submit') }}</button>
       </div>
     </div>
 
     <section
       v-if="!activeQuery"
       class="history-section"
-      aria-label="搜索历史"
+      :aria-label="t('search.historyAria')"
     >
       <div class="history-header">
-        <h2>搜索历史</h2>
+        <h2>{{ t('search.historyTitle') }}</h2>
         <button
           v-if="historyList.length"
           class="clear-history"
           type="button"
           @click="clearHistory"
         >
-          清空
+          {{ t('search.clear') }}
         </button>
       </div>
 
@@ -52,7 +52,7 @@
         v-else
         class="history-empty"
       >
-        暂无搜索记录
+        {{ t('search.noHistory') }}
       </p>
     </section>
 
@@ -85,12 +85,12 @@
       <template v-else>
         <EmptyState
           v-if="!displayedProducts.length"
-          text="未找到相关商品"
+          :text="t('search.noResults')"
         />
 
         <template v-else>
           <div class="result-meta">
-            <span class="result-count">找到 {{ displayedProducts.length }} 个相关宝贝</span>
+            <span class="result-count">{{ t('search.resultCount', { count: displayedProducts.length }) }}</span>
             <span class="result-sort">{{ resultSortText }}</span>
           </div>
           <div class="result-list">
@@ -116,6 +116,7 @@ import { searchProducts } from '../api/products'
 import ProductCard from '../components/ProductCard.vue'
 import EmptyState from '../components/EmptyState.vue'
 import { useUserStore } from '../store/user'
+import { useI18n } from '../utils/i18n'
 
 const HISTORY_KEY = 'xloop:searchHistory'
 const HISTORY_LIMIT = 10
@@ -123,6 +124,7 @@ const HISTORY_LIMIT = 10
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const { t } = useI18n()
 
 const keyword = ref('')
 const products = ref([])
@@ -137,17 +139,17 @@ const hasWindowStorage = computed(() => typeof window !== 'undefined' && window.
 const userCampus = computed(() => userStore.user?.campus || '')
 const filterTabs = computed(() => {
   const tabs = [
-    { label: '综合', value: 'all' },
-    { label: '价格最低', value: 'price_asc' }
+    { label: t('search.filterAll'), value: 'all' },
+    { label: t('search.priceLow'), value: 'price_asc' }
   ]
   if (userCampus.value) {
-    tabs.push({ label: '同校区', value: 'campus' })
+    tabs.push({ label: t('search.sameCampus'), value: 'campus' })
   }
   return tabs
 })
 const resultSortText = computed(() => {
   const match = filterTabs.value.find((item) => item.value === activeFilter.value)
-  return match ? `${match.label}排序` : '综合排序'
+  return match ? t('search.sortSuffix', { label: match.label }) : t('search.sortDefault')
 })
 const displayedProducts = computed(() => {
   const items = [...products.value]
@@ -246,7 +248,7 @@ async function fetchResults(term) {
   } catch (error) {
     if (requestId === searchRequestId) {
       products.value = []
-      ElMessage.error(error?.message || '搜索失败，请稍后重试')
+      ElMessage.error(error?.message || t('search.failed'))
     }
   } finally {
     if (requestId === searchRequestId) {

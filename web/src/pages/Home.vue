@@ -4,10 +4,10 @@
       <div class="hero-decoration" aria-hidden="true"></div>
       <div class="hero-content">
         <h1 class="hero-title">
-          <span class="hero-title-text">校园好物，</span>
-          <span class="hero-title-accent">即刻流转</span>
+          <span class="hero-title-text">{{ t('home.heroBefore') }}</span>
+          <span class="hero-title-accent">{{ t('home.heroAccent') }}</span>
         </h1>
-        <p class="hero-subtitle">发现西浦学子正在交易的优质闲置</p>
+        <p class="hero-subtitle">{{ t('home.subtitle') }}</p>
 
         <button
           class="search-bar"
@@ -15,26 +15,26 @@
           @click="goSearch"
         >
           <span class="search-icon" aria-hidden="true">⌕</span>
-          <span class="search-placeholder">搜索您需要的物品</span>
+          <span class="search-placeholder">{{ t('home.searchPlaceholder') }}</span>
         </button>
       </div>
     </header>
 
-    <section class="category-section" aria-label="商品分类">
+    <section class="category-section" :aria-label="t('home.categoryAria')">
       <div class="category-header">
-        <span class="category-title">热门分类</span>
-        <button class="category-more" type="button" @click="goSearch">查看全部</button>
+        <span class="category-title">{{ t('home.hotCategories') }}</span>
+        <button class="category-more" type="button" @click="goSearch">{{ t('home.viewAll') }}</button>
       </div>
       <div class="category-scroll">
         <button
           v-for="category in categoryTabs"
-          :key="category"
+          :key="category.value"
           class="category-chip"
-          :class="{ active: selectedCategory === category }"
+          :class="{ active: selectedCategory === category.value }"
           type="button"
-          @click="handleCategoryChange(category)"
+          @click="handleCategoryChange(category.value)"
         >
-          {{ category }}
+          {{ category.label }}
         </button>
       </div>
     </section>
@@ -64,18 +64,18 @@
 
         <EmptyState
           v-else
-          text="暂无商品，快去发布吧~"
+          :text="t('home.empty')"
         />
 
-        <div v-if="loading && products.length" class="load-more">加载中...</div>
-        <div v-else-if="finished && products.length" class="load-more">没有更多了</div>
+        <div v-if="loading && products.length" class="load-more">{{ t('home.loading') }}</div>
+        <div v-else-if="finished && products.length" class="load-more">{{ t('home.noMore') }}</div>
       </template>
     </section>
 
     <button
       class="fab-btn"
       type="button"
-      aria-label="发布商品"
+      :aria-label="t('home.publishAria')"
       @click="goPublish"
     >
       <span class="fab-icon">+</span>
@@ -89,18 +89,23 @@ import { useRouter } from 'vue-router'
 import EmptyState from '../components/EmptyState.vue'
 import ProductCard from '../components/ProductCard.vue'
 import { getProducts } from '../api/products'
-import { CATEGORIES } from '../utils/format'
+import { getLocalizedCategories } from '../utils/format'
+import { useI18n } from '../utils/i18n'
 
 const PAGE_SIZE = 20
 
 const router = useRouter()
-const selectedCategory = ref('全部')
+const { t } = useI18n()
+const selectedCategory = ref('')
 const products = ref([])
 const page = ref(0)
 const loading = ref(false)
 const finished = ref(false)
 
-const categoryTabs = computed(() => ['全部', ...CATEGORIES.map((item) => item.name)])
+const categoryTabs = computed(() => [
+  { label: t('categories.all'), value: '' },
+  ...getLocalizedCategories(t)
+])
 const initialLoading = computed(() => loading.value && products.value.length === 0)
 const scrollDisabled = computed(() => loading.value || finished.value)
 
@@ -117,7 +122,7 @@ async function loadProducts(reset = false) {
     const result = await getProducts({
       page: page.value,
       pageSize: PAGE_SIZE,
-      category: selectedCategory.value === '全部' ? '' : selectedCategory.value
+      category: selectedCategory.value
     })
     const items = normalizeItems(result)
     products.value = reset ? items : [...products.value, ...items]

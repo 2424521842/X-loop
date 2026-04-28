@@ -8,9 +8,9 @@
     />
 
     <div v-else-if="userError" class="reviews-shell error-state">
-      <h1>评价信息不可用</h1>
+      <h1>{{ t('reviews.unavailable') }}</h1>
       <p>{{ userError }}</p>
-      <el-button type="primary" @click="router.back()">返回</el-button>
+      <el-button type="primary" @click="router.back()">{{ t('common.back') }}</el-button>
     </div>
 
     <template v-else>
@@ -21,17 +21,17 @@
         <div class="user-info">
           <h1>{{ userName }}</h1>
           <div class="user-meta">
-            <span>信誉分 {{ user.credit ?? 100 }}</span>
-            <span>评价 {{ user.reviewCount ?? reviewCount }} 条</span>
+            <span>{{ t('reviews.credit', { score: user.credit ?? 100 }) }}</span>
+            <span>{{ t('reviews.reviewCount', { count: user.reviewCount ?? reviewCount }) }}</span>
           </div>
         </div>
       </header>
 
       <main class="reviews-shell">
         <section v-if="writeMode" class="review-form">
-          <h2>发布评价</h2>
+          <h2>{{ t('reviews.writeTitle') }}</h2>
           <div class="form-row">
-            <span class="form-label">评分</span>
+            <span class="form-label">{{ t('reviews.rating') }}</span>
             <el-rate
               v-model="rating"
               :max="5"
@@ -45,17 +45,17 @@
             :rows="5"
             maxlength="200"
             show-word-limit
-            placeholder="请描述本次交易体验"
+            :placeholder="t('reviews.placeholder')"
           />
 
           <div class="form-actions">
-            <el-button @click="router.back()">取消</el-button>
+            <el-button @click="router.back()">{{ t('common.cancel') }}</el-button>
             <el-button
               type="primary"
               :loading="submitting"
               @click="handleSubmit"
             >
-              提交评价
+              {{ t('reviews.submit') }}
             </el-button>
           </div>
         </section>
@@ -64,11 +64,11 @@
           <div class="rating-summary">
             <div>
               <strong>{{ avgRatingText }}</strong>
-              <span>平均评分</span>
+              <span>{{ t('reviews.avgRating') }}</span>
             </div>
             <div>
               <strong>{{ reviewCount }}</strong>
-              <span>评价数</span>
+              <span>{{ t('reviews.count') }}</span>
             </div>
           </div>
 
@@ -80,8 +80,8 @@
 
           <EmptyState
             v-else-if="reviews.length === 0"
-            title="暂无评价"
-            text="暂无评价"
+            :title="t('reviews.emptyTitle')"
+            :text="t('reviews.emptyText')"
           />
 
           <div v-else class="review-list">
@@ -96,7 +96,7 @@
               <div class="review-main">
                 <div class="review-top">
                   <span class="reviewer-name">{{ reviewerName(review) }}</span>
-                  <span class="review-time">{{ formatTime(review.createdAt) }}</span>
+                  <span class="review-time">{{ formatTime(review.createdAt, t) }}</span>
                 </div>
                 <el-rate
                   :model-value="Number(review.rating) || 0"
@@ -121,9 +121,11 @@ import EmptyState from '../components/EmptyState.vue'
 import { createReview, getUserReviews } from '../api/reviews'
 import { getUserById } from '../api/users'
 import { formatTime } from '../utils/format'
+import { useI18n } from '../utils/i18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const user = ref({})
 const userError = ref('')
@@ -139,14 +141,14 @@ const submitting = ref(false)
 const userId = computed(() => String(route.params.userId || ''))
 const orderId = computed(() => String(route.query.orderId || ''))
 const writeMode = computed(() => Boolean(orderId.value))
-const userName = computed(() => user.value?.nickName || 'X-Loop 用户')
+const userName = computed(() => user.value?.nickName || t('common.userFallback'))
 const avgRatingText = computed(() => {
   const value = Number(avgRating.value)
   return Number.isFinite(value) ? value.toFixed(1) : '0.0'
 })
 
 function reviewerName(review) {
-  return review?.from?.nickName || 'X-Loop 用户'
+  return review?.from?.nickName || t('common.userFallback')
 }
 
 async function loadUser() {
@@ -156,7 +158,7 @@ async function loadUser() {
     user.value = await getUserById(userId.value)
   } catch (error) {
     user.value = {}
-    userError.value = error?.message || '用户信息加载失败'
+    userError.value = error?.message || t('reviews.userLoadFailed')
     ElMessage.error(userError.value)
   } finally {
     loadingUser.value = false
@@ -181,7 +183,7 @@ async function loadReviews() {
     reviews.value = []
     avgRating.value = 0
     reviewCount.value = 0
-    ElMessage.error(error?.message || '评价加载失败')
+    ElMessage.error(error?.message || t('reviews.loadFailed'))
   } finally {
     loadingReviews.value = false
   }
@@ -197,11 +199,11 @@ async function loadPage() {
 async function handleSubmit() {
   const text = content.value.trim()
   if (rating.value < 1) {
-    ElMessage.error('请选择评分')
+    ElMessage.error(t('reviews.ratingRequired'))
     return
   }
   if (!text) {
-    ElMessage.error('请输入评价内容')
+    ElMessage.error(t('reviews.contentRequired'))
     return
   }
 
@@ -212,10 +214,10 @@ async function handleSubmit() {
       rating: rating.value,
       content: text
     })
-    ElMessage.success('评价已提交')
+    ElMessage.success(t('reviews.submitted'))
     router.replace('/orders')
   } catch (error) {
-    ElMessage.error(error?.message || '评价提交失败')
+    ElMessage.error(error?.message || t('reviews.submitFailed'))
   } finally {
     submitting.value = false
   }

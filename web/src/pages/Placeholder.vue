@@ -2,16 +2,18 @@
   <section class="placeholder-page">
     <div class="placeholder-card card">
       <p class="route-path">{{ route.fullPath }}</p>
-      <h1>本页面将在 Phase 4 实现</h1>
-      <p>当前 route: {{ route.fullPath }}</p>
+      <h1>{{ t('placeholder.title') }}</h1>
+      <p>{{ t('common.routeLabel', { path: route.fullPath }) }}</p>
     </div>
   </section>
 </template>
 
 <script setup>
 import { useRoute } from 'vue-router'
+import { useI18n } from '../utils/i18n'
 
 const route = useRoute()
+const { t } = useI18n()
 </script>
 
 <style scoped lang="scss">

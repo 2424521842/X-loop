@@ -6,11 +6,11 @@
         :key="url"
         class="thumb-item"
       >
-        <img :src="url" alt="已上传图片" loading="lazy">
+        <img :src="url" :alt="t('imageUploader.uploadedAlt')" loading="lazy">
         <button
           class="remove-button"
           type="button"
-          aria-label="删除图片"
+          :aria-label="t('imageUploader.removeAria')"
           @click="removeImage(index)"
         >
           ×
@@ -27,7 +27,7 @@
       >
         <div class="upload-inner">
           <span class="upload-plus">+</span>
-          <span>{{ uploading ? '上传中' : '添加图片' }}</span>
+          <span>{{ uploading ? t('imageUploader.uploading') : t('imageUploader.add') }}</span>
         </div>
       </el-upload>
     </div>
@@ -39,6 +39,7 @@ import axios from 'axios'
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getUploadSign } from '../api/upload'
+import { useI18n } from '../utils/i18n'
 
 const props = defineProps({
   modelValue: {
@@ -56,6 +57,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue'])
+const { t } = useI18n()
 
 const uploadConfig = ref({
   cloudName: '',
@@ -72,7 +74,7 @@ const imageList = computed(() => {
 function warnMissingConfig() {
   if (warnedMissingConfig.value) return
   warnedMissingConfig.value = true
-  ElMessage.warning('图片上传未配置（请联系管理员配置 Cloudinary）')
+  ElMessage.warning(t('imageUploader.missingConfig'))
 }
 
 async function loadUploadSign() {
@@ -130,7 +132,7 @@ async function handleUpload(options) {
     emit('update:modelValue', [...imageList.value, url])
     onSuccess?.(response.data)
   } catch (error) {
-    ElMessage.error('图片上传失败，请稍后重试')
+    ElMessage.error(t('imageUploader.uploadFailed'))
     onError?.(error)
   } finally {
     uploading.value = false

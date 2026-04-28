@@ -7,6 +7,7 @@ import { createPinia } from 'pinia'
 import router from './router'
 import App from './App.vue'
 import { useUserStore } from './store/user'
+import { useLocaleStore } from './store/locale'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -16,6 +17,8 @@ app.use(pinia)
 app.use(router)
 
 const userStore = useUserStore()
+const localeStore = useLocaleStore()
+localeStore.syncDocumentLanguage()
 
 async function bootstrap() {
   await userStore.boot()

@@ -9,7 +9,7 @@
         <h1 class="user-name">{{ displayName }}</h1>
         <div class="school-badge">{{ campusText }}</div>
         <button class="verify-chip" type="button" @click="router.push('/profile/edit')">
-          {{ user.campus ? '已完成校园认证' : '完成校园认证' }}
+          {{ user.campus ? t('profile.verified') : t('profile.verify') }}
         </button>
       </div>
     </div>
@@ -17,24 +17,24 @@
     <div class="stats-card">
       <button class="stats-item" type="button" @click="router.push('/my-products')">
         <span class="stats-num">{{ stats.published }}</span>
-        <span class="stats-label">发布的</span>
+        <span class="stats-label">{{ t('profile.published') }}</span>
       </button>
       <span class="stats-divider"></span>
       <button class="stats-item" type="button" @click="router.push('/orders')">
         <span class="stats-num">{{ stats.sold }}</span>
-        <span class="stats-label">卖出的</span>
+        <span class="stats-label">{{ t('profile.sold') }}</span>
       </button>
       <span class="stats-divider"></span>
       <button class="stats-item" type="button" @click="router.push('/orders')">
         <span class="stats-num">{{ stats.bought }}</span>
-        <span class="stats-label">购买到的</span>
+        <span class="stats-label">{{ t('profile.bought') }}</span>
       </button>
     </div>
 
     <section class="promo-card">
       <div class="promo-content">
-        <h2>校园循环计划</h2>
-        <p>让闲置物品重获新生，共建绿色校园</p>
+        <h2>{{ t('profile.promoTitle') }}</h2>
+        <p>{{ t('profile.promoDesc') }}</p>
       </div>
       <span class="promo-deco" aria-hidden="true">X</span>
     </section>
@@ -42,7 +42,7 @@
     <section class="menu-card">
       <button
         v-for="item in menuItems"
-        :key="item.label"
+        :key="item.id"
         class="menu-row"
         type="button"
         @click="handleMenu(item)"
@@ -57,16 +57,18 @@
     </section>
 
     <footer class="footer">
-      <span>版本 2.4.1</span>
+      <span>{{ t('common.version', { version: '2.4.1' }) }}</span>
     </footer>
   </section>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../store/user'
-import { CAMPUS_OPTIONS } from '../utils/format'
+import { getCampusFullLabel } from '../utils/format'
+import { useI18n } from '../utils/i18n'
 import defaultAvatar from '../assets/mobile/default-avatar.png'
 import iconCampus from '../assets/mobile/icon-campus-v2.png'
 import iconEmail from '../assets/mobile/icon-email-v2.png'
@@ -76,17 +78,15 @@ import iconOrder from '../assets/mobile/icon-order-v2.png'
 
 const router = useRouter()
 const userStore = useUserStore()
+const { localeStore, t } = useI18n()
 
 const user = computed(() => userStore.user || {})
 const userId = computed(() => user.value.id || user.value._id || '')
-const displayName = computed(() => user.value.nickName || user.value.email || 'X-Loop 用户')
-const campusText = computed(() => {
-  const match = CAMPUS_OPTIONS.find((item) => item.value === user.value.campus)
-  return match?.label || '西交利物浦大学'
-})
+const displayName = computed(() => user.value.nickName || user.value.email || t('common.userFallback'))
+const campusText = computed(() => getCampusFullLabel(user.value.campus, t, 'campus.school'))
 const maskedEmail = computed(() => {
   const email = user.value.email || ''
-  if (!email) return '未认证'
+  if (!email) return t('profile.unverified')
   const [prefix] = email.split('@')
   return `${prefix.slice(0, 2) || '**'}***@xjtlu.edu.cn`
 })
@@ -97,16 +97,22 @@ const stats = computed(() => ({
 }))
 
 const menuItems = computed(() => [
-  { label: '校园邮箱', value: maskedEmail.value, icon: iconEmail, bg: '#f0e6f6', to: '/profile/edit' },
-  { label: '所在校区', value: campusText.value, icon: iconCampus, bg: '#dfe0ff', to: '/profile/edit' },
-  { label: '我的发布', icon: iconFavorite, bg: '#ffd7f3', to: '/my-products' },
-  { label: '我的订单', icon: iconOrder, bg: '#dfe0ff', to: '/orders' },
-  { label: '收到的评价', icon: iconFeedback, bg: '#e9e7eb', to: `/reviews/${userId.value}` },
-  { label: '编辑资料', icon: iconCampus, bg: '#dfe0ff', to: '/profile/edit' },
-  { label: '退出登录', icon: iconFeedback, bg: '#ffdad7', action: 'logout' }
+  { id: 'email', label: t('profile.email'), value: maskedEmail.value, icon: iconEmail, bg: '#f0e6f6', to: '/profile/edit' },
+  { id: 'campus', label: t('profile.campus'), value: campusText.value, icon: iconCampus, bg: '#dfe0ff', to: '/profile/edit' },
+  { id: 'language', label: t('profile.language'), value: t('profile.currentLanguage'), icon: iconFeedback, bg: '#e9e7eb', action: 'language' },
+  { id: 'my-products', label: t('profile.myProducts'), icon: iconFavorite, bg: '#ffd7f3', to: '/my-products' },
+  { id: 'orders', label: t('profile.myOrders'), icon: iconOrder, bg: '#dfe0ff', to: '/orders' },
+  { id: 'reviews', label: t('profile.reviews'), icon: iconFeedback, bg: '#e9e7eb', to: `/reviews/${userId.value}` },
+  { id: 'edit', label: t('profile.editProfile'), icon: iconCampus, bg: '#dfe0ff', to: '/profile/edit' },
+  { id: 'logout', label: t('profile.logout'), icon: iconFeedback, bg: '#ffdad7', action: 'logout' }
 ])
 
 async function handleMenu(item) {
+  if (item.action === 'language') {
+    localeStore.toggleLocale()
+    ElMessage.success(t('profile.languageChanged'))
+    return
+  }
   if (item.action === 'logout') {
     await userStore.logout()
     router.push('/login')

@@ -6,7 +6,7 @@
       :class="{ 'mobile-nav-tab': isTabPage }"
     >
       <template v-if="isTabPage">
-        <RouterLink class="nav-brand" to="/" aria-label="X-Loop 首页">
+        <RouterLink class="nav-brand" to="/" :aria-label="t('layout.homeAria')">
           <span class="nav-wordmark">{{ tabTitle }}</span>
         </RouterLink>
 
@@ -14,17 +14,17 @@
           v-if="userStore.isLoggedIn && userStore.user"
           class="nav-user"
           to="/profile"
-          aria-label="个人中心"
+          :aria-label="t('layout.profileAria')"
         >
           <el-avatar :size="28" :src="userStore.user.avatarUrl">
             {{ avatarText }}
           </el-avatar>
         </RouterLink>
-        <RouterLink v-else class="nav-login" to="/login">登录</RouterLink>
+        <RouterLink v-else class="nav-login" to="/login">{{ t('common.login') }}</RouterLink>
       </template>
 
       <template v-else>
-        <button class="nav-back" type="button" aria-label="返回" @click="goBack">
+        <button class="nav-back" type="button" :aria-label="t('common.back')" @click="goBack">
           <span aria-hidden="true">‹</span>
         </button>
         <h1 class="nav-title">{{ navTitle }}</h1>
@@ -36,7 +36,7 @@
       <RouterView />
     </main>
 
-    <nav v-if="showTabbar" class="mobile-tabbar" aria-label="主导航">
+    <nav v-if="showTabbar" class="mobile-tabbar" :aria-label="t('layout.mainNavAria')">
       <RouterLink
         v-for="item in tabItems"
         :key="item.path"
@@ -59,6 +59,7 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../store/user'
+import { useI18n } from '../utils/i18n'
 import tabHome from '../assets/mobile/tab-home-v2.png'
 import tabHomeActive from '../assets/mobile/tab-home-active-v2.png'
 import tabProfile from '../assets/mobile/tab-profile-v2.png'
@@ -71,31 +72,34 @@ import tabMessageActive from '../assets/mobile/tab-message-active-v2.png'
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+const { t } = useI18n()
 
-const tabItems = [
-  { path: '/', name: 'home', label: '首页', icon: tabHome, activeIcon: tabHomeActive },
-  { path: '/publish', name: 'publish', label: '发布', icon: tabPublish, activeIcon: tabPublishActive },
-  { path: '/chat-list', name: 'chat-list', label: '消息', icon: tabMessage, activeIcon: tabMessageActive },
-  { path: '/profile', name: 'profile', label: '我的', icon: tabProfile, activeIcon: tabProfileActive }
+const tabDefinitions = [
+  { path: '/', name: 'home', labelKey: 'tabs.home', icon: tabHome, activeIcon: tabHomeActive },
+  { path: '/publish', name: 'publish', labelKey: 'tabs.publish', icon: tabPublish, activeIcon: tabPublishActive },
+  { path: '/chat-list', name: 'chat-list', labelKey: 'tabs.messages', icon: tabMessage, activeIcon: tabMessageActive },
+  { path: '/profile', name: 'profile', labelKey: 'tabs.profile', icon: tabProfile, activeIcon: tabProfileActive }
 ]
 
+const tabItems = computed(() => tabDefinitions.map((item) => ({
+  ...item,
+  label: t(item.labelKey)
+})))
+
 const displayName = computed(() => {
-  return userStore.user?.nickName || userStore.user?.email || 'X-Loop 用户'
+  return userStore.user?.nickName || userStore.user?.email || t('common.userFallback')
 })
 
 const avatarText = computed(() => {
   return displayName.value.slice(0, 1).toUpperCase()
 })
 
-const isTabPage = computed(() => tabItems.some((item) => item.name === route.name))
+const isTabPage = computed(() => tabItems.value.some((item) => item.name === route.name))
 const showTabbar = computed(() => isTabPage.value)
 const showTopbar = computed(() => route.meta?.hideShellTopbar !== true)
-const navTitle = computed(() => route.meta?.title || 'X-Loop')
+const navTitle = computed(() => t(route.meta?.titleKey || 'routes.default'))
 const tabTitle = computed(() => {
-  if (route.name === 'publish') return '发布商品'
-  if (route.name === 'chat-list') return '消息'
-  if (route.name === 'profile') return '个人中心'
-  return 'X-Loop'
+  return route.name === 'home' ? 'X-Loop' : navTitle.value
 })
 
 function isTabActive(item) {

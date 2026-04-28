@@ -2,8 +2,8 @@
   <section class="my-products-page mobile-page">
     <div class="mobile-content">
       <div class="page-actions">
-        <p>管理已发布商品的状态和详情。</p>
-        <button class="publish-shortcut" type="button" @click="router.push('/publish')">发布新商品</button>
+        <p>{{ t('myProducts.intro') }}</p>
+        <button class="publish-shortcut" type="button" @click="router.push('/publish')">{{ t('myProducts.publishNew') }}</button>
       </div>
 
       <div class="status-tabs">
@@ -28,7 +28,7 @@
 
       <EmptyState
         v-else-if="filteredProducts.length === 0"
-        text="暂无商品"
+        :text="t('myProducts.empty')"
       />
 
       <div v-else class="product-list">
@@ -41,36 +41,36 @@
             <img
               v-if="getCoverImage(item)"
               :src="getCoverImage(item)"
-              :alt="item.title || '商品图片'"
+              :alt="item.title || t('common.productImage')"
               loading="lazy"
             >
             <span v-else>X</span>
           </button>
 
           <div class="row-main">
-            <h2>{{ item.title || '未命名商品' }}</h2>
+            <h2>{{ item.title || t('common.unnamedProduct') }}</h2>
             <div class="row-meta">
               <span class="price">{{ formatPrice(item.price) }}</span>
-              <span class="status-pill">{{ PRODUCT_STATUS_MAP[item.status] || item.status }}</span>
-              <span>{{ formatTime(item.createdAt || item.createTime) }}</span>
+              <span class="status-pill">{{ productStatusText(item.status) }}</span>
+              <span>{{ formatTime(item.createdAt || item.createTime, t) }}</span>
             </div>
           </div>
 
           <div class="row-actions">
-            <button type="button" @click="openEdit(item)">编辑</button>
+            <button type="button" @click="openEdit(item)">{{ t('common.edit') }}</button>
             <button
               v-if="item.status === 'off_shelf'"
               type="button"
               @click="updateStatus(item, 'on_sale')"
             >
-              上架
+              {{ t('myProducts.putOnShelf') }}
             </button>
             <button
               v-if="item.status === 'on_sale'"
               type="button"
               @click="updateStatus(item, 'off_shelf')"
             >
-              下架
+              {{ t('myProducts.takeOffShelf') }}
             </button>
           </div>
         </article>
@@ -79,7 +79,7 @@
 
     <el-dialog
       v-model="editVisible"
-      title="编辑商品"
+      :title="t('myProducts.editTitle')"
       width="min(680px, 92vw)"
       destroy-on-close
     >
@@ -90,7 +90,7 @@
         label-position="top"
         @submit.prevent
       >
-        <el-form-item label="商品标题" prop="title">
+        <el-form-item :label="t('myProducts.titleLabel')" prop="title">
           <el-input
             v-model.trim="editForm.title"
             maxlength="100"
@@ -98,7 +98,7 @@
           />
         </el-form-item>
 
-        <el-form-item label="商品描述" prop="description">
+        <el-form-item :label="t('myProducts.descriptionLabel')" prop="description">
           <el-input
             v-model.trim="editForm.description"
             type="textarea"
@@ -108,7 +108,7 @@
           />
         </el-form-item>
 
-        <el-form-item label="价格" prop="price">
+        <el-form-item :label="t('myProducts.priceLabel')" prop="price">
           <el-input-number
             v-model="editForm.price"
             class="full-width"
@@ -118,34 +118,34 @@
           />
         </el-form-item>
 
-        <el-form-item label="分类" prop="category">
+        <el-form-item :label="t('myProducts.categoryLabel')" prop="category">
           <el-select
             v-model="editForm.category"
             class="full-width"
-            placeholder="请选择分类"
+            :placeholder="t('myProducts.categoryPlaceholder')"
           >
             <el-option
-              v-for="category in CATEGORIES"
+              v-for="category in categories"
               :key="category.id"
-              :label="category.name"
-              :value="category.name"
+              :label="category.label"
+              :value="category.value"
             />
           </el-select>
         </el-form-item>
 
-        <el-form-item label="商品图片">
+        <el-form-item :label="t('myProducts.imagesLabel')">
           <ImageUploader v-model="editForm.images" folder="products" />
         </el-form-item>
       </el-form>
 
       <template #footer>
-        <el-button @click="editVisible = false">取消</el-button>
+        <el-button @click="editVisible = false">{{ t('common.cancel') }}</el-button>
         <el-button
           type="primary"
           :loading="saving"
           @click="handleEditSubmit"
         >
-          保存
+          {{ t('common.save') }}
         </el-button>
       </template>
     </el-dialog>
@@ -159,9 +159,11 @@ import { useRouter } from 'vue-router'
 import EmptyState from '../components/EmptyState.vue'
 import ImageUploader from '../components/ImageUploader.vue'
 import { getMyProducts, updateProduct } from '../api/products'
-import { CATEGORIES, PRODUCT_STATUS_MAP, formatPrice, formatTime } from '../utils/format'
+import { formatPrice, formatTime, getCategoryValue, getLocalizedCategories, getProductStatusText } from '../utils/format'
+import { useI18n } from '../utils/i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const products = ref([])
 const loading = ref(false)
@@ -170,6 +172,7 @@ const activeStatus = ref('all')
 const editVisible = ref(false)
 const editFormRef = ref(null)
 const editingId = ref('')
+const categories = computed(() => getLocalizedCategories(t))
 
 const editForm = reactive({
   title: '',
@@ -179,13 +182,13 @@ const editForm = reactive({
   images: []
 })
 
-const statusTabs = [
-  { label: '全部', value: 'all' },
-  { label: PRODUCT_STATUS_MAP.on_sale, value: 'on_sale' },
-  { label: '预订中', value: 'reserved' },
-  { label: PRODUCT_STATUS_MAP.sold, value: 'sold' },
-  { label: PRODUCT_STATUS_MAP.off_shelf, value: 'off_shelf' }
-]
+const statusTabs = computed(() => [
+  { label: t('common.all'), value: 'all' },
+  { label: getProductStatusText('on_sale', t), value: 'on_sale' },
+  { label: t('myProducts.reserved'), value: 'reserved' },
+  { label: getProductStatusText('sold', t), value: 'sold' },
+  { label: getProductStatusText('off_shelf', t), value: 'off_shelf' }
+])
 
 const filteredProducts = computed(() => {
   if (activeStatus.value === 'all') return products.value
@@ -195,21 +198,21 @@ const filteredProducts = computed(() => {
 function validatePrice(rule, value, callback) {
   const price = Number(value)
   if (value === '' || value === null || value === undefined || Number.isNaN(price)) {
-    callback(new Error('请输入价格'))
+    callback(new Error(t('myProducts.priceRequired')))
     return
   }
   if (price < 0) {
-    callback(new Error('价格不能小于 0'))
+    callback(new Error(t('myProducts.priceMin')))
     return
   }
   callback()
 }
 
-const rules = {
-  title: [{ required: true, message: '请输入商品标题', trigger: 'blur' }],
+const rules = computed(() => ({
+  title: [{ required: true, message: t('myProducts.titleRequired'), trigger: 'blur' }],
   price: [{ validator: validatePrice, trigger: 'change' }],
-  category: [{ required: true, message: '请选择分类', trigger: 'change' }]
-}
+  category: [{ required: true, message: t('myProducts.categoryRequired'), trigger: 'change' }]
+}))
 
 function getProductId(product) {
   return product?._id || product?.id || ''
@@ -223,6 +226,10 @@ function replaceProduct(id, updatedProduct) {
   products.value = products.value.map((item) => {
     return getProductId(item) === id ? { ...item, ...updatedProduct } : item
   })
+}
+
+function productStatusText(status) {
+  return getProductStatusText(status, t) || status
 }
 
 async function loadProducts() {
@@ -242,7 +249,7 @@ function openEdit(item) {
   editForm.title = item.title || ''
   editForm.description = item.description || ''
   editForm.price = Number(item.price || 0)
-  editForm.category = item.category || ''
+  editForm.category = getCategoryValue(item.category)
   editForm.images = Array.isArray(item.images) ? [...item.images] : []
   editVisible.value = true
   nextTick(() => {
@@ -256,7 +263,7 @@ async function updateStatus(item, status) {
 
   const updated = await updateProduct(id, { status })
   replaceProduct(id, updated)
-  ElMessage.success(status === 'on_sale' ? '已上架' : '已下架')
+  ElMessage.success(status === 'on_sale' ? t('myProducts.onShelfSuccess') : t('myProducts.offShelfSuccess'))
 }
 
 async function handleEditSubmit() {
@@ -273,7 +280,7 @@ async function handleEditSubmit() {
       images: editForm.images
     })
     replaceProduct(editingId.value, updated)
-    ElMessage.success('已保存')
+    ElMessage.success(t('myProducts.saved'))
     editVisible.value = false
   } finally {
     saving.value = false

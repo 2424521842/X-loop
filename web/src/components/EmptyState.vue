@@ -1,21 +1,27 @@
 <template>
   <div class="empty-state">
     <div class="empty-icon" aria-hidden="true">{{ icon }}</div>
-    <p>{{ text }}</p>
+    <p>{{ displayText }}</p>
   </div>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue'
+import { useI18n } from '../utils/i18n'
+
+const props = defineProps({
   text: {
     type: String,
-    default: '暂无数据'
+    default: ''
   },
   icon: {
     type: String,
     default: '∅'
   }
 })
+
+const { t } = useI18n()
+const displayText = computed(() => props.text || t('common.empty'))
 </script>
 
 <style scoped lang="scss">

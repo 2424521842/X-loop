@@ -3,13 +3,13 @@
     <div class="login-card mobile-card">
       <div class="login-head">
         <div class="brand-orb">X</div>
-        <h1>X-Loop 登录</h1>
-        <p>学校邮箱要求 @xjtlu.edu.cn / @student.xjtlu.edu.cn</p>
+        <h1>{{ t('login.title') }}</h1>
+        <p>{{ t('login.subtitle') }}</p>
       </div>
 
       <el-form label-position="top" @submit.prevent>
         <template v-if="step === 1">
-          <el-form-item label="学校邮箱">
+          <el-form-item :label="t('login.schoolEmail')">
             <el-input
               v-model.trim="email"
               placeholder="name@student.xjtlu.edu.cn"
@@ -26,15 +26,15 @@
             :disabled="countdown > 0"
             @click="handleSendCode"
           >
-            {{ countdown > 0 ? `${countdown} 秒后重发` : '发送验证码' }}
+            {{ countdown > 0 ? t('login.resendIn', { count: countdown }) : t('login.sendCode') }}
           </el-button>
         </template>
 
         <template v-else>
-          <el-form-item label="6 位验证码">
+          <el-form-item :label="t('login.codeLabel')">
             <el-input
               v-model.trim="code"
-              placeholder="请输入验证码"
+              :placeholder="t('login.codePlaceholder')"
               size="large"
               maxlength="6"
               inputmode="numeric"
@@ -49,9 +49,9 @@
             :loading="verifying"
             @click="handleLogin"
           >
-            登录
+            {{ t('common.login') }}
           </el-button>
-          <button class="back-button" type="button" @click="step = 1">修改邮箱</button>
+          <button class="back-button" type="button" @click="step = 1">{{ t('login.changeEmail') }}</button>
         </template>
       </el-form>
     </div>
@@ -64,10 +64,12 @@ import { ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { sendCode, verifyCode } from '../api/auth'
 import { useUserStore } from '../store/user'
+import { useI18n } from '../utils/i18n'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const { t } = useI18n()
 
 const email = ref('')
 const code = ref('')
@@ -97,14 +99,14 @@ function startCountdown(seconds = 60) {
 
 async function handleSendCode() {
   if (!isSchoolEmail(normalizedEmail.value)) {
-    ElMessage.error('请使用西浦教育邮箱')
+    ElMessage.error(t('login.schoolEmailRequired'))
     return
   }
 
   sending.value = true
   try {
     await sendCode(normalizedEmail.value)
-    ElMessage.success('验证码已发送')
+    ElMessage.success(t('login.codeSent'))
     step.value = 2
     startCountdown(60)
   } finally {
@@ -114,7 +116,7 @@ async function handleSendCode() {
 
 async function handleLogin() {
   if (!/^\d{6}$/.test(code.value)) {
-    ElMessage.error('请输入 6 位验证码')
+    ElMessage.error(t('login.codeRequired'))
     return
   }
 

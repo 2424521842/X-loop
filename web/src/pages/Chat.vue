@@ -1,7 +1,7 @@
 <template>
   <section class="chat-page">
     <header class="chat-topbar">
-      <button class="back-button" type="button" aria-label="返回" @click="goBack">&lt;</button>
+      <button class="back-button" type="button" :aria-label="t('common.back')" @click="goBack">&lt;</button>
       <div class="peer-info">
         <el-avatar :size="36" :src="peerUser.avatarUrl">
           {{ peerName.slice(0, 1).toUpperCase() }}
@@ -24,12 +24,12 @@
             v-if="productImage"
             class="product-image"
             :src="productImage"
-            :alt="product.title || '商品图片'"
+            :alt="product.title || t('common.productImage')"
             loading="lazy"
           >
           <div v-else class="product-placeholder">X</div>
           <div class="product-info">
-            <div class="product-title text-ellipsis">{{ product.title || '未命名商品' }}</div>
+            <div class="product-title text-ellipsis">{{ product.title || t('common.unnamedProduct') }}</div>
             <div class="price">{{ formatPrice(product.price) }}</div>
           </div>
         </button>
@@ -53,7 +53,7 @@
 
       <EmptyState
         v-else-if="!messages.length"
-        text="还没有消息，开始聊天吧"
+        :text="t('chat.empty')"
       />
 
       <div v-else class="message-list">
@@ -79,14 +79,14 @@
               <template v-if="message.type === 'reservation'">
                 <div class="reservation-card">
                   <div class="reservation-card-head">
-                    <span class="reservation-title">预定邀请</span>
+                    <span class="reservation-title">{{ t('chat.reservationTitle') }}</span>
                     <span class="reservation-status" :class="reservationStatusClass(message)">
                       {{ reservationStatusText(message) }}
                     </span>
                   </div>
                   <div class="reservation-product">
                     <span class="reservation-product-title text-ellipsis">
-                      {{ reservationProduct(message).title || product?.title || '未命名商品' }}
+                      {{ reservationProduct(message).title || product?.title || t('common.unnamedProduct') }}
                     </span>
                     <span class="reservation-product-price">
                       {{ formatPrice(reservationProduct(message).price ?? product?.price) }}
@@ -100,7 +100,7 @@
                       :disabled="actingReservationId === message.orderId"
                       @click="handleReservationAction(message, 'confirmed')"
                     >
-                      同意
+                      {{ t('chat.accept') }}
                     </button>
                     <button
                       class="reservation-action"
@@ -108,7 +108,7 @@
                       :disabled="actingReservationId === message.orderId"
                       @click="handleReservationAction(message, 'cancelled')"
                     >
-                      拒绝
+                      {{ t('chat.reject') }}
                     </button>
                   </div>
                 </div>
@@ -117,7 +117,7 @@
                 v-else-if="message.type === 'image'"
                 class="message-image"
                 :src="message.content"
-                alt="聊天图片"
+                :alt="t('chat.imageAlt')"
                 loading="lazy"
               >
               <span v-else>{{ message.content }}</span>
@@ -134,7 +134,7 @@
         type="textarea"
         :autosize="{ minRows: 1, maxRows: 4 }"
         resize="none"
-        placeholder="输入消息"
+        :placeholder="t('chat.placeholder')"
         @keydown.enter.exact.prevent="handleSend"
       />
       <el-button
@@ -143,7 +143,7 @@
         :disabled="!draft.trim()"
         @click="handleSend"
       >
-        发送
+        {{ t('chat.send') }}
       </el-button>
     </footer>
   </section>
@@ -162,11 +162,13 @@ import { createOrder, updateOrder } from '../api/orders'
 import { getProductById } from '../api/products'
 import { getUserById } from '../api/users'
 import { useUserStore } from '../store/user'
-import { PRODUCT_STATUS_MAP, formatPrice } from '../utils/format'
+import { formatPrice, getProductStatusText } from '../utils/format'
+import { useI18n } from '../utils/i18n'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const { t } = useI18n()
 
 const peerUser = ref({})
 const product = ref(null)
@@ -181,7 +183,7 @@ let pollingTimer = null
 const peerId = computed(() => String(route.params.userId || ''))
 const productId = computed(() => String(route.query.productId || ''))
 const currentUserId = computed(() => userStore.user?.id || userStore.user?._id || '')
-const peerName = computed(() => peerUser.value?.nickName || 'X-Loop 用户')
+const peerName = computed(() => peerUser.value?.nickName || t('common.userFallback'))
 const productSellerId = computed(() => product.value?.seller?.id || product.value?.sellerId || '')
 const isProductSeller = computed(() => Boolean(currentUserId.value && productSellerId.value && currentUserId.value === productSellerId.value))
 const productImage = computed(() => {
@@ -206,13 +208,13 @@ const reservationActionDisabled = computed(() => {
 })
 const reservationButtonText = computed(() => {
   const activeReservation = myActiveReservation.value?.reservation
-  if (sendingReservation.value) return '发送中...'
-  if (activeReservation?.status === 'pending') return '等待卖家处理'
-  if (activeReservation?.status === 'confirmed') return '卖家已同意'
+  if (sendingReservation.value) return t('chat.sending')
+  if (activeReservation?.status === 'pending') return t('chat.waitingSeller')
+  if (activeReservation?.status === 'confirmed') return t('chat.sellerAccepted')
   if (product.value?.status !== 'on_sale') {
-    return PRODUCT_STATUS_MAP[product.value?.status] || '暂不可预定'
+    return getProductStatusText(product.value?.status, t) || t('status.product.unavailable')
   }
-  return '发起预定'
+  return t('chat.startReservation')
 })
 const lastMessageId = computed(() => {
   return messages.value.length ? messages.value[messages.value.length - 1].id : ''
@@ -300,13 +302,13 @@ function reservationProduct(message) {
 
 function reservationStatusText(message) {
   const reservation = message.reservation || {}
-  if (reservation.status === 'pending') return '等待卖家处理'
-  if (reservation.status === 'confirmed') return '已同意'
-  if (reservation.cancelReason === 'seller_rejected') return '已拒绝'
-  if (reservation.cancelReason === 'buyer_cancelled') return '已取消'
-  if (reservation.cancelReason === 'product_reserved_elsewhere') return '已失效'
-  if (reservation.status === 'cancelled') return '已取消'
-  return '预定邀请'
+  if (reservation.status === 'pending') return t('chat.waitingSeller')
+  if (reservation.status === 'confirmed') return t('chat.accepted')
+  if (reservation.cancelReason === 'seller_rejected') return t('chat.rejected')
+  if (reservation.cancelReason === 'buyer_cancelled') return t('chat.cancelled')
+  if (reservation.cancelReason === 'product_reserved_elsewhere') return t('chat.expired')
+  if (reservation.status === 'cancelled') return t('chat.cancelled')
+  return t('chat.reservationTitle')
 }
 
 function reservationStatusClass(message) {
@@ -345,7 +347,7 @@ function formatMessageTime(date) {
     && value.getMonth() === now.getMonth()
     && value.getDate() === now.getDate()
   const time = `${pad(value.getHours())}:${pad(value.getMinutes())}`
-  if (sameDay) return `今天 ${time}`
+  if (sameDay) return t('time.todayAt', { time })
   return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())} ${time}`
 }
 
@@ -388,7 +390,7 @@ async function handleSend() {
   } catch (error) {
     messages.value = messages.value.filter((item) => item.id !== tempId)
     draft.value = content
-    ElMessage.error('消息发送失败，请稍后重试')
+    ElMessage.error(t('chat.sendFailed'))
   }
 }
 
@@ -398,11 +400,11 @@ async function handleStartReservation() {
   sendingReservation.value = true
   try {
     await createOrder({ productId: productId.value })
-    ElMessage.success('预定邀请已发送')
+    ElMessage.success(t('chat.reservationSent'))
     await Promise.all([loadMessages(), loadProduct()])
     await scrollToBottom()
   } catch (error) {
-    ElMessage.error(error?.message || '预定邀请发送失败')
+    ElMessage.error(error?.message || t('chat.reservationSendFailed'))
   } finally {
     sendingReservation.value = false
   }
@@ -414,11 +416,11 @@ async function handleReservationAction(message, status) {
   actingReservationId.value = message.orderId
   try {
     await updateOrder(message.orderId, { status })
-    ElMessage.success(status === 'confirmed' ? '已同意预定' : '已拒绝预定')
+    ElMessage.success(status === 'confirmed' ? t('orders.acceptSuccess') : t('orders.rejectSuccess'))
     await Promise.all([loadMessages(), loadProduct()])
     await scrollToBottom()
   } catch (error) {
-    ElMessage.error(error?.message || '操作失败')
+    ElMessage.error(error?.message || t('common.operationFailed'))
   } finally {
     actingReservationId.value = ''
   }

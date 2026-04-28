@@ -10,14 +10,14 @@
       <img
         v-if="coverImage"
         :src="coverImage"
-        :alt="product.title || '商品图片'"
+        :alt="product.title || t('common.productImage')"
         loading="lazy"
       >
       <div v-else class="image-placeholder">X-Loop</div>
     </div>
 
     <div class="card-body">
-      <h3 class="card-title">{{ product.title || '未命名商品' }}</h3>
+      <h3 class="card-title">{{ product.title || t('common.unnamedProduct') }}</h3>
       <span class="card-meta">{{ subMeta }}</span>
       <div class="card-footer">
         <span class="card-price">{{ formatPrice(product.price) }}</span>
@@ -29,7 +29,8 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { CATEGORIES, formatPrice } from '../utils/format'
+import { formatPrice, getCampusLabel, getCategoryName } from '../utils/format'
+import { useI18n } from '../utils/i18n'
 
 const props = defineProps({
   product: {
@@ -48,6 +49,7 @@ const props = defineProps({
 })
 
 const router = useRouter()
+const { t } = useI18n()
 
 const productId = computed(() => props.product?._id || props.product?.id || '')
 const coverImage = computed(() => {
@@ -55,16 +57,12 @@ const coverImage = computed(() => {
 })
 
 const categoryLabel = computed(() => {
-  const category = props.product?.category || ''
-  const match = CATEGORIES.find((item) => item.id === category || item.name === category)
-  return match?.name || category || '其他'
+  return getCategoryName(props.product?.category || '', t)
 })
 
 const campusLabel = computed(() => {
   const campus = props.product?.campus
-  if (campus === 'sip') return 'SIP 校区'
-  if (campus === 'tc') return 'TC 校区'
-  return ''
+  return campus ? getCampusLabel(campus, t) : ''
 })
 
 const subMeta = computed(() => campusLabel.value || categoryLabel.value)

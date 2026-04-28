@@ -8,85 +8,85 @@ const routes = [
     path: '/',
     name: 'home',
     component: () => import('../pages/Home.vue'),
-    meta: { public: true, title: '首页' }
+    meta: { public: true, titleKey: 'routes.home' }
   },
   {
     path: '/login',
     name: 'login',
     component: () => import('../pages/Login.vue'),
-    meta: { public: true, title: '登录' }
+    meta: { public: true, titleKey: 'routes.login' }
   },
   {
     path: '/search',
     name: 'search',
     component: () => import('../pages/Search.vue'),
-    meta: { public: true, title: '搜索' }
+    meta: { public: true, titleKey: 'routes.search' }
   },
   {
     path: '/product/:id',
     name: 'product-detail',
     component: () => import('../pages/ProductDetail.vue'),
-    meta: { public: true, title: '商品详情' }
+    meta: { public: true, titleKey: 'routes.productDetail' }
   },
   {
     path: '/reviews/:userId',
     name: 'reviews',
     component: () => import('../pages/Reviews.vue'),
-    meta: { public: true, title: '评价' }
+    meta: { public: true, titleKey: 'routes.reviews' }
   },
   {
     path: '/publish',
     name: 'publish',
     component: () => import('../pages/Publish.vue'),
-    meta: { requiresAuth: true, title: '发布商品' }
+    meta: { requiresAuth: true, titleKey: 'routes.publish' }
   },
   {
     path: '/my-products',
     name: 'my-products',
     component: () => import('../pages/MyProducts.vue'),
-    meta: { requiresAuth: true, title: '我的发布' }
+    meta: { requiresAuth: true, titleKey: 'routes.myProducts' }
   },
   {
     path: '/orders',
     name: 'orders',
     component: () => import('../pages/Orders.vue'),
-    meta: { requiresAuth: true, title: '订单' }
+    meta: { requiresAuth: true, titleKey: 'routes.orders' }
   },
   {
     path: '/profile',
     name: 'profile',
     component: () => import('../pages/Profile.vue'),
-    meta: { requiresAuth: true, title: '个人中心' }
+    meta: { requiresAuth: true, titleKey: 'routes.profile' }
   },
   {
     path: '/profile/edit',
     name: 'profile-edit',
     component: () => import('../pages/ProfileEdit.vue'),
-    meta: { requiresAuth: true, title: '编辑资料' }
+    meta: { requiresAuth: true, titleKey: 'routes.profileEdit' }
   },
   {
     path: '/chat-list',
     name: 'chat-list',
     component: () => import('../pages/ChatList.vue'),
-    meta: { requiresAuth: true, title: '消息' }
+    meta: { requiresAuth: true, titleKey: 'routes.chatList' }
   },
   {
     path: '/chat/:userId',
     name: 'chat',
     component: () => import('../pages/Chat.vue'),
-    meta: { requiresAuth: true, title: '聊天', hideShellTopbar: true }
+    meta: { requiresAuth: true, titleKey: 'routes.chat', hideShellTopbar: true }
   },
   {
     path: '/admin/:pathMatch(.*)*',
     name: 'admin',
     component: Placeholder,
-    meta: { title: '管理后台' }
+    meta: { titleKey: 'routes.admin' }
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: Placeholder,
-    meta: { title: '未实现页面' }
+    meta: { titleKey: 'routes.notFound' }
   }
 ]
 

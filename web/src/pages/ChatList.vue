@@ -2,8 +2,8 @@
   <section class="chat-list-page mobile-page">
     <div class="mobile-content">
       <div class="page-head">
-        <span>站内消息</span>
-        <button type="button" :disabled="loading" @click="loadConversations(false)">刷新</button>
+        <span>{{ t('chatList.title') }}</span>
+        <button type="button" :disabled="loading" @click="loadConversations(false)">{{ t('common.refresh') }}</button>
       </div>
 
       <el-skeleton
@@ -15,7 +15,7 @@
 
       <EmptyState
         v-else-if="!conversations.length"
-        text="暂无聊天消息"
+        :text="t('chatList.empty')"
       />
 
       <div v-else class="conversation-list">
@@ -32,8 +32,8 @@
 
           <div class="conversation-main">
             <div class="conversation-top">
-              <span class="nickname text-ellipsis">{{ item.otherUser?.nickName || 'X-Loop 用户' }}</span>
-              <span class="time">{{ formatTime(item.lastMessage?.createdAt) }}</span>
+              <span class="nickname text-ellipsis">{{ item.otherUser?.nickName || t('common.userFallback') }}</span>
+              <span class="time">{{ formatTime(item.lastMessage?.createdAt, t) }}</span>
             </div>
             <div class="conversation-bottom">
               <span class="preview text-ellipsis">{{ previewText(item.lastMessage) }}</span>
@@ -52,8 +52,10 @@ import { useRouter } from 'vue-router'
 import EmptyState from '../components/EmptyState.vue'
 import { getConversations as listConversations } from '../api/messages'
 import { formatTime } from '../utils/format'
+import { useI18n } from '../utils/i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const conversations = ref([])
 const loading = ref(false)
@@ -85,9 +87,9 @@ function avatarText(user) {
 }
 
 function previewText(message) {
-  if (!message) return '暂无消息'
-  if (message.type === 'image') return '[图片]'
-  if (message.type === 'reservation') return message.content || '[预定邀请]'
+  if (!message) return t('chatList.noMessage')
+  if (message.type === 'image') return t('chatList.image')
+  if (message.type === 'reservation') return message.content || t('chatList.reservation')
   return message.content || ''
 }
 

@@ -5,45 +5,45 @@
         <div class="section-header">
           <div class="field-label">
             <img class="field-icon" :src="iconCamera" alt="">
-            <span class="label">商品图片</span>
+            <span class="label">{{ t('publish.images') }}</span>
           </div>
           <span class="sub-label">{{ form.images.length }}/9</span>
         </div>
         <ImageUploader v-model="form.images" folder="products" />
-        <p class="image-tip">最多可上传9张照片</p>
+        <p class="image-tip">{{ t('publish.imageTip') }}</p>
       </section>
 
       <section class="publish-section mobile-card">
         <div class="input-group border-bottom">
           <div class="field-label">
             <img class="field-icon" :src="iconTitle" alt="">
-            <span class="label">标题</span>
+            <span class="label">{{ t('publish.title') }}</span>
           </div>
           <input
             v-model.trim="form.title"
             class="input-field"
             maxlength="100"
-            placeholder="给你的宝贝起个名字..."
+            :placeholder="t('publish.titlePlaceholder')"
           >
         </div>
 
         <div class="input-group border-bottom">
           <div class="field-label">
             <img class="field-icon" :src="iconDescription" alt="">
-            <span class="label">描述</span>
+            <span class="label">{{ t('publish.description') }}</span>
           </div>
           <textarea
             v-model.trim="form.description"
             class="textarea-field"
             maxlength="2000"
-            placeholder="描述一下宝贝的品牌、型号、新旧程度、入手渠道等..."
+            :placeholder="t('publish.descriptionPlaceholder')"
           />
         </div>
 
         <div class="input-group border-bottom">
           <div class="field-label">
             <img class="field-icon" :src="iconPrice" alt="">
-            <span class="label">价格</span>
+            <span class="label">{{ t('publish.price') }}</span>
           </div>
           <label class="price-input-wrap">
             <span class="yen-sign">¥</span>
@@ -52,7 +52,7 @@
               class="input-field price-input"
               inputmode="decimal"
               min="0"
-              placeholder="输入价格"
+              :placeholder="t('publish.pricePlaceholder')"
               step="0.01"
               type="number"
             >
@@ -62,18 +62,18 @@
         <div class="input-group border-bottom">
           <div class="field-label">
             <img class="field-icon" :src="iconCategory" alt="">
-            <span class="label">选择分类</span>
+            <span class="label">{{ t('publish.category') }}</span>
           </div>
           <div class="category-list">
             <button
-              v-for="category in CATEGORIES"
+              v-for="category in categories"
               :key="category.id"
               class="category-chip"
-              :class="{ active: form.category === category.name }"
+              :class="{ active: form.category === category.value }"
               type="button"
-              @click="form.category = category.name"
+              @click="form.category = category.value"
             >
-              {{ category.name }}
+              {{ category.label }}
             </button>
           </div>
         </div>
@@ -81,11 +81,11 @@
         <div class="input-group">
           <div class="field-label">
             <img class="field-icon" :src="iconLocation" alt="">
-            <span class="label">发布位置</span>
+            <span class="label">{{ t('publish.location') }}</span>
           </div>
           <div class="campus-selector">
             <button
-              v-for="campus in CAMPUS_OPTIONS"
+              v-for="campus in campuses"
               :key="campus.value"
               class="campus-option"
               :class="{ active: form.campus === campus.value }"
@@ -94,15 +94,15 @@
             >
               <span class="campus-short">{{ campus.value.toUpperCase() }}</span>
               <span class="campus-info">
-                <span class="campus-name">{{ campus.label.replace(/ \(.+\)/, '') }}</span>
-                <span class="campus-location">{{ campus.value === 'sip' ? '苏州独墅湖' : '太仓校区' }}</span>
+                <span class="campus-name">{{ campus.label }}</span>
+                <span class="campus-location">{{ campus.location }}</span>
               </span>
             </button>
           </div>
         </div>
       </section>
 
-      <p class="terms-text">发布即表示同意 X-Loop 平台服务条款，请确保商品信息真实有效</p>
+      <p class="terms-text">{{ t('publish.terms') }}</p>
       <div class="bottom-placeholder"></div>
     </div>
 
@@ -113,20 +113,21 @@
         :disabled="submitting"
         @click="handleSubmit"
       >
-        {{ submitting ? '发布中...' : '确认发布' }}
+        {{ submitting ? t('publish.submitting') : t('publish.submit') }}
       </button>
     </div>
   </section>
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import ImageUploader from '../components/ImageUploader.vue'
 import { createProduct } from '../api/products'
 import { useUserStore } from '../store/user'
-import { CAMPUS_OPTIONS, CATEGORIES } from '../utils/format'
+import { getLocalizedCampusOptions, getLocalizedCategories } from '../utils/format'
+import { useI18n } from '../utils/i18n'
 import iconCamera from '../assets/mobile/icon-camera-v2.png'
 import iconCategory from '../assets/mobile/icon-category-v2.png'
 import iconDescription from '../assets/mobile/icon-description-v2.png'
@@ -136,7 +137,10 @@ import iconTitle from '../assets/mobile/icon-title-v2.png'
 
 const router = useRouter()
 const userStore = useUserStore()
+const { t } = useI18n()
 const submitting = ref(false)
+const categories = computed(() => getLocalizedCategories(t))
+const campuses = computed(() => getLocalizedCampusOptions(t))
 
 const form = reactive({
   title: '',
@@ -150,15 +154,15 @@ const form = reactive({
 function validateForm() {
   const price = Number(form.price)
   if (!form.title.trim()) {
-    ElMessage.error('请输入商品标题')
+    ElMessage.error(t('publish.titleRequired'))
     return false
   }
   if (form.price === '' || Number.isNaN(price) || price < 0) {
-    ElMessage.error('请输入正确的价格')
+    ElMessage.error(t('publish.priceRequired'))
     return false
   }
   if (!form.category) {
-    ElMessage.error('请选择分类')
+    ElMessage.error(t('publish.categoryRequired'))
     return false
   }
   return true
@@ -177,7 +181,7 @@ async function handleSubmit() {
       images: form.images,
       campus: form.campus || undefined
     })
-    ElMessage.success('发布成功')
+    ElMessage.success(t('publish.success'))
     router.push('/my-products')
   } finally {
     submitting.value = false

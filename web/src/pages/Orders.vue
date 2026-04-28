@@ -7,7 +7,7 @@
         type="button"
         @click="activeRole = 'buyer'"
       >
-        我买的
+        {{ t('orders.bought') }}
       </button>
       <button
         class="role-tab"
@@ -15,7 +15,7 @@
         type="button"
         @click="activeRole = 'seller'"
       >
-        我卖的
+        {{ t('orders.sold') }}
       </button>
     </div>
 
@@ -42,7 +42,7 @@
 
       <EmptyState
         v-else-if="orders.length === 0"
-        text="暂无订单"
+        :text="t('orders.empty')"
       />
 
       <div v-else class="order-list">
@@ -55,7 +55,7 @@
             <span class="order-status" :class="`status-${order.status}`">
               {{ statusText(order) }}
             </span>
-            <span class="order-time">{{ formatTime(order.createdAt) }}</span>
+            <span class="order-time">{{ formatTime(order.createdAt, t) }}</span>
           </div>
 
           <button class="order-product" type="button" @click="goProduct(order)">
@@ -71,7 +71,7 @@
             <span class="order-product-info">
               <span class="product-title">{{ getProductTitle(order) }}</span>
               <span class="order-price">{{ formatPrice(order.price || order.product?.price) }}</span>
-              <span class="order-user">{{ activeRole === 'buyer' ? '卖家' : '买家' }}：{{ order.counterpart?.nickName || 'X-Loop 用户' }}</span>
+              <span class="order-user">{{ activeRole === 'buyer' ? t('orders.seller') : t('orders.buyer') }}: {{ order.counterpart?.nickName || t('common.userFallback') }}</span>
             </span>
           </button>
 
@@ -79,24 +79,24 @@
             <button
               v-if="canCancel(order)"
               type="button"
-              @click="handleStatusAction(order, 'cancelled', '预定邀请已取消')"
+              @click="handleStatusAction(order, 'cancelled', t('orders.cancelSuccess'))"
             >
-              取消邀请
+              {{ t('orders.cancelInvite') }}
             </button>
 
             <template v-if="canSellerHandlePending(order)">
               <button
                 class="primary"
                 type="button"
-                @click="handleStatusAction(order, 'confirmed', '已同意预定')"
+                @click="handleStatusAction(order, 'confirmed', t('orders.acceptSuccess'))"
               >
-                同意预定
+                {{ t('orders.acceptReserve') }}
               </button>
               <button
                 type="button"
-                @click="handleStatusAction(order, 'cancelled', '已拒绝预定')"
+                @click="handleStatusAction(order, 'cancelled', t('orders.rejectSuccess'))"
               >
-                拒绝
+                {{ t('orders.reject') }}
               </button>
             </template>
 
@@ -104,9 +104,9 @@
               v-if="canComplete(order)"
               class="primary"
               type="button"
-              @click="handleStatusAction(order, 'completed', '订单已完成')"
+              @click="handleStatusAction(order, 'completed', t('orders.completeSuccess'))"
             >
-              确认完成
+              {{ t('orders.complete') }}
             </button>
 
             <button
@@ -115,7 +115,7 @@
               type="button"
               @click="goReview(order, order.sellerId)"
             >
-              评价卖家
+              {{ t('orders.reviewSeller') }}
             </button>
 
             <button
@@ -124,7 +124,7 @@
               type="button"
               @click="goReview(order, order.buyerId)"
             >
-              评价买家
+              {{ t('orders.reviewBuyer') }}
             </button>
           </div>
         </article>
@@ -134,14 +134,16 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import EmptyState from '../components/EmptyState.vue'
 import { getOrders, updateOrder } from '../api/orders'
-import { formatTime } from '../utils/format'
+import { formatTime, getOrderStatusText } from '../utils/format'
+import { useI18n } from '../utils/i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const orders = ref([])
 const loading = ref(false)
@@ -151,20 +153,13 @@ const activeStatus = ref('all')
 const page = ref(1)
 const pageSize = 50
 
-const statusFilters = [
-  { label: '全部', value: 'all' },
-  { label: '待同意', value: 'pending' },
-  { label: '已确认', value: 'confirmed' },
-  { label: '已完成', value: 'completed' },
-  { label: '已取消', value: 'cancelled' }
-]
-
-const statusMap = {
-  pending: '待同意',
-  confirmed: '已确认',
-  completed: '已完成',
-  cancelled: '已取消'
-}
+const statusFilters = computed(() => [
+  { label: t('status.order.all'), value: 'all' },
+  { label: getOrderStatusText('pending', t), value: 'pending' },
+  { label: getOrderStatusText('confirmed', t), value: 'confirmed' },
+  { label: getOrderStatusText('completed', t), value: 'completed' },
+  { label: getOrderStatusText('cancelled', t), value: 'cancelled' }
+])
 
 function getOrderId(order) {
   return order?.id || order?._id || ''
@@ -179,7 +174,7 @@ function getProductId(order) {
 }
 
 function getProductTitle(order) {
-  return getProduct(order).title || order?.snapshot?.title || '未命名商品'
+  return getProduct(order).title || order?.snapshot?.title || t('common.unnamedProduct')
 }
 
 function getProductImage(order) {
@@ -188,10 +183,10 @@ function getProductImage(order) {
 
 function statusText(order) {
   if (order?.status === 'cancelled') {
-    if (order.cancelReason === 'seller_rejected') return '已拒绝'
-    if (order.cancelReason === 'product_reserved_elsewhere') return '已失效'
+    if (order.cancelReason === 'seller_rejected') return t('status.order.rejected')
+    if (order.cancelReason === 'product_reserved_elsewhere') return t('status.order.expired')
   }
-  return statusMap[order?.status] || order?.status || '未知状态'
+  return getOrderStatusText(order?.status, t) || order?.status || t('common.unknownStatus')
 }
 
 function formatPrice(value) {
@@ -243,7 +238,7 @@ async function loadOrders() {
     orders.value = Array.isArray(result?.items) ? result.items : []
   } catch (error) {
     orders.value = []
-    ElMessage.error(error?.message || '订单加载失败')
+    ElMessage.error(error?.message || t('orders.loadFailed'))
   } finally {
     loading.value = false
   }
@@ -259,7 +254,7 @@ async function handleStatusAction(order, status, message) {
     ElMessage.success(message)
     await loadOrders()
   } catch (error) {
-    ElMessage.error(error?.message || '操作失败')
+    ElMessage.error(error?.message || t('common.operationFailed'))
   } finally {
     actingId.value = ''
   }

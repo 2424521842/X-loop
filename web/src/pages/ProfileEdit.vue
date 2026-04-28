@@ -4,32 +4,32 @@
       <el-alert
         v-if="isForce"
         class="force-alert"
-        title="欢迎，请补完资料后再使用 X-Loop"
+        :title="t('profileEdit.forceTitle')"
         type="info"
         :closable="false"
       />
 
       <div class="page-head">
-        <h1>编辑资料</h1>
-        <p>昵称、头像和校区会用于交易沟通与公开资料展示。</p>
+        <h1>{{ t('profileEdit.title') }}</h1>
+        <p>{{ t('profileEdit.intro') }}</p>
       </div>
 
       <div class="form-stack">
         <label class="form-field">
-          <span>昵称</span>
-          <input v-model.trim="form.nickName" placeholder="请输入昵称">
+          <span>{{ t('profileEdit.nickName') }}</span>
+          <input v-model.trim="form.nickName" :placeholder="t('profileEdit.nickNamePlaceholder')">
         </label>
 
         <label class="form-field">
-          <span>头像 URL</span>
-          <input v-model.trim="form.avatarUrl" placeholder="Phase 4 接入 Cloudinary 上传">
+          <span>{{ t('profileEdit.avatarUrl') }}</span>
+          <input v-model.trim="form.avatarUrl" :placeholder="t('profileEdit.avatarPlaceholder')">
         </label>
 
         <div class="form-field">
-          <span>校区</span>
+          <span>{{ t('profileEdit.campus') }}</span>
           <div class="campus-list">
             <button
-              v-for="campus in CAMPUS_OPTIONS"
+              v-for="campus in campuses"
               :key="campus.value"
               class="campus-chip"
               :class="{ active: form.campus === campus.value }"
@@ -47,7 +47,7 @@
           :disabled="saving"
           @click="handleSave"
         >
-          {{ saving ? '保存中...' : '保存' }}
+          {{ saving ? t('common.saving') : t('common.save') }}
         </button>
       </div>
     </div>
@@ -60,11 +60,13 @@ import { ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { updateMe } from '../api/users'
 import { useUserStore } from '../store/user'
-import { CAMPUS_OPTIONS } from '../utils/format'
+import { getLocalizedCampusOptions } from '../utils/format'
+import { useI18n } from '../utils/i18n'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const { t } = useI18n()
 
 const saving = ref(false)
 const form = reactive({
@@ -74,6 +76,7 @@ const form = reactive({
 })
 
 const isForce = computed(() => route.query.force === '1')
+const campuses = computed(() => getLocalizedCampusOptions(t))
 
 watch(
   () => userStore.user,
@@ -88,11 +91,11 @@ watch(
 
 async function handleSave() {
   if (!form.nickName.trim()) {
-    ElMessage.error('请输入昵称')
+    ElMessage.error(t('profileEdit.nickNameRequired'))
     return
   }
   if (!form.campus) {
-    ElMessage.error('请选择校区')
+    ElMessage.error(t('profileEdit.campusRequired'))
     return
   }
 
@@ -104,7 +107,7 @@ async function handleSave() {
       campus: form.campus
     })
     userStore.setUser(updatedUser)
-    ElMessage.success('资料已保存')
+    ElMessage.success(t('profileEdit.saved'))
 
     if (isForce.value) {
       router.replace('/')
