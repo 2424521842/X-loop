@@ -106,7 +106,7 @@
       <div class="bottom-placeholder"></div>
     </div>
 
-    <div class="mobile-fixed-bottom">
+    <div class="mobile-fixed-bottom publish-fixed-bottom">
       <button
         class="mobile-primary-btn publish-btn"
         type="button"
@@ -394,7 +394,13 @@ onMounted(() => {
 }
 
 .bottom-placeholder {
-  height: 76px;
+  height: calc(76px + var(--mobile-tabbar-height));
+}
+
+.publish-fixed-bottom {
+  bottom: calc(var(--mobile-tabbar-height) + env(safe-area-inset-bottom));
+  z-index: 120;
+  padding-bottom: 10px;
 }
 
 .publish-btn {
