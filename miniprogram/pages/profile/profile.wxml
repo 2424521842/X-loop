@@ -45,7 +45,7 @@
     <view class="stats-divider"></view>
     <view class="stats-item" bindtap="goMyOrders">
       <text class="stats-num">{{stats.bought || 0}}</text>
-      <text class="stats-label">购买的</text>
+      <text class="stats-label">购买到的</text>
     </view>
   </view>
 

@@ -6,34 +6,17 @@ const _ = db.command
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
-  const { role = 'buyer', status, page = 0, pageSize = 20, onlyCount = false } = event
+  const { role = 'buyer', status, page = 0, pageSize = 20 } = event
 
   try {
-    const baseWhere = {}
+    let query = {}
     if (role === 'buyer') {
-      baseWhere.buyerOpenid = openid
+      query.buyerOpenid = openid
     } else {
-      baseWhere.sellerOpenid = openid
+      query.sellerOpenid = openid
     }
-    const query = status ? { ...baseWhere, status } : baseWhere
-
-    if (onlyCount) {
-      const statusList = ['pending', 'confirmed', 'completed', 'cancelled']
-      const [{ total }, statusCounts] = await Promise.all([
-        db.collection('orders').where(baseWhere).count(),
-        Promise.all(statusList.map(itemStatus =>
-          db.collection('orders').where({ ...baseWhere, status: itemStatus }).count()
-            .then(res => ({ status: itemStatus, count: res.total }))
-        ))
-      ])
-
-      const counts = statusCounts.reduce((map, item) => {
-        map[item.status] = item.count
-        return map
-      }, {})
-      counts.effective = (counts.pending || 0) + (counts.confirmed || 0) + (counts.completed || 0)
-
-      return { code: 0, message: 'success', data: { total, counts } }
+    if (status) {
+      query.status = status
     }
 
     const { data: orders } = await db.collection('orders')

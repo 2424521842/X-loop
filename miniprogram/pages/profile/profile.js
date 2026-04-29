@@ -44,16 +44,15 @@ Page({
   // 加载统计数据
   async loadStats() {
     try {
-      const [myProducts, buyOrders, sellOrders] = await Promise.all([
-        callCloud('product-my-list', { onlyCount: true }, false).catch(() => ({ total: 0 })),
-        callCloud('order-list', { role: 'buyer', onlyCount: true }, false).catch(() => ({ counts: {} })),
-        callCloud('order-list', { role: 'seller', onlyCount: true }, false).catch(() => ({ counts: {} }))
+      const [buyOrders, sellOrders] = await Promise.all([
+        callCloud('order-list', { role: 'buyer', status: 'completed' }, false).catch(() => []),
+        callCloud('order-list', { role: 'seller', status: 'completed' }, false).catch(() => [])
       ])
       this.setData({
         stats: {
-          published: myProducts.total || 0,
-          sold: (sellOrders.counts && sellOrders.counts.effective) || 0,
-          bought: (buyOrders.counts && buyOrders.counts.effective) || 0
+          published: 0,
+          sold: (sellOrders || []).length,
+          bought: (buyOrders || []).length
         }
       })
     } catch (err) {
