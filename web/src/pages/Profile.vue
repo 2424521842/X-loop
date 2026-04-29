@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../store/user'
@@ -95,6 +95,10 @@ const stats = computed(() => ({
   sold: user.value.soldCount ?? 0,
   bought: user.value.boughtCount ?? 0
 }))
+
+onMounted(() => {
+  userStore.refresh().catch(() => {})
+})
 
 const menuItems = computed(() => [
   { id: 'email', label: t('profile.email'), value: maskedEmail.value, icon: iconEmail, bg: '#f0e6f6', to: '/profile/edit' },

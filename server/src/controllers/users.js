@@ -7,6 +7,7 @@ const User = require('../models/User')
 const mongoose = require('mongoose')
 const { success, fail } = require('../utils/response')
 const { sanitizeUserSelf, sanitizeUserPublic } = require('../utils/sanitize')
+const { withUserStats } = require('../utils/user-stats')
 
 /**
  * PATCH /api/users/me
@@ -47,7 +48,7 @@ async function updateMe(req, res, next) {
       return res.status(404).json(fail('用户不存在'))
     }
 
-    return res.json(success(sanitizeUserSelf(updatedUser)))
+    return res.json(success(await withUserStats(sanitizeUserSelf(updatedUser), updatedUser._id)))
   } catch (err) {
     next(err)
   }

@@ -9,6 +9,7 @@ const User = require('../models/User')
 const { sendEmail } = require('../services/email')
 const { success, fail } = require('../utils/response')
 const { sanitizeUserSelf } = require('../utils/sanitize')
+const { withUserStats } = require('../utils/user-stats')
 
 // 验证码有效期（毫秒）
 const CODE_TTL_MS = 5 * 60 * 1000
@@ -217,7 +218,7 @@ async function verifyCode(req, res, next) {
 
     return res.json(success({
       token,
-      user: sanitizeUserSelf(user)
+      user: await withUserStats(sanitizeUserSelf(user), user._id)
     }))
   } catch (err) {
     next(err)
@@ -234,7 +235,7 @@ async function getMe(req, res, next) {
     if (!user) {
       return res.status(404).json(fail('用户不存在'))
     }
-    return res.json(success(sanitizeUserSelf(user)))
+    return res.json(success(await withUserStats(sanitizeUserSelf(user), user._id)))
   } catch (err) {
     next(err)
   }

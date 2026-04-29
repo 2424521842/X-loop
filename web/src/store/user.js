@@ -34,6 +34,11 @@ export const useUserStore = defineStore('user', {
 
       return bootPromise
     },
+    async refresh() {
+      if (!this.token) return null
+      this.user = await getMe()
+      return this.user
+    },
     login(token, user) {
       this.token = token
       this.user = user

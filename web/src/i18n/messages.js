@@ -181,7 +181,7 @@ export const messages = {
       verify: '完成校园认证',
       published: '发布的',
       sold: '卖出的',
-      bought: '购买到的',
+      bought: '购买的',
       promoTitle: '校园循环计划',
       promoDesc: '让闲置物品重获新生，共建绿色校园',
       unverified: '未认证',

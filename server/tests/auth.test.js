@@ -23,6 +23,8 @@ let app
 let mongod
 let User
 let EmailCode
+let Product
+let Order
 let useModelStubs = false
 let userStore = []
 let emailCodeStore = []
@@ -370,6 +372,12 @@ beforeAll(async () => {
   const codeMod = await import('../src/models/EmailCode.js')
   EmailCode = codeMod.default
 
+  const productMod = await import('../src/models/Product.js')
+  Product = productMod.default
+
+  const orderMod = await import('../src/models/Order.js')
+  Order = orderMod.default
+
   if (useModelStubs) {
     installModelStubs()
   }
@@ -595,6 +603,40 @@ describe('GET /api/auth/me', () => {
     expect(res.body.code).toBe(0)
     expect(res.body.data.email).toBe('me@student.xjtlu.edu.cn')
     expect(res.body.data.nickName).toBe('TestUser')
+  })
+
+  it('有效 token 返回个人中心统计口径', async () => {
+    if (useModelStubs) {
+      expect(true).toBe(true)
+      return
+    }
+
+    const me = await User.findOne({ email: 'me@student.xjtlu.edu.cn' })
+    const other = await User.create({
+      email: 'other@student.xjtlu.edu.cn',
+      nickName: 'Other',
+      emailVerified: true
+    })
+    const myProductA = await Product.create({ sellerId: me._id, title: '我发布的 A', price: 10, category: '图书' })
+    await Product.create({ sellerId: me._id, title: '我发布的 B', price: 20, category: '图书', status: 'sold' })
+    const otherProduct = await Product.create({ sellerId: other._id, title: '别人发布的', price: 30, category: '图书' })
+
+    await Order.create({ productId: myProductA._id, buyerId: other._id, sellerId: me._id, status: 'pending', price: 10 })
+    await Order.create({ productId: myProductA._id, buyerId: other._id, sellerId: me._id, status: 'confirmed', price: 10 })
+    await Order.create({ productId: myProductA._id, buyerId: other._id, sellerId: me._id, status: 'completed', price: 10 })
+    await Order.create({ productId: myProductA._id, buyerId: other._id, sellerId: me._id, status: 'cancelled', price: 10 })
+    await Order.create({ productId: otherProduct._id, buyerId: me._id, sellerId: other._id, status: 'confirmed', price: 30 })
+    await Order.create({ productId: otherProduct._id, buyerId: me._id, sellerId: other._id, status: 'completed', price: 30 })
+    await Order.create({ productId: otherProduct._id, buyerId: me._id, sellerId: other._id, status: 'cancelled', price: 30 })
+
+    const res = await request(app)
+      .get('/api/auth/me')
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.productCount).toBe(2)
+    expect(res.body.data.soldCount).toBe(3)
+    expect(res.body.data.boughtCount).toBe(2)
   })
 
   it('无 token 返回 401', async () => {
